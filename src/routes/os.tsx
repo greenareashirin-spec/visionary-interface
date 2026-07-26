@@ -471,8 +471,7 @@ function AIAssistantBar() {
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerLeave={onPointerUp}
-          className="h-7 w-full flex items-center justify-center cursor-pointer hover:bg-white/[0.04] transition touch-none"
+          className="h-7 w-full flex items-center justify-center cursor-pointer hover:bg-white/[0.04] transition touch-none select-none"
         >
           <div className="w-10 h-1 rounded-full bg-white/35" />
         </div>
