@@ -283,26 +283,9 @@ function StarsLayer() {
   });
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-[4]">
-      {/* Moon — realistic with craters, terminator shadow, and soft halo */}
-      <div className="absolute right-[10%] top-[10%] h-16 w-16">
-        <div className="absolute inset-[-40%] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(240,235,215,0.18) 0%, rgba(240,235,215,0.06) 40%, transparent 70%)" }} />
-        <div className="relative h-full w-full rounded-full overflow-hidden"
-          style={{
-            background:
-              "radial-gradient(circle at 34% 34%, #f5efdc 0%, #e5dcc0 42%, #b8ad8e 78%, #7a7159 100%)",
-            boxShadow: "inset -6px -8px 14px rgba(20,15,5,0.55), inset 4px 5px 10px rgba(255,250,230,0.25)",
-          }}
-        >
-          {/* craters */}
-          <span className="absolute rounded-full" style={{ left: "26%", top: "30%", width: "18%", height: "18%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.35), rgba(90,80,60,0.55) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "58%", top: "22%", width: "10%", height: "10%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.3), rgba(90,80,60,0.5) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "48%", top: "55%", width: "14%", height: "14%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.3), rgba(90,80,60,0.5) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "20%", top: "62%", width: "8%", height: "8%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.25), rgba(90,80,60,0.45) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "70%", top: "60%", width: "6%", height: "6%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.25), rgba(90,80,60,0.45) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "38%", top: "14%", width: "5%", height: "5%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.25), rgba(90,80,60,0.4) 70%)" }} />
-        </div>
-      </div>
+      {/* Moon — true phase, small, tucked in upper-left away from text */}
+      <MoonPhase />
+
       {stars.map((s) => (
         <span
           key={s.i}
