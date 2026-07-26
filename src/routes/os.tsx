@@ -33,7 +33,7 @@ const HOTSPOTS: Hotspot[] = [
   { id: "projects",  label: "Projects",  kpi: "12 Active",   meta: "7 on track · 3 at risk",  trend: "+2 MoM",     tone: "forest", Icon: Building2, x: 30, y: 42, to: "/app/projects"  },
   { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "$24.8k pay", tone: "sand",   Icon: Users,     x: 70, y: 38, to: "/app/employees" },
   { id: "finance",   label: "Finance",   kpi: "$128,450",    meta: "In $84.2k · Ex $52.1k",   trend: "+12.4% MoM", tone: "forest", Icon: Wallet,    x: 32, y: 72, to: "/app/dashboard" },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 in service", trend: "Fuel $1.2k", tone: "sand",   Icon: Truck,     x: 68, y: 68, to: "/app/settings"  },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 in service", trend: "Fuel $1.2k", tone: "sand",   Icon: Truck,     x: 68, y: 68, to: "/app/fleet"     },
 ];
 
 function CommandCenter() {
@@ -47,7 +47,8 @@ function CommandCenter() {
   }, []);
 
   const period: Period = currentPeriod(now);
-  const weather: Weather = currentWeather(now);
+  const live = useLiveWeather();
+  const weather: Weather = live.weather;
   const overlay = useMemo(() => periodOverlay(period), [period]);
 
   function flyTo(spot: Hotspot) {
@@ -73,21 +74,26 @@ function CommandCenter() {
       <div className="fixed inset-0 pointer-events-none mix-blend-overlay" style={{ background: overlay.tint }} />
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/40 via-transparent to-black/55" />
       <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.55)_100%)]" />
+      {period === "night" && weather !== "rain" && weather !== "thunder" && weather !== "snow" && <StarsLayer />}
       {weather === "rain" && <RainLayer />}
+      {weather === "thunder" && (<><RainLayer /><LightningLayer /></>)}
+      {weather === "snow" && <SnowLayer />}
+      {weather === "sandstorm" && <SandstormLayer />}
+      {weather === "fog" && <FogLayer />}
 
       {/* Content */}
       <div className={`relative z-10 h-screen w-screen flex flex-col transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
-        <TopBar now={now} weather={weather} period={period} />
+        <TopBar now={now} weather={weather} period={period} place={live.place} tempC={live.tempC} />
 
         <div className="flex-1 min-h-0 grid grid-cols-12 gap-3 lg:gap-4 px-4 lg:px-5 pb-4 lg:pb-5 pt-3">
           {/* Left rail */}
-          <aside className="hidden lg:flex col-span-3 flex-col gap-3 min-h-0">
+          <aside className="hidden md:flex md:col-span-3 flex-col gap-3 min-h-0">
             <FinancialCard />
             <RecentActivityCard />
           </aside>
 
           {/* Center: greeting + hotspots + Ask OS */}
-          <section className="col-span-12 lg:col-span-6 flex flex-col min-h-0 gap-3">
+          <section className="col-span-12 md:col-span-6 flex flex-col min-h-0 gap-3">
             <GreetingHeader period={period} />
             <div className="relative flex-1 min-h-0">
               {HOTSPOTS.map((s) => (
@@ -98,7 +104,7 @@ function CommandCenter() {
           </section>
 
           {/* Right rail */}
-          <aside className="hidden lg:flex col-span-3 flex-col gap-3 min-h-0">
+          <aside className="hidden md:flex md:col-span-3 flex-col gap-3 min-h-0">
             <ProjectsOverviewCard />
             <AIInsightsCard />
           </aside>
