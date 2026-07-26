@@ -132,16 +132,16 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
         </div>
       </div>
       <div className="flex items-center gap-2.5">
-        <div className="hidden md:flex items-center gap-2 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 px-3.5 py-1.5 text-xs text-white/70 w-64">
+        <div className="hidden md:flex items-center gap-2 rounded-full bg-black/38 backdrop-blur-xl border border-white/10 px-3.5 py-1.5 text-xs text-white/70 w-64">
           <Search className="h-3.5 w-3.5 opacity-70" />
           <span className="font-light">Search projects, entries, people…</span>
         </div>
         <UploadERPPill />
-        <button className="relative rounded-full p-2 hover:bg-white/15 bg-black/40 backdrop-blur-xl border border-white/10 transition" aria-label="Notifications">
+        <button className="relative rounded-full p-2 hover:bg-white/15 bg-black/38 backdrop-blur-xl border border-white/10 transition" aria-label="Notifications">
           <Bell className="h-3.5 w-3.5 text-white/80" />
           <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
         </button>
-        <button className="flex items-center gap-1.5 rounded-full pl-1 pr-2 py-1 bg-black/40 backdrop-blur-xl border border-white/10 hover:bg-white/15 transition">
+        <button className="flex items-center gap-1.5 rounded-full pl-1 pr-2 py-1 bg-black/38 backdrop-blur-xl border border-white/10 hover:bg-white/15 transition">
           <span className="h-7 w-7 rounded-full bg-forest/25 border border-forest/30 grid place-items-center text-forest font-medium text-[11px]">GA</span>
           <ChevronDown className="h-3 w-3 text-white/70" />
         </button>
@@ -168,7 +168,7 @@ function UploadERPPill() {
       onDragLeave={() => setDragging(false)}
       onDrop={(e) => { e.preventDefault(); setDragging(false); onFiles(e.dataTransfer.files); }}
       className={`hidden md:flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${
-        dragging ? "border-forest/60 bg-forest/15" : "border-white/10 bg-black/50 backdrop-blur-xl hover:bg-white/15"
+        dragging ? "border-forest/60 bg-forest/15" : "border-white/10 bg-black/38 backdrop-blur-xl hover:bg-white/15"
       }`}
     >
       <span className="h-6 w-6 rounded-full bg-forest/25 border border-forest/30 grid place-items-center shrink-0">
@@ -222,7 +222,7 @@ function HotspotLabel({ spot, onClick }: { spot: Hotspot; onClick: () => void })
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 rounded-full border border-cyan-200/50 animate-ping" style={{ animationDuration: "2.8s" }} />
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-cyan-100/30 animate-ping" style={{ animationDuration: "3.6s", animationDelay: "0.6s" }} />
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full border border-cyan-100/20 animate-ping" style={{ animationDuration: "4.4s", animationDelay: "1.2s" }} />
-      <div className="relative mt-3 flex items-stretch gap-2 rounded-2xl pl-2 pr-3 py-1.5 text-white/95 transition-all duration-300 group-hover:scale-[1.04] bg-black/25 border border-white/10 backdrop-blur-sm w-[150px]">
+      <div className="relative mt-3 flex items-stretch gap-2 rounded-2xl pl-2 pr-3 py-1.5 text-white/95 transition-all duration-300 group-hover:scale-[1.04] bg-black/30 border border-white/10 backdrop-blur-sm w-[150px]">
         <span className="h-7 w-7 self-center rounded-lg bg-white/10 grid place-items-center shrink-0">
           <Icon className="h-3 w-3 text-white/90" />
         </span>
@@ -408,7 +408,7 @@ function AIAssistantBar() {
   const [q, setQ] = useState("");
   const examples = ["Show fuel expenses", "Summarize today", "Missing receipts"];
   return (
-    <div className="shrink-0 rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 px-4 py-2.5 text-white">
+    <div className="shrink-0 rounded-2xl bg-black/38 backdrop-blur-xl border border-white/10 px-4 py-2.5 text-white">
       <div className="flex items-center gap-3">
         <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
           <Sparkles className="h-4 w-4" />
@@ -440,7 +440,7 @@ function AIAssistantBar() {
 /* ─────────────── Side rail cards ─────────────── */
 function Card({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
-    <div className="rounded-2xl bg-black/50 backdrop-blur-xl border border-white/10 p-4 text-white min-h-0 flex flex-col flex-1">
+    <div className="rounded-2xl bg-black/38 backdrop-blur-xl border border-white/10 p-4 text-white min-h-0 flex flex-col flex-1">
       <div className="flex items-center justify-between mb-3">
         <p className="text-[9px] uppercase tracking-[0.28em] text-white/55">{title}</p>
         {action && <span className="text-[10px] text-white/55">{action}</span>}

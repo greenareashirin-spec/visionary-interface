@@ -51,7 +51,7 @@ function Dashboard() {
 
       <section className="grid grid-cols-3 md:grid-cols-6 gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-3">
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3">
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
               <s.Icon className="h-3 w-3 text-white/45" />
@@ -63,7 +63,7 @@ function Dashboard() {
       </section>
 
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-2.5">
-        <div className="lg:col-span-2 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-4">
+        <div className="lg:col-span-2 rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <div className="flex items-center justify-between mb-2">
             <div>
               <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">Cashflow · 30 days</p>
@@ -76,7 +76,7 @@ function Dashboard() {
           </div>
           <Chart />
         </div>
-        <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-4">
+        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <p className="text-[9px] uppercase tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
           <ul className="divide-y divide-white/5">
             {balances.map((b) => (
@@ -92,7 +92,7 @@ function Dashboard() {
         </div>
       </section>
 
-      <section className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
+      <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
           <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
             <Search className="h-3.5 w-3.5 text-white/55" />

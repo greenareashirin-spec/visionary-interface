@@ -55,7 +55,7 @@ function Fleet() {
       <section className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
         <div className="grid grid-cols-2 gap-2.5 md:col-span-1">
           {stats.map((s) => (
-            <div key={s.label} className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-3">
+            <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3">
               <div className="flex items-start justify-between gap-2">
                 <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
                 <s.Icon className="h-3 w-3 text-white/45" />
@@ -65,7 +65,7 @@ function Fleet() {
             </div>
           ))}
         </div>
-        <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-3 md:col-span-2 flex items-center gap-3 min-h-[180px]">
+        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 md:col-span-2 flex items-center gap-3 min-h-[180px]">
           <PieBites
             segments={fleet.map((v, i) => ({
               label: v.model,
@@ -85,7 +85,7 @@ function Fleet() {
         </div>
       </section>
 
-      <section className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
+      <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
           <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
             <Search className="h-3.5 w-3.5 text-white/55" />
