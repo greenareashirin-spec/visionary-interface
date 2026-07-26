@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Wallet, Building2, Users, Truck, FolderOpen, Package,
   Bell, Search, ChevronDown, Sparkles, ArrowRight, CloudRain, Cloud, Sun, Moon,
+  Receipt, FileText, Fuel, MapPin,
 } from "lucide-react";
 import landscape from "@/assets/command-landscape.jpg";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
