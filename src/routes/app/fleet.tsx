@@ -61,11 +61,11 @@ function Fleet() {
       </header>
       {chartOpen && <FuelChartModal onClose={() => setChartOpen(false)} />}
 
-      <section className="grid grid-cols-2 md:grid-cols-6 gap-2.5">
+      <section className="grid grid-cols-2 md:grid-cols-6 gap-1.5 md:gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3">
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
+              <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
               <s.Icon className="h-3 w-3 text-white/45" />
             </div>
             <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
@@ -88,7 +88,7 @@ function Fleet() {
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-[12px]">
             <thead className="sticky top-0 bg-[oklch(0.22_0.02_165)]/95 backdrop-blur">
-              <tr className="text-left text-[9px] uppercase tracking-[0.22em] text-white/55">
+              <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
                 <th className="py-2.5 px-4 font-normal">Vehicle</th>
                 <th className="py-2.5 px-3 font-normal">Plate</th>
                 <th className="py-2.5 px-3 font-normal">Status</th>
@@ -203,7 +203,7 @@ function FuelChartModal({ onClose }: { onClose: () => void }) {
                 <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: a.color }} />
                 <div className="flex-1 min-w-0">
                   <p className="text-[12.5px] truncate">{a.model}</p>
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">{a.plate}</p>
+                  <p className="text-[10px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/50">{a.plate}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[13px] font-medium">${a.fuel}</p>

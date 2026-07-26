@@ -42,9 +42,9 @@ function DailyLog() {
         </div>
       </header>
 
-      <section className="grid grid-cols-3 md:grid-cols-6 gap-2.5">
+      <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 min-w-0">
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] uppercase tracking-[0.2em] text-white/55 min-w-0 leading-tight break-words">{s.label}</p>
               <s.Icon className="hidden md:block h-3 w-3 text-white/45 shrink-0" />
@@ -77,7 +77,7 @@ function DailyLog() {
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-[12px]">
             <thead className="sticky top-0 bg-[oklch(0.22_0.02_165)]/95 backdrop-blur">
-              <tr className="text-left text-[9px] uppercase tracking-[0.22em] text-white/55">
+              <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
                 <th className="py-2.5 px-4 font-normal">Date</th>
                 <th className="py-2.5 px-3 font-normal">Project</th>
                 <th className="py-2.5 px-3 font-normal">Type</th>

@@ -59,10 +59,10 @@ function Projects() {
       </header>
       {chartOpen && <SpendChartModal onClose={() => setChartOpen(false)} />}
 
-      <section className="grid grid-cols-3 md:grid-cols-6 gap-2.5">
+      <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3">
-            <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
+            <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
             <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
             <p className={`text-[10.5px] mt-0.5 ${s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : s.tone === "forest" ? "text-forest" : "text-white/55"}`}>{s.sub}</p>
           </div>
@@ -91,7 +91,7 @@ function Projects() {
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-[12px]">
             <thead className="sticky top-0 bg-[oklch(0.22_0.02_165)]/95 backdrop-blur">
-              <tr className="text-left text-[9px] uppercase tracking-[0.22em] text-white/55">
+              <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
                 <th className="py-2.5 px-4 font-normal">Project</th>
                 <th className="py-2.5 px-3 font-normal">Location</th>
                 <th className="py-2.5 px-3 font-normal">Manager</th>
@@ -235,7 +235,7 @@ function SpendChartModal({ onClose }: { onClose: () => void }) {
                 <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: a.color }} />
                 <div className="flex-1 min-w-0">
                   <p className="text-[12.5px] truncate">{a.name}</p>
-                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">{a.code}</p>
+                  <p className="text-[10px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/50">{a.code}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-[13px] font-medium">{fmt(a.value)}</p>

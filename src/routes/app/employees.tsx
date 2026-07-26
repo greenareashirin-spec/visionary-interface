@@ -42,10 +42,10 @@ function Employees() {
 
       <section className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3.5">
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3.5">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
+                <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
                 <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
                 <p className="text-[10.5px] text-white/55 mt-0.5">
                   {s.sub}
@@ -82,7 +82,7 @@ function Employees() {
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-[12px]">
             <thead className="sticky top-0 bg-[oklch(0.22_0.02_165)]/95 backdrop-blur">
-              <tr className="text-left text-[9px] uppercase tracking-[0.22em] text-white/55">
+              <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
                 <th className="py-2.5 px-4 font-normal">Employee</th>
                 <th className="py-2.5 px-3 font-normal">ID</th>
                 <th className="py-2.5 px-3 font-normal">Department</th>

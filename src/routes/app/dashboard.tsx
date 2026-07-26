@@ -58,11 +58,11 @@ function Dashboard() {
       </header>
       {chartOpen && <CostsChartModal onClose={() => setChartOpen(false)} />}
 
-      <section className="grid grid-cols-3 md:grid-cols-6 gap-2.5">
+      <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3">
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
+              <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
               <s.Icon className="h-3 w-3 text-white/45" />
             </div>
             <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
@@ -75,7 +75,7 @@ function Dashboard() {
         <div className="lg:col-span-2 rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">Cashflow · 30 days</p>
+              <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">Cashflow · 30 days</p>
               <p className="text-[11px] text-white/50">Native currencies · ask OS to convert to USD</p>
             </div>
             <div className="flex gap-3 text-[10px] text-white/60">
@@ -86,7 +86,7 @@ function Dashboard() {
           <Chart />
         </div>
         <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
-          <p className="text-[9px] uppercase tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
+          <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
           <ul className="divide-y divide-white/5">
             {balances.map((b) => (
               <li key={b.code} className="py-2 flex items-center justify-between">
@@ -123,7 +123,7 @@ function Dashboard() {
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-[12px]">
             <thead className="sticky top-0 bg-[oklch(0.22_0.02_165)]/95 backdrop-blur">
-              <tr className="text-left text-[9px] uppercase tracking-[0.22em] text-white/55">
+              <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
                 <th className="py-2.5 px-4 font-normal">Date</th>
                 <th className="py-2.5 px-3 font-normal">Project</th>
                 <th className="py-2.5 px-3 font-normal">Type</th>
@@ -302,7 +302,7 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
 
           <div className="space-y-4">
             <div className="rounded-2xl bg-black/30 border border-white/10 p-3">
-              <p className="text-[9px] uppercase tracking-[0.22em] text-white/55 mb-2">Ako's Exchange Rates (1 unit → USD)</p>
+              <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Ako's Exchange Rates (1 unit → USD)</p>
               <div className="grid grid-cols-3 gap-2">
                 <RateInput label="EUR" value={eurRate} onChange={setEurRate} placeholder="1.08" />
                 <RateInput label="GBP" value={gbpRate} onChange={setGbpRate} placeholder="1.27" />
@@ -346,7 +346,7 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
 function RateInput({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <label className="flex flex-col gap-1">
-      <span className="text-[10px] uppercase tracking-[0.22em] text-white/55">{label}</span>
+      <span className="text-[10px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{label}</span>
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
