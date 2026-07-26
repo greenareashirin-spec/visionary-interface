@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Search, Bell, ChevronDown, X } from "lucide-react";
+import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Search, Bell, ChevronDown, X, Sparkles } from "lucide-react";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import landscape from "@/assets/command-landscape.jpg";
 import { AskOSInput, AskOSHistory } from "@/components/ask-os";
