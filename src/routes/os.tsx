@@ -305,65 +305,45 @@ function StarsLayer() {
   );
 }
 
-/* ─────────────── Realistic Moon (photo blended into sky) ─────────────── */
-function RealisticMoon({ now }: { now: Date }) {
-  // Synodic month; reference new moon 2000-01-06 18:14 UTC
-  const SYN = 29.530588853;
-  const ref = Date.UTC(2000, 0, 6, 18, 14) / 86400000;
-  const days = now.getTime() / 86400000;
-  const phase = (((days - ref) / SYN) % 1 + 1) % 1;
-  const waxing = phase < 0.5;
-  // Terminator offset: -1 (new) → 0 (full) → -1 (new again). Positive = lit side.
-  const illum = -Math.cos(phase * 2 * Math.PI); // -1..1
-  const size = 96;
-
-  // Soft shadow: an oversized dark radial gradient offset to the un-lit side.
-  // Positioned so the lit crescent/gibbous emerges naturally with a soft terminator.
-  const shadowOffset = illum * 60; // percent
-  const shadowX = waxing ? 50 - shadowOffset : 50 + shadowOffset;
-
+/* ─────────────── Realistic Moon (photo, softly faded into sky) ─────────────── */
+function RealisticMoon(_: { now: Date }) {
+  const size = 84;
   return (
     <div
       className="fixed pointer-events-none z-[5]"
       style={{ left: "27%", top: "10%", width: size, height: size }}
       aria-hidden
     >
-      {/* soft atmospheric halo blended into sky */}
+      {/* soft moonlight halo */}
       <div
-        className="absolute inset-[-60%] rounded-full"
+        className="absolute rounded-full"
         style={{
+          inset: "-70%",
           background:
-            "radial-gradient(circle, rgba(220,225,235,0.22) 0%, rgba(220,225,235,0.06) 38%, transparent 72%)",
-          mixBlendMode: "screen",
-          filter: "blur(10px)",
+            "radial-gradient(circle, rgba(230,232,240,0.18) 0%, rgba(230,232,240,0.05) 40%, transparent 72%)",
+          filter: "blur(12px)",
         }}
       />
-      {/* moon disc: screen blend erases the photo's black background into the sky */}
-      <div className="relative w-full h-full">
-        <img
-          src={moonPhoto}
-          alt=""
-          width={size}
-          height={size}
-          className="w-full h-full select-none"
-          style={{ mixBlendMode: "screen" }}
-          draggable={false}
-        />
-        {/* phase terminator: soft dark gradient darkens un-lit side; multiplied for smooth falloff */}
-        <div
-          className="absolute inset-0 rounded-full"
-          style={{
-            background: `radial-gradient(circle at ${shadowX}% 50%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.95) 78%)`,
-            mixBlendMode: "multiply",
-            WebkitMaskImage:
-              "radial-gradient(circle, black 47%, transparent 50%)",
-            maskImage: "radial-gradient(circle, black 47%, transparent 50%)",
-          }}
-        />
-      </div>
+      {/* moon photo — soft-edge mask fades the disc into the sky (no harsh cutout) */}
+      <img
+        src={moonPhoto}
+        alt=""
+        width={size}
+        height={size}
+        draggable={false}
+        className="relative w-full h-full select-none"
+        style={{
+          WebkitMaskImage:
+            "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.85) 48%, transparent 50%)",
+          maskImage:
+            "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.85) 48%, transparent 50%)",
+          filter: "brightness(1.02) contrast(1.02)",
+        }}
+      />
     </div>
   );
 }
+
 
 
 
