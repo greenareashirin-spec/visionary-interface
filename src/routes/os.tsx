@@ -219,17 +219,17 @@ function HotspotLabel({ spot, onClick }: { spot: Hotspot; onClick: () => void })
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 rounded-full border border-cyan-200/50 animate-ping" style={{ animationDuration: "2.8s" }} />
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-cyan-100/30 animate-ping" style={{ animationDuration: "3.6s", animationDelay: "0.6s" }} />
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full border border-cyan-100/20 animate-ping" style={{ animationDuration: "4.4s", animationDelay: "1.2s" }} />
-      <div className="relative mt-3 flex items-stretch gap-2.5 rounded-2xl pl-2.5 pr-3.5 py-2 text-white/95 transition-all duration-300 group-hover:scale-[1.05] bg-white/[0.06] border border-white/10 min-w-[170px]">
-        <span className="h-8 w-8 self-center rounded-xl bg-white/10 grid place-items-center shrink-0">
-          <Icon className="h-3.5 w-3.5 text-white/90" />
+      <div className="relative mt-3 flex items-stretch gap-2 rounded-2xl pl-2 pr-3 py-1.5 text-white/95 transition-all duration-300 group-hover:scale-[1.04] bg-black/25 border border-white/10 backdrop-blur-sm w-[150px]">
+        <span className="h-7 w-7 self-center rounded-lg bg-white/10 grid place-items-center shrink-0">
+          <Icon className="h-3 w-3 text-white/90" />
         </span>
-        <div className="text-left leading-tight">
-          <div className="flex items-baseline justify-between gap-2">
-            <p className="text-[9px] uppercase tracking-[0.25em] text-white/60">{spot.label}</p>
-            <p className={`text-[9px] ${toneText}`}>{spot.trend}</p>
+        <div className="text-left leading-tight min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-1.5">
+            <p className="text-[8.5px] uppercase tracking-[0.22em] text-white/55 truncate">{spot.label}</p>
+            <p className={`text-[8.5px] ${toneText} shrink-0`}>{spot.trend}</p>
           </div>
-          <p className="text-[13px] font-medium mt-0.5">{spot.kpi}</p>
-          <p className="text-[10px] text-white/60 mt-0.5">{spot.meta}</p>
+          <p className="text-[12px] font-medium mt-0.5 truncate">{spot.kpi}</p>
+          <p className="text-[9.5px] text-white/50 mt-0.5 truncate">{spot.meta}</p>
         </div>
       </div>
     </button>
