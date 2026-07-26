@@ -322,12 +322,27 @@ function StarsLayer() {
 }
 
 /* ─────────────── Realistic Moon (photo, softly faded into sky) ─────────────── */
-function RealisticMoon(_: { now: Date }) {
-  const size = 84;
+function RealisticMoon({ now }: { now: Date }) {
+  // Synodic phase — reference new moon 2000-01-06 18:14 UTC
+  const REF = Date.UTC(2000, 0, 6, 18, 14) / 1000;
+  const SYNODIC = 29.530588853 * 86400;
+  const t = now.getTime() / 1000;
+  const phase = (((t - REF) % SYNODIC) + SYNODIC) % SYNODIC / SYNODIC; // 0..1
+  const k = Math.cos(2 * Math.PI * phase); // 1 new → -1 full → 1 new
+  const waxing = phase < 0.5;
+
+  const R = 50;
+  const rx = Math.abs(k) * R;
+  const outerSweep = waxing ? 0 : 1;
+  const innerSweep = waxing ? (k >= 0 ? 0 : 1) : (k >= 0 ? 1 : 0);
+  const shadowPath =
+    `M ${R},0 A ${R},${R} 0 1 ${outerSweep} ${R},${2 * R} ` +
+    `A ${rx},${R} 0 1 ${innerSweep} ${R},0 Z`;
+
   return (
     <div
-      className="fixed pointer-events-none z-[5]"
-      style={{ left: "27%", top: "10%", width: size, height: size }}
+      className="fixed pointer-events-none z-[5] w-[54px] h-[54px] md:w-[64px] md:h-[64px] lg:w-[84px] lg:h-[84px]"
+      style={{ left: "22%", top: "5%" }}
       aria-hidden
     >
       {/* soft moonlight halo */}
@@ -340,14 +355,12 @@ function RealisticMoon(_: { now: Date }) {
           filter: "blur(12px)",
         }}
       />
-      {/* moon photo — soft-edge mask fades the disc into the sky (no harsh cutout) */}
+      {/* moon disc — photo softly fades into sky */}
       <img
         src={moonPhoto}
         alt=""
-        width={size}
-        height={size}
         draggable={false}
-        className="relative w-full h-full select-none"
+        className="absolute inset-0 w-full h-full select-none"
         style={{
           WebkitMaskImage:
             "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.85) 48%, transparent 50%)",
@@ -356,9 +369,21 @@ function RealisticMoon(_: { now: Date }) {
           filter: "brightness(1.02) contrast(1.02)",
         }}
       />
+      {/* shadow following actual lunar phase */}
+      <svg
+        viewBox={`0 0 ${2 * R} ${2 * R}`}
+        className="absolute inset-0 w-full h-full"
+        style={{
+          WebkitMaskImage: "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.9) 48%, transparent 50%)",
+          maskImage: "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.9) 48%, transparent 50%)",
+        }}
+      >
+        <path d={shadowPath} fill="rgba(6,8,14,0.88)" />
+      </svg>
     </div>
   );
 }
+
 
 
 
