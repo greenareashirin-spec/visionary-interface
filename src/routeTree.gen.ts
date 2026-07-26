@@ -13,9 +13,10 @@ import { Route as OsRouteImport } from './routes/os'
 import { Route as AppRouteRouteImport } from './routes/app/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
-import { Route as AppSettingsRouteImport } from './routes/app/settings'
+import { Route as AppSuppliersRouteImport } from './routes/app/suppliers'
 import { Route as AppProjectsRouteImport } from './routes/app/projects'
 import { Route as AppMaterialsRouteImport } from './routes/app/materials'
+import { Route as AppFleetRouteImport } from './routes/app/fleet'
 import { Route as AppEmployeesRouteImport } from './routes/app/employees'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as AppDailyLogRouteImport } from './routes/app/daily-log'
@@ -40,9 +41,9 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppSettingsRoute = AppSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
+const AppSuppliersRoute = AppSuppliersRouteImport.update({
+  id: '/suppliers',
+  path: '/suppliers',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppProjectsRoute = AppProjectsRouteImport.update({
@@ -53,6 +54,11 @@ const AppProjectsRoute = AppProjectsRouteImport.update({
 const AppMaterialsRoute = AppMaterialsRouteImport.update({
   id: '/materials',
   path: '/materials',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppFleetRoute = AppFleetRouteImport.update({
+  id: '/fleet',
+  path: '/fleet',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppEmployeesRoute = AppEmployeesRouteImport.update({
@@ -78,9 +84,10 @@ export interface FileRoutesByFullPath {
   '/app/daily-log': typeof AppDailyLogRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/employees': typeof AppEmployeesRoute
+  '/app/fleet': typeof AppFleetRoute
   '/app/materials': typeof AppMaterialsRoute
   '/app/projects': typeof AppProjectsRoute
-  '/app/settings': typeof AppSettingsRoute
+  '/app/suppliers': typeof AppSuppliersRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRoutesByTo {
@@ -89,9 +96,10 @@ export interface FileRoutesByTo {
   '/app/daily-log': typeof AppDailyLogRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/employees': typeof AppEmployeesRoute
+  '/app/fleet': typeof AppFleetRoute
   '/app/materials': typeof AppMaterialsRoute
   '/app/projects': typeof AppProjectsRoute
-  '/app/settings': typeof AppSettingsRoute
+  '/app/suppliers': typeof AppSuppliersRoute
   '/app': typeof AppIndexRoute
 }
 export interface FileRoutesById {
@@ -102,9 +110,10 @@ export interface FileRoutesById {
   '/app/daily-log': typeof AppDailyLogRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/employees': typeof AppEmployeesRoute
+  '/app/fleet': typeof AppFleetRoute
   '/app/materials': typeof AppMaterialsRoute
   '/app/projects': typeof AppProjectsRoute
-  '/app/settings': typeof AppSettingsRoute
+  '/app/suppliers': typeof AppSuppliersRoute
   '/app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
@@ -116,9 +125,10 @@ export interface FileRouteTypes {
     | '/app/daily-log'
     | '/app/dashboard'
     | '/app/employees'
+    | '/app/fleet'
     | '/app/materials'
     | '/app/projects'
-    | '/app/settings'
+    | '/app/suppliers'
     | '/app/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -127,9 +137,10 @@ export interface FileRouteTypes {
     | '/app/daily-log'
     | '/app/dashboard'
     | '/app/employees'
+    | '/app/fleet'
     | '/app/materials'
     | '/app/projects'
-    | '/app/settings'
+    | '/app/suppliers'
     | '/app'
   id:
     | '__root__'
@@ -139,9 +150,10 @@ export interface FileRouteTypes {
     | '/app/daily-log'
     | '/app/dashboard'
     | '/app/employees'
+    | '/app/fleet'
     | '/app/materials'
     | '/app/projects'
-    | '/app/settings'
+    | '/app/suppliers'
     | '/app/'
   fileRoutesById: FileRoutesById
 }
@@ -181,11 +193,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/app/settings': {
-      id: '/app/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
+    '/app/suppliers': {
+      id: '/app/suppliers'
+      path: '/suppliers'
+      fullPath: '/app/suppliers'
+      preLoaderRoute: typeof AppSuppliersRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/projects': {
@@ -200,6 +212,13 @@ declare module '@tanstack/react-router' {
       path: '/materials'
       fullPath: '/app/materials'
       preLoaderRoute: typeof AppMaterialsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/app/fleet': {
+      id: '/app/fleet'
+      path: '/fleet'
+      fullPath: '/app/fleet'
+      preLoaderRoute: typeof AppFleetRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/app/employees': {
@@ -230,9 +249,10 @@ interface AppRouteRouteChildren {
   AppDailyLogRoute: typeof AppDailyLogRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEmployeesRoute: typeof AppEmployeesRoute
+  AppFleetRoute: typeof AppFleetRoute
   AppMaterialsRoute: typeof AppMaterialsRoute
   AppProjectsRoute: typeof AppProjectsRoute
-  AppSettingsRoute: typeof AppSettingsRoute
+  AppSuppliersRoute: typeof AppSuppliersRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
@@ -240,9 +260,10 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppDailyLogRoute: AppDailyLogRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEmployeesRoute: AppEmployeesRoute,
+  AppFleetRoute: AppFleetRoute,
   AppMaterialsRoute: AppMaterialsRoute,
   AppProjectsRoute: AppProjectsRoute,
-  AppSettingsRoute: AppSettingsRoute,
+  AppSuppliersRoute: AppSuppliersRoute,
   AppIndexRoute: AppIndexRoute,
 }
 
