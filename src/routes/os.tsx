@@ -199,11 +199,26 @@ function UploadERPPill() {
 }
 
 /* ─────────────── Greeting ─────────────── */
+const SUCCESS_QUOTES = [
+  "Success is built one decision at a time.",
+  "The best view comes after the hardest climb.",
+  "Small steps today, giant leaps tomorrow.",
+  "Your focus determines your reality.",
+  "Excellence is not an act, but a habit.",
+  "Make each day your masterpiece.",
+  "Progress, not perfection, moves mountains.",
+  "Turn ambition into action.",
+];
+
 function GreetingHeader({ period }: { period: Period }) {
+  const [quote, setQuote] = React.useState(SUCCESS_QUOTES[0]);
+  React.useEffect(() => {
+    setQuote(SUCCESS_QUOTES[Math.floor(Math.random() * SUCCESS_QUOTES.length)]);
+  }, []);
   return (
     <div className="text-center text-white shrink-0">
       <h1 className="font-display text-3xl md:text-4xl leading-none drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">{periodLabel(period)}</h1>
-      <p className="mt-1.5 text-[12px] text-white/75">{greeting(period)}, Ako · every place is a room</p>
+      <p className="mt-1.5 text-[12px] text-white/75">{greeting(period)}, Ako · {quote}</p>
     </div>
   );
 }
