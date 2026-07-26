@@ -1,6 +1,7 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Handshake, FolderOpen, Settings as SettingsIcon, Search, Bell } from "lucide-react";
+import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Handshake, FolderOpen, Settings as SettingsIcon, Search, Bell, ChevronDown } from "lucide-react";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
+import landscape from "@/assets/command-landscape.jpg";
 
 export const Route = createFileRoute("/app")({
   component: AppShell,
@@ -22,64 +23,79 @@ const nav = [
 function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <div className="app-dark min-h-screen text-foreground flex">
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-card/60 backdrop-blur sticky top-0 h-screen">
-        <div className="px-6 py-7 flex items-center gap-3">
-          <img src={logoAsset.url} alt="" className="h-9 w-9" />
-          <div>
-            <p className="font-medium tracking-[0.2em] text-sm leading-none">GREEN AREA</p>
-            <p className="text-[9px] uppercase tracking-[0.32em] text-muted-foreground mt-1.5">Operating System</p>
-          </div>
-        </div>
-        <nav className="px-3 mt-2 flex-1 overflow-y-auto">
-          {nav.map(({ to, label, Icon }) => {
-            const active = to === "/os" ? pathname === "/os" : pathname === to || pathname.startsWith(to + "/");
-            return (
-              <Link
-                key={label}
-                to={to}
-                className={`group flex items-center gap-3 rounded-xl px-3.5 py-2.5 mb-0.5 transition ${
-                  active ? "bg-forest/20 text-forest border border-forest/30" : "text-foreground/75 hover:bg-secondary"
-                }`}
-              >
-                <Icon className={`h-4 w-4 ${active ? "opacity-100" : "opacity-70"}`} />
-                <span className="text-sm font-medium">{label}</span>
-              </Link>
-            );
-          })}
-        </nav>
-        <div className="p-5 m-3 rounded-2xl bg-secondary/70 border border-border">
-          <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-            <p className="text-xs text-muted-foreground">All systems operational</p>
-          </div>
-          <p className="text-sm mt-2">Green Area UK</p>
-          <p className="text-[10px] uppercase tracking-[0.25em] text-muted-foreground mt-1">Data Engine v9.2</p>
-        </div>
-      </aside>
+    <div className="app-dark relative h-screen w-screen overflow-hidden text-foreground">
+      {/* landscape background */}
+      <img src={landscape} alt="" className="fixed inset-0 h-full w-full object-cover" />
+      <div className="fixed inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/80" />
+      <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.55)_100%)]" />
 
-      <div className="flex-1 min-w-0 flex flex-col">
-        <header className="sticky top-0 z-10 bg-background/70 backdrop-blur-xl border-b border-border">
-          <div className="px-6 lg:px-10 h-16 flex items-center justify-between gap-4">
-            <Link to="/os" className="text-xs uppercase tracking-[0.28em] text-muted-foreground hover:text-foreground transition">
-              ← Command Center
-            </Link>
-            <div className="flex items-center gap-3">
-              <div className="hidden md:flex items-center gap-2 rounded-full bg-secondary px-4 py-2 text-sm text-muted-foreground w-80">
-                <Search className="h-4 w-4 opacity-60" />
-                <span className="font-light">Search…</span>
-              </div>
-              <button className="relative rounded-full p-2 hover:bg-secondary transition" aria-label="Notifications">
-                <Bell className="h-4 w-4 text-muted-foreground" />
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
-              </button>
-              <div className="h-9 w-9 rounded-full bg-forest/20 border border-forest/30 grid place-items-center text-forest font-medium text-sm">GA</div>
+      {/* floating workspace */}
+      <div className="relative z-10 h-screen w-screen p-3 lg:p-4 flex gap-3 lg:gap-4">
+        {/* sidebar card */}
+        <aside className="hidden lg:flex w-60 shrink-0 flex-col rounded-3xl bg-white/[0.055] border border-white/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] overflow-hidden">
+          <div className="px-5 pt-5 pb-4 flex items-center gap-3">
+            <img src={logoAsset.url} alt="" className="h-8 w-8" />
+            <div className="leading-tight">
+              <p className="font-medium tracking-[0.2em] text-[13px]">GREEN AREA</p>
+              <p className="text-[8.5px] uppercase tracking-[0.32em] text-white/55 mt-1">Operating System</p>
             </div>
           </div>
-        </header>
-        <main className="flex-1 px-6 lg:px-10 py-10">
-          <Outlet />
-        </main>
+          <nav className="px-2.5 mt-1 flex-1 overflow-hidden">
+            {nav.map(({ to, label, Icon }) => {
+              const active = to === "/os"
+                ? pathname === "/os"
+                : pathname === to || pathname.startsWith(to + "/");
+              return (
+                <Link
+                  key={label}
+                  to={to}
+                  className={`group flex items-center gap-3 rounded-xl px-3 py-2 mb-0.5 transition ${
+                    active
+                      ? "bg-forest/20 text-forest border border-forest/30"
+                      : "text-white/75 hover:bg-white/5"
+                  }`}
+                >
+                  <Icon className={`h-3.5 w-3.5 ${active ? "opacity-100" : "opacity-70"}`} />
+                  <span className="text-[12.5px]">{label}</span>
+                </Link>
+              );
+            })}
+          </nav>
+          <div className="m-2.5 p-3 rounded-2xl bg-white/[0.04] border border-white/10">
+            <div className="flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+              <p className="text-[11px] text-white/70">All systems operational</p>
+            </div>
+            <p className="text-[12px] mt-1.5">Green Area UK</p>
+            <p className="text-[9px] uppercase tracking-[0.25em] text-white/50 mt-0.5">Data Engine v9.2</p>
+          </div>
+        </aside>
+
+        {/* main workspace card */}
+        <div className="flex-1 min-w-0 rounded-3xl bg-white/[0.055] border border-white/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden">
+          <header className="h-14 shrink-0 px-5 lg:px-6 flex items-center justify-between gap-4 border-b border-white/10">
+            <Link to="/os" className="text-[10px] uppercase tracking-[0.28em] text-white/60 hover:text-white transition">
+              ← Command Center
+            </Link>
+            <div className="flex items-center gap-2.5">
+              <div className="hidden md:flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs text-white/60 w-72">
+                <Search className="h-3.5 w-3.5 opacity-60" />
+                <span className="font-light">Search projects, entries, people…</span>
+              </div>
+              <button className="relative rounded-full p-2 hover:bg-white/5 transition" aria-label="Notifications">
+                <Bell className="h-3.5 w-3.5 text-white/70" />
+                <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
+              </button>
+              <button className="flex items-center gap-1.5 rounded-full pl-1 pr-2 py-1 hover:bg-white/5 transition">
+                <span className="h-7 w-7 rounded-full bg-forest/20 border border-forest/30 grid place-items-center text-forest font-medium text-[11px]">GA</span>
+                <ChevronDown className="h-3 w-3 text-white/60" />
+              </button>
+            </div>
+          </header>
+          <main className="flex-1 min-h-0 overflow-hidden">
+            <Outlet />
+          </main>
+        </div>
       </div>
     </div>
   );
