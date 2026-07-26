@@ -270,22 +270,43 @@ function RainLayer() {
 
 /* ─────────────── Stars (night) ─────────────── */
 function StarsLayer() {
-  const stars = Array.from({ length: 80 }, (_, i) => i);
+  // Deterministic pseudo-random spread across the whole sky
+  const stars = Array.from({ length: 110 }, (_, i) => {
+    const r1 = Math.sin(i * 12.9898) * 43758.5453;
+    const r2 = Math.sin(i * 78.233) * 12345.6789;
+    const left = ((r1 - Math.floor(r1)) * 100);
+    const top = ((r2 - Math.floor(r2)) * 70); // upper 70% of sky
+    const size = 0.6 + ((i * 7) % 5) * 0.25;
+    const delay = (i * 173) % 5000;
+    const baseOpacity = 0.35 + ((i * 19) % 45) / 100;
+    return { i, left, top, size, delay, baseOpacity };
+  });
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-[4]">
-      {/* Moon */}
-      <div className="absolute right-[8%] top-[10%] h-16 w-16 rounded-full bg-[radial-gradient(circle_at_35%_35%,#fff_0%,#e8ecf5_45%,#a9b3c9_100%)] shadow-[0_0_60px_20px_rgba(200,215,255,0.25)]" />
-      {stars.map((i) => {
-        const left = (i * 977) % 10000 / 100;
-        const top = (i * 613) % 6500 / 100;
-        const size = 1 + ((i * 7) % 3) * 0.5;
-        const delay = (i * 173) % 4000;
-        return (
-          <span key={i} className="absolute rounded-full bg-white"
-            style={{ left: `${left}%`, top: `${top}%`, width: size, height: size, opacity: 0.7, animation: `star-tw 3.5s ease-in-out ${delay}ms infinite` }} />
-        );
-      })}
-      <style>{`@keyframes star-tw { 0%,100% { opacity: 0.25 } 50% { opacity: 0.95 } }`}</style>
+      {/* Moon — subtle, soft */}
+      <div
+        className="absolute right-[10%] top-[12%] h-14 w-14 rounded-full"
+        style={{
+          background: "radial-gradient(circle at 38% 38%, rgba(245,240,225,0.85) 0%, rgba(220,215,200,0.55) 55%, rgba(180,180,175,0.15) 100%)",
+          boxShadow: "0 0 80px 30px rgba(230,225,210,0.08)",
+          filter: "blur(0.3px)",
+        }}
+      />
+      {stars.map((s) => (
+        <span
+          key={s.i}
+          className="absolute rounded-full bg-white"
+          style={{
+            left: `${s.left}%`,
+            top: `${s.top}%`,
+            width: s.size,
+            height: s.size,
+            opacity: s.baseOpacity,
+            animation: `star-tw 4s ease-in-out ${s.delay}ms infinite`,
+          }}
+        />
+      ))}
+      <style>{`@keyframes star-tw { 0%,100% { opacity: 0.2 } 50% { opacity: 0.75 } }`}</style>
     </div>
   );
 }
