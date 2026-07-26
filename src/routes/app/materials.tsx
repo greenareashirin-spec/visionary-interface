@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Package, AlertTriangle, XCircle, FileText, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Package, AlertTriangle, XCircle, FileText, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
+
 
 export const Route = createFileRoute("/app/materials")({
   component: Materials,
