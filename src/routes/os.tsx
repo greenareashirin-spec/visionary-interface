@@ -267,7 +267,7 @@ function LatestEntriesBar({ hidden }: { hidden: boolean }) {
   ];
   return (
     <div className={`fixed bottom-28 left-1/2 -translate-x-1/2 z-40 w-[min(960px,94vw)] transition-all duration-500 ${hidden ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"}`}>
-      <div className="rounded-2xl bg-black/45 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_-25px_rgba(0,0,0,0.7)] px-4 py-2.5 text-white">
+      <div className="rounded-2xl bg-white/[0.04] border border-white/10 px-4 py-2.5 text-white">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 shrink-0 pr-3 border-r border-white/10">
             <span className="h-1.5 w-1.5 rounded-full bg-forest animate-pulse" />
@@ -303,7 +303,7 @@ function AIAssistantBar({ hidden }: { hidden: boolean }) {
   const examples = ["Show fuel expenses", "Summarize today", "Missing receipts", "Project status", "Forecast cash flow"];
   return (
     <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[min(720px,92vw)] transition-all duration-500 ${hidden ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
-      <div className="rounded-2xl bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border border-white/10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)] px-4 py-3 text-white">
+      <div className="rounded-2xl bg-white/[0.04] border border-white/10 px-4 py-3 text-white">
         <div className="flex items-center gap-3">
           <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
             <Sparkles className="h-4 w-4" />
@@ -340,7 +340,7 @@ function AIAssistantBar({ hidden }: { hidden: boolean }) {
 /* ─────────────── side cards ─────────────── */
 function Card({ title, children, hidden, action }: { title: string; children: React.ReactNode; hidden: boolean; action?: React.ReactNode }) {
   return (
-    <div className={`rounded-2xl bg-white/[0.06] border border-white/10 p-5 text-white transition-all duration-500 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)] ${hidden ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
+    <div className={`rounded-2xl bg-white/[0.04] border border-white/10 p-4 text-white transition-all duration-500 ${hidden ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
       <div className="flex items-center justify-between mb-4">
         <p className="text-[10px] uppercase tracking-[0.28em] text-white/60">{title}</p>
         {action && <span className="text-[10px] text-white/60">{action}</span>}
