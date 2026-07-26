@@ -44,13 +44,6 @@ const statusTone: Record<string, string> = {
   "Out of Stock": "bg-rose-500/15 text-rose-300",
 };
 
-const colorMap: Record<string, string> = {
-  forest:   "bg-forest",
-  sand:     "bg-sand",
-  charcoal: "bg-white/60",
-  olive:    "bg-olive",
-  muted:    "bg-white/30",
-};
 
 function Materials() {
   const [chartOpen, setChartOpen] = useState(false);
