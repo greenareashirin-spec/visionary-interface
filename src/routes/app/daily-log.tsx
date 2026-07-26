@@ -17,7 +17,7 @@ const rows = [
 
 function DailyLog() {
   return (
-    <div className="max-w-7xl mx-auto space-y-10">
+    <div className="h-full overflow-auto px-6 py-6 space-y-8">
       <header className="flex items-end justify-between gap-6 flex-wrap">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Ledger</p>
