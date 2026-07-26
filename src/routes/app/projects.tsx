@@ -166,30 +166,25 @@ function SpendChartModal({ onClose }: { onClose: () => void }) {
   const R = 120;
   const cx = 160;
   const cy = 160;
-  const gap = 0.02; // radians between slices for "cake bite" separation
   let angle = -Math.PI / 2;
 
   const arcs = slices.map((s, i) => {
     const frac = s.value / total;
-    const sweep = frac * Math.PI * 2 - gap;
-    const start = angle + gap / 2;
+    const sweep = frac * Math.PI * 2;
+    const start = angle;
     const end = start + sweep;
     const large = sweep > Math.PI ? 1 : 0;
-    // slight explode
     const mid = (start + end) / 2;
-    const ox = Math.cos(mid) * 4;
-    const oy = Math.sin(mid) * 4;
-    const x1 = cx + ox + R * Math.cos(start);
-    const y1 = cy + oy + R * Math.sin(start);
-    const x2 = cx + ox + R * Math.cos(end);
-    const y2 = cy + oy + R * Math.sin(end);
-    const d = `M ${cx + ox} ${cy + oy} L ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2} Z`;
-    // label anchor beyond the arc
+    const x1 = cx + R * Math.cos(start);
+    const y1 = cy + R * Math.sin(start);
+    const x2 = cx + R * Math.cos(end);
+    const y2 = cy + R * Math.sin(end);
+    const d = `M ${cx} ${cy} L ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2} Z`;
     const lr = R + 22;
-    const lx = cx + ox + lr * Math.cos(mid);
-    const ly = cy + oy + lr * Math.sin(mid);
+    const lx = cx + lr * Math.cos(mid);
+    const ly = cy + lr * Math.sin(mid);
     const anchor = Math.cos(mid) > 0.1 ? "start" : Math.cos(mid) < -0.1 ? "end" : "middle";
-    angle = end + gap / 2;
+    angle = end;
     return { d, color: palette[i % palette.length], name: s.name, code: s.code, value: s.value, frac, lx, ly, anchor };
   });
 
