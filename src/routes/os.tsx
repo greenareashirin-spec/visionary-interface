@@ -155,9 +155,9 @@ function TopBar({ zooming, now, weather, period }: { zooming: boolean; now: Date
 /* ─────────────── greeting ─────────────── */
 function GreetingHeader({ hidden, period }: { hidden: boolean; period: Period }) {
   return (
-    <div className={`text-center transition-opacity duration-500 ${hidden ? "opacity-0" : "opacity-100"}`}>
-      <h1 className="font-display text-4xl md:text-5xl leading-none">{periodLabel(period)}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{greeting(period)}, Ako</p>
+    <div className={`text-center text-white transition-opacity duration-500 ${hidden ? "opacity-0" : "opacity-100"}`}>
+      <h1 className="font-display text-4xl md:text-5xl leading-none drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">{periodLabel(period)}</h1>
+      <p className="mt-2 text-sm text-white/75">{greeting(period)}, Ako</p>
     </div>
   );
 }
