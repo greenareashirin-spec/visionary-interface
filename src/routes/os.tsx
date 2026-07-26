@@ -267,7 +267,7 @@ function LatestEntriesBar({ hidden }: { hidden: boolean }) {
   ];
   return (
     <div className={`fixed bottom-28 left-1/2 -translate-x-1/2 z-40 w-[min(960px,94vw)] transition-all duration-500 ${hidden ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"}`}>
-      <div className="rounded-2xl bg-black/45 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_-25px_rgba(0,0,0,0.7)] px-4 py-2.5 text-white">
+      <div className="rounded-2xl bg-white/[0.04] border border-white/10 px-4 py-2.5 text-white">
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 shrink-0 pr-3 border-r border-white/10">
             <span className="h-1.5 w-1.5 rounded-full bg-forest animate-pulse" />
