@@ -239,7 +239,11 @@ function HotspotLabel({ spot, onClick }: { spot: Hotspot; onClick: () => void })
 /* ─────────────── Weather glyph ─────────────── */
 function WeatherGlyph({ weather, period }: { weather: Weather; period: Period }) {
   const cls = "h-3 w-3 opacity-80";
+  if (weather === "thunder") return <CloudLightning className={cls} />;
   if (weather === "rain") return <CloudRain className={cls} />;
+  if (weather === "snow") return <CloudSnow className={cls} />;
+  if (weather === "fog") return <CloudFog className={cls} />;
+  if (weather === "sandstorm") return <Wind className={cls} />;
   if (weather === "cloudy") return <Cloud className={cls} />;
   if (period === "night") return <Moon className={cls} />;
   return <Sun className={cls} />;
@@ -247,9 +251,9 @@ function WeatherGlyph({ weather, period }: { weather: Weather; period: Period })
 
 /* ─────────────── Rain ─────────────── */
 function RainLayer() {
-  const drops = Array.from({ length: 50 }, (_, i) => i);
+  const drops = Array.from({ length: 60 }, (_, i) => i);
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-40 z-[5]">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-45 z-[5]">
       {drops.map((i) => {
         const left = (i * 53) % 100;
         const delay = (i * 137) % 2500;
@@ -261,6 +265,84 @@ function RainLayer() {
       })}
       <style>{`@keyframes rain-fall { to { transform: translateY(120vh) rotate(12deg); } }`}</style>
     </div>
+  );
+}
+
+/* ─────────────── Stars (night) ─────────────── */
+function StarsLayer() {
+  const stars = Array.from({ length: 80 }, (_, i) => i);
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[4]">
+      {/* Moon */}
+      <div className="absolute right-[8%] top-[10%] h-16 w-16 rounded-full bg-[radial-gradient(circle_at_35%_35%,#fff_0%,#e8ecf5_45%,#a9b3c9_100%)] shadow-[0_0_60px_20px_rgba(200,215,255,0.25)]" />
+      {stars.map((i) => {
+        const left = (i * 977) % 10000 / 100;
+        const top = (i * 613) % 6500 / 100;
+        const size = 1 + ((i * 7) % 3) * 0.5;
+        const delay = (i * 173) % 4000;
+        return (
+          <span key={i} className="absolute rounded-full bg-white"
+            style={{ left: `${left}%`, top: `${top}%`, width: size, height: size, opacity: 0.7, animation: `star-tw 3.5s ease-in-out ${delay}ms infinite` }} />
+        );
+      })}
+      <style>{`@keyframes star-tw { 0%,100% { opacity: 0.25 } 50% { opacity: 0.95 } }`}</style>
+    </div>
+  );
+}
+
+/* ─────────────── Lightning (thunder) ─────────────── */
+function LightningLayer() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[6] bg-white"
+      style={{ animation: "lightning 6s linear infinite", opacity: 0 }}>
+      <style>{`@keyframes lightning {
+        0%,92%,100% { opacity: 0 }
+        93% { opacity: 0.55 } 94% { opacity: 0.05 } 95% { opacity: 0.45 } 96% { opacity: 0 }
+      }`}</style>
+    </div>
+  );
+}
+
+/* ─────────────── Snow ─────────────── */
+function SnowLayer() {
+  const flakes = Array.from({ length: 70 }, (_, i) => i);
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[5] opacity-80">
+      {flakes.map((i) => {
+        const left = (i * 41) % 100;
+        const delay = (i * 191) % 6000;
+        const dur = 6000 + ((i * 97) % 5000);
+        const size = 2 + ((i * 13) % 4);
+        return (
+          <span key={i} className="absolute top-[-5%] rounded-full bg-white/85"
+            style={{ left: `${left}%`, width: size, height: size, animation: `snow-fall ${dur}ms linear ${delay}ms infinite` }} />
+        );
+      })}
+      <style>{`@keyframes snow-fall { to { transform: translate(20px, 120vh) } }`}</style>
+    </div>
+  );
+}
+
+/* ─────────────── Sandstorm ─────────────── */
+function SandstormLayer() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[5]">
+      <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(200,150,90,0.35), rgba(150,100,60,0.25))", mixBlendMode: "multiply" }} />
+      <div className="absolute inset-0 opacity-40"
+        style={{
+          background: "radial-gradient(circle at 30% 60%, rgba(230,180,120,0.5), transparent 55%), radial-gradient(circle at 70% 40%, rgba(210,160,100,0.5), transparent 55%)",
+          animation: "sand-drift 14s ease-in-out infinite",
+        }} />
+      <style>{`@keyframes sand-drift { 0%,100% { transform: translateX(-3%) } 50% { transform: translateX(3%) } }`}</style>
+    </div>
+  );
+}
+
+/* ─────────────── Fog ─────────────── */
+function FogLayer() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[5]"
+      style={{ background: "linear-gradient(180deg, rgba(220,225,235,0.15), rgba(200,210,225,0.35) 60%, rgba(180,190,205,0.25))" }} />
   );
 }
 
