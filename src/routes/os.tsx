@@ -32,9 +32,10 @@ type Hotspot = {
 };
 
 const HOTSPOTS: Hotspot[] = [
-  { id: "projects",  label: "Projects",  kpi: "12 Active",  Icon: Building2, x: 30, y: 40, to: "/app/projects"  },
-  { id: "employees", label: "Employees", kpi: "18 Active",  Icon: Users,     x: 55, y: 58, to: "/app/employees" },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles", Icon: Truck,     x: 78, y: 44, to: "/app/settings"  },
+  { id: "projects",  label: "Projects",  kpi: "12 Active",   Icon: Building2, x: 24, y: 30, to: "/app/projects"  },
+  { id: "employees", label: "Employees", kpi: "18 Active",   Icon: Users,     x: 76, y: 28, to: "/app/employees" },
+  { id: "finance",   label: "Finance",   kpi: "$128,450",    Icon: Wallet,    x: 22, y: 72, to: "/app/dashboard" },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  Icon: Truck,     x: 78, y: 70, to: "/app/settings"  },
 ];
 
 function CommandCenter() {
