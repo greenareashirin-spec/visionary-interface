@@ -124,8 +124,9 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
         <img src={logoAsset.url} alt="" className="h-8 w-8" />
         <div className="leading-tight hidden sm:block">
           <p className="font-medium tracking-[0.2em] text-[12px] text-white">GREEN AREA</p>
-          <p className="text-[8.5px] uppercase tracking-[0.32em] text-white/55 mt-0.5">
-            {dateStr} · {place}
+          <p className="text-[8.5px] uppercase tracking-[0.32em] text-white/55 mt-0.5 flex items-center gap-1.5">
+            <WeatherGlyph weather={weather} period={period} />
+            <span>{dateStr} · {place}{tempC != null ? ` · ${Math.round(tempC)}°C` : ""}</span>
           </p>
         </div>
       </div>
@@ -133,10 +134,6 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
         <div className="hidden md:flex items-center gap-2 rounded-full bg-white/[0.06] border border-white/10 px-3.5 py-1.5 text-xs text-white/70 w-64">
           <Search className="h-3.5 w-3.5 opacity-70" />
           <span className="font-light">Search projects, entries, people…</span>
-        </div>
-        <div className="hidden md:flex items-center gap-1.5 rounded-full bg-white/[0.06] border border-white/10 px-3 py-1.5 text-xs text-white/85">
-          <WeatherGlyph weather={weather} period={period} />
-          {tempC != null && <span>{Math.round(tempC)}°C</span>}
         </div>
         <UploadERPPill />
         <button className="relative rounded-full p-2 hover:bg-white/10 bg-white/[0.04] border border-white/10 transition" aria-label="Notifications">
