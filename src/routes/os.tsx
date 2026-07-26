@@ -432,14 +432,12 @@ function AIAssistantBar() {
 
   function onPointerDown(e: React.PointerEvent) {
     startY.current = e.clientY;
-    moved.current = false;
     setDragging(true);
   }
 
   function onPointerMove(e: React.PointerEvent) {
     if (!dragging) return;
     const delta = e.clientY - startY.current;
-    if (Math.abs(delta) > 4) moved.current = true;
     if (delta > 0) setDragY(delta);
   }
 
@@ -447,7 +445,7 @@ function AIAssistantBar() {
     setDragging(false);
     if (dragY > 60) {
       setExpanded(false);
-    } else if (!moved.current) {
+    } else if (dragY <= 10) {
       setExpanded((v) => !v);
     }
     setDragY(0);
