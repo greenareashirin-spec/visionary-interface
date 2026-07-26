@@ -75,7 +75,7 @@ function Materials() {
             <p className={`text-[10.5px] mt-0.5 ${s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55"}`}>{s.sub}</p>
           </div>
         ))}
-        <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-3 md:col-span-2 flex items-center gap-3">
+        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 md:col-span-2 flex items-center gap-3">
           <Donut segments={categories.map(c => ({ pct: c.pct, color: c.color }))} />
           <ul className="flex-1 grid grid-cols-1 gap-y-1 text-[11px]">
             {categories.map((c) => (
@@ -89,7 +89,7 @@ function Materials() {
         </div>
       </section>
 
-      <section className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
+      <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
           <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
             <Search className="h-3.5 w-3.5 text-white/55" />

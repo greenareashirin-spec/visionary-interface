@@ -132,12 +132,12 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
         </div>
       </div>
       <div className="flex items-center gap-2.5">
-        <div className="hidden md:flex items-center gap-2 rounded-full bg-black/50 backdrop-blur-xl border border-white/10 px-3.5 py-1.5 text-xs text-white/70 w-64">
+        <div className="hidden md:flex items-center gap-2 rounded-full bg-black/38 backdrop-blur-xl border border-white/10 px-3.5 py-1.5 text-xs text-white/70 w-64">
           <Search className="h-3.5 w-3.5 opacity-70" />
           <span className="font-light">Search projects, entries, people…</span>
         </div>
         <UploadERPPill />
-        <button className="relative rounded-full p-2 hover:bg-white/15 bg-black/40 backdrop-blur-xl border border-white/10 transition" aria-label="Notifications">
+        <button className="relative rounded-full p-2 hover:bg-white/15 bg-black/38 backdrop-blur-xl border border-white/10 transition" aria-label="Notifications">
           <Bell className="h-3.5 w-3.5 text-white/80" />
           <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
         </button>
