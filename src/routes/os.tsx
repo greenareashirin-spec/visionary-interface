@@ -1,13 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Building2, Users, Truck, Wallet, Sparkles, ArrowRight, CloudRain, Cloud, Sun, Moon,
+  Building2, Users, Truck, Wallet, Sparkles, ArrowRight,
+  CloudRain, Cloud, Sun, Moon, CloudSnow, CloudLightning, Wind, CloudFog,
   Search, Bell, ChevronDown, UploadCloud, FileSpreadsheet, CheckCircle2, X,
 } from "lucide-react";
 import landscape from "@/assets/command-landscape.jpg";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import {
-  currentPeriod, currentWeather, greeting, periodLabel, periodOverlay,
+  currentPeriod, greeting, periodLabel, periodOverlay, useLiveWeather,
   type Period, type Weather,
 } from "@/lib/weather";
 
@@ -32,7 +33,7 @@ const HOTSPOTS: Hotspot[] = [
   { id: "projects",  label: "Projects",  kpi: "12 Active",   meta: "7 on track · 3 at risk",  trend: "+2 MoM",     tone: "forest", Icon: Building2, x: 30, y: 42, to: "/app/projects"  },
   { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "$24.8k pay", tone: "sand",   Icon: Users,     x: 70, y: 38, to: "/app/employees" },
   { id: "finance",   label: "Finance",   kpi: "$128,450",    meta: "In $84.2k · Ex $52.1k",   trend: "+12.4% MoM", tone: "forest", Icon: Wallet,    x: 32, y: 72, to: "/app/dashboard" },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 in service", trend: "Fuel $1.2k", tone: "sand",   Icon: Truck,     x: 68, y: 68, to: "/app/settings"  },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 in service", trend: "Fuel $1.2k", tone: "sand",   Icon: Truck,     x: 68, y: 68, to: "/app/fleet"     },
 ];
 
 function CommandCenter() {
@@ -46,7 +47,8 @@ function CommandCenter() {
   }, []);
 
   const period: Period = currentPeriod(now);
-  const weather: Weather = currentWeather(now);
+  const live = useLiveWeather();
+  const weather: Weather = live.weather;
   const overlay = useMemo(() => periodOverlay(period), [period]);
 
   function flyTo(spot: Hotspot) {
@@ -72,21 +74,26 @@ function CommandCenter() {
       <div className="fixed inset-0 pointer-events-none mix-blend-overlay" style={{ background: overlay.tint }} />
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/40 via-transparent to-black/55" />
       <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.55)_100%)]" />
+      {period === "night" && weather !== "rain" && weather !== "thunder" && weather !== "snow" && <StarsLayer />}
       {weather === "rain" && <RainLayer />}
+      {weather === "thunder" && (<><RainLayer /><LightningLayer /></>)}
+      {weather === "snow" && <SnowLayer />}
+      {weather === "sandstorm" && <SandstormLayer />}
+      {weather === "fog" && <FogLayer />}
 
       {/* Content */}
       <div className={`relative z-10 h-screen w-screen flex flex-col transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
-        <TopBar now={now} weather={weather} period={period} />
+        <TopBar now={now} weather={weather} period={period} place={live.place} tempC={live.tempC} />
 
         <div className="flex-1 min-h-0 grid grid-cols-12 gap-3 lg:gap-4 px-4 lg:px-5 pb-4 lg:pb-5 pt-3">
           {/* Left rail */}
-          <aside className="hidden lg:flex col-span-3 flex-col gap-3 min-h-0">
+          <aside className="hidden md:flex md:col-span-3 flex-col gap-3 min-h-0">
             <FinancialCard />
             <RecentActivityCard />
           </aside>
 
           {/* Center: greeting + hotspots + Ask OS */}
-          <section className="col-span-12 lg:col-span-6 flex flex-col min-h-0 gap-3">
+          <section className="col-span-12 md:col-span-6 flex flex-col min-h-0 gap-3">
             <GreetingHeader period={period} />
             <div className="relative flex-1 min-h-0">
               {HOTSPOTS.map((s) => (
@@ -97,7 +104,7 @@ function CommandCenter() {
           </section>
 
           {/* Right rail */}
-          <aside className="hidden lg:flex col-span-3 flex-col gap-3 min-h-0">
+          <aside className="hidden md:flex md:col-span-3 flex-col gap-3 min-h-0">
             <ProjectsOverviewCard />
             <AIInsightsCard />
           </aside>
@@ -108,7 +115,7 @@ function CommandCenter() {
 }
 
 /* ─────────────── Top bar ─────────────── */
-function TopBar({ now, weather, period }: { now: Date; weather: Weather; period: Period }) {
+function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: Weather; period: Period; place: string; tempC: number | null }) {
   const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
   return (
     <header className="h-14 shrink-0 px-4 lg:px-5 flex items-center justify-between gap-4">
@@ -117,7 +124,7 @@ function TopBar({ now, weather, period }: { now: Date; weather: Weather; period:
         <div className="leading-tight hidden sm:block">
           <p className="font-medium tracking-[0.2em] text-[12px] text-white">GREEN AREA</p>
           <p className="text-[8.5px] uppercase tracking-[0.32em] text-white/55 mt-0.5 flex items-center gap-1.5">
-            <WeatherGlyph weather={weather} period={period} /> {dateStr} · Baghdad
+            <WeatherGlyph weather={weather} period={period} /> {dateStr} · {place}{tempC != null && ` · ${Math.round(tempC)}°`}
           </p>
         </div>
       </div>
@@ -232,7 +239,11 @@ function HotspotLabel({ spot, onClick }: { spot: Hotspot; onClick: () => void })
 /* ─────────────── Weather glyph ─────────────── */
 function WeatherGlyph({ weather, period }: { weather: Weather; period: Period }) {
   const cls = "h-3 w-3 opacity-80";
+  if (weather === "thunder") return <CloudLightning className={cls} />;
   if (weather === "rain") return <CloudRain className={cls} />;
+  if (weather === "snow") return <CloudSnow className={cls} />;
+  if (weather === "fog") return <CloudFog className={cls} />;
+  if (weather === "sandstorm") return <Wind className={cls} />;
   if (weather === "cloudy") return <Cloud className={cls} />;
   if (period === "night") return <Moon className={cls} />;
   return <Sun className={cls} />;
@@ -240,9 +251,9 @@ function WeatherGlyph({ weather, period }: { weather: Weather; period: Period })
 
 /* ─────────────── Rain ─────────────── */
 function RainLayer() {
-  const drops = Array.from({ length: 50 }, (_, i) => i);
+  const drops = Array.from({ length: 60 }, (_, i) => i);
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-40 z-[5]">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden opacity-45 z-[5]">
       {drops.map((i) => {
         const left = (i * 53) % 100;
         const delay = (i * 137) % 2500;
@@ -254,6 +265,84 @@ function RainLayer() {
       })}
       <style>{`@keyframes rain-fall { to { transform: translateY(120vh) rotate(12deg); } }`}</style>
     </div>
+  );
+}
+
+/* ─────────────── Stars (night) ─────────────── */
+function StarsLayer() {
+  const stars = Array.from({ length: 80 }, (_, i) => i);
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[4]">
+      {/* Moon */}
+      <div className="absolute right-[8%] top-[10%] h-16 w-16 rounded-full bg-[radial-gradient(circle_at_35%_35%,#fff_0%,#e8ecf5_45%,#a9b3c9_100%)] shadow-[0_0_60px_20px_rgba(200,215,255,0.25)]" />
+      {stars.map((i) => {
+        const left = (i * 977) % 10000 / 100;
+        const top = (i * 613) % 6500 / 100;
+        const size = 1 + ((i * 7) % 3) * 0.5;
+        const delay = (i * 173) % 4000;
+        return (
+          <span key={i} className="absolute rounded-full bg-white"
+            style={{ left: `${left}%`, top: `${top}%`, width: size, height: size, opacity: 0.7, animation: `star-tw 3.5s ease-in-out ${delay}ms infinite` }} />
+        );
+      })}
+      <style>{`@keyframes star-tw { 0%,100% { opacity: 0.25 } 50% { opacity: 0.95 } }`}</style>
+    </div>
+  );
+}
+
+/* ─────────────── Lightning (thunder) ─────────────── */
+function LightningLayer() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[6] bg-white"
+      style={{ animation: "lightning 6s linear infinite", opacity: 0 }}>
+      <style>{`@keyframes lightning {
+        0%,92%,100% { opacity: 0 }
+        93% { opacity: 0.55 } 94% { opacity: 0.05 } 95% { opacity: 0.45 } 96% { opacity: 0 }
+      }`}</style>
+    </div>
+  );
+}
+
+/* ─────────────── Snow ─────────────── */
+function SnowLayer() {
+  const flakes = Array.from({ length: 70 }, (_, i) => i);
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[5] opacity-80">
+      {flakes.map((i) => {
+        const left = (i * 41) % 100;
+        const delay = (i * 191) % 6000;
+        const dur = 6000 + ((i * 97) % 5000);
+        const size = 2 + ((i * 13) % 4);
+        return (
+          <span key={i} className="absolute top-[-5%] rounded-full bg-white/85"
+            style={{ left: `${left}%`, width: size, height: size, animation: `snow-fall ${dur}ms linear ${delay}ms infinite` }} />
+        );
+      })}
+      <style>{`@keyframes snow-fall { to { transform: translate(20px, 120vh) } }`}</style>
+    </div>
+  );
+}
+
+/* ─────────────── Sandstorm ─────────────── */
+function SandstormLayer() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[5]">
+      <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(200,150,90,0.35), rgba(150,100,60,0.25))", mixBlendMode: "multiply" }} />
+      <div className="absolute inset-0 opacity-40"
+        style={{
+          background: "radial-gradient(circle at 30% 60%, rgba(230,180,120,0.5), transparent 55%), radial-gradient(circle at 70% 40%, rgba(210,160,100,0.5), transparent 55%)",
+          animation: "sand-drift 14s ease-in-out infinite",
+        }} />
+      <style>{`@keyframes sand-drift { 0%,100% { transform: translateX(-3%) } 50% { transform: translateX(3%) } }`}</style>
+    </div>
+  );
+}
+
+/* ─────────────── Fog ─────────────── */
+function FogLayer() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-[5]"
+      style={{ background: "linear-gradient(180deg, rgba(220,225,235,0.15), rgba(200,210,225,0.35) 60%, rgba(180,190,205,0.25))" }} />
   );
 }
 
