@@ -291,10 +291,10 @@ function AIAssistantBar({ hidden }: { hidden: boolean }) {
 /* ─────────────── side cards ─────────────── */
 function Card({ title, children, hidden, action }: { title: string; children: React.ReactNode; hidden: boolean; action?: React.ReactNode }) {
   return (
-    <div className={`rounded-2xl bg-card/90 backdrop-blur-sm border border-border p-5 transition-all duration-500 shadow-[0_10px_30px_-20px_rgba(0,0,0,0.15)] ${hidden ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
+    <div className={`rounded-2xl bg-black/45 backdrop-blur-xl border border-white/10 p-5 text-white transition-all duration-500 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)] ${hidden ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground">{title}</p>
-        {action}
+        <p className="text-[10px] uppercase tracking-[0.28em] text-white/60">{title}</p>
+        {action && <span className="text-[10px] text-white/60">{action}</span>}
       </div>
       {children}
     </div>
