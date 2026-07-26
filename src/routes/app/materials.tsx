@@ -1,5 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Package, AlertTriangle, XCircle, FileText, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Package, AlertTriangle, XCircle, FileText, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
+
 
 export const Route = createFileRoute("/app/materials")({
   component: Materials,
@@ -42,15 +44,9 @@ const statusTone: Record<string, string> = {
   "Out of Stock": "bg-rose-500/15 text-rose-300",
 };
 
-const colorMap: Record<string, string> = {
-  forest:   "bg-forest",
-  sand:     "bg-sand",
-  charcoal: "bg-white/60",
-  olive:    "bg-olive",
-  muted:    "bg-white/30",
-};
 
 function Materials() {
+  const [chartOpen, setChartOpen] = useState(false);
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
       <header className="flex items-end justify-between gap-4 flex-wrap">
@@ -60,14 +56,21 @@ function Materials() {
           <p className="mt-1 text-[12px] text-white/60">Track stock levels, materials and movements.</p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => setChartOpen(true)}
+            className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition flex items-center gap-1.5"
+          >
+            <PieChart className="h-3.5 w-3.5" /> See Chart
+          </button>
           <button className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition">Export</button>
           <button className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium flex items-center gap-1.5 hover:brightness-110 transition">
             <Plus className="h-3.5 w-3.5" /> Add Material
           </button>
         </div>
       </header>
+      {chartOpen && <CategoryChartModal onClose={() => setChartOpen(false)} />}
 
-      <section className="grid grid-cols-2 md:grid-cols-6 gap-1.5 md:gap-2.5">
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-1.5 md:gap-2.5">
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
             <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
@@ -75,19 +78,8 @@ function Materials() {
             <p className={`text-[10.5px] mt-0.5 ${s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55"}`}>{s.sub}</p>
           </div>
         ))}
-        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3 md:col-span-2 flex items-center gap-3">
-          <Donut segments={categories.map(c => ({ pct: c.pct, color: c.color }))} />
-          <ul className="flex-1 grid grid-cols-1 gap-y-1 text-[11px]">
-            {categories.map((c) => (
-              <li key={c.name} className="flex items-center gap-1.5">
-                <span className={`h-1.5 w-1.5 rounded-full ${colorMap[c.color]}`} />
-                <span className="text-white/60">{c.name}</span>
-                <span className="ml-auto text-white/75">{c.pct}%</span>
-              </li>
-            ))}
-          </ul>
-        </div>
       </section>
+
 
       <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
@@ -157,30 +149,87 @@ function Select({ label }: { label: string }) {
   );
 }
 
-function Donut({ segments }: { segments: { pct: number; color: string }[] }) {
-  const size = 80, cx = size / 2, cy = size / 2, r = 34, gap = 4;
-  const stroke = (c: string) =>
-    c === "forest"   ? "oklch(0.72 0.14 145)" :
-    c === "sand"     ? "oklch(0.72 0.08 80)"  :
-    c === "olive"    ? "oklch(0.55 0.07 115)" :
-    c === "charcoal" ? "oklch(0.85 0.005 70)" :
-                       "oklch(0.6 0.01 70)";
-  const total = segments.reduce((s, x) => s + x.pct, 0);
-  const gapAngle = (gap / r); // radians of gap on arc
+function CategoryChartModal({ onClose }: { onClose: () => void }) {
+  const palette: Record<string, string> = {
+    forest:   "#7CB342",
+    sand:     "#D4B382",
+    charcoal: "#D9D4C7",
+    olive:    "#8A9A5B",
+    muted:    "#8892A0",
+  };
+  const total = categories.reduce((s, c) => s + c.pct, 0);
+  const R = 120, cx = 160, cy = 160;
   let angle = -Math.PI / 2;
+
+  const arcs = categories.map((c) => {
+    const frac = c.pct / total;
+    const sweep = frac * Math.PI * 2;
+    const start = angle;
+    const end = start + sweep;
+    const large = sweep > Math.PI ? 1 : 0;
+    const mid = (start + end) / 2;
+    const x1 = cx + R * Math.cos(start);
+    const y1 = cy + R * Math.sin(start);
+    const x2 = cx + R * Math.cos(end);
+    const y2 = cy + R * Math.sin(end);
+    const d = `M ${cx} ${cy} L ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2} Z`;
+    const lr = R + 22;
+    const lx = cx + lr * Math.cos(mid);
+    const ly = cy + lr * Math.sin(mid);
+    const anchor = Math.cos(mid) > 0.1 ? "start" : Math.cos(mid) < -0.1 ? "end" : "middle";
+    angle = end;
+    return { d, color: palette[c.color] ?? "#8892A0", name: c.name, pct: c.pct, frac, lx, ly, anchor };
+  });
+
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-[80px] h-[80px] shrink-0">
-      {segments.map((s, i) => {
-        const sweep = (s.pct / total) * Math.PI * 2;
-        const a0 = angle + gapAngle / 2;
-        const a1 = angle + sweep - gapAngle / 2;
-        angle += sweep;
-        const large = a1 - a0 > Math.PI ? 1 : 0;
-        const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
-        const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
-        const d = `M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`;
-        return <path key={i} d={d} fill={stroke(s.color)} opacity={0.9} />;
-      })}
-    </svg>
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-3xl rounded-3xl bg-[oklch(0.20_0.02_165)] border border-white/10 p-6">
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
+          <X className="h-4 w-4" />
+        </button>
+        <div className="mb-4">
+          <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Materials &amp; Inventory</p>
+          <h2 className="mt-1 font-display text-[22px] leading-none">Stock by Category</h2>
+          <p className="mt-1 text-[12px] text-white/60">Share of inventory across categories</p>
+        </div>
+
+        <div className="grid md:grid-cols-[320px_1fr] gap-6 items-center">
+          <svg viewBox="0 0 320 320" className="w-full h-auto max-w-[320px] mx-auto">
+            {arcs.map((a, i) => (
+              <path key={i} d={a.d} fill={a.color} stroke="oklch(0.20 0.02 165)" strokeWidth="2" />
+            ))}
+            {arcs.map((a, i) => (
+              <text
+                key={`t-${i}`}
+                x={a.lx}
+                y={a.ly}
+                textAnchor={a.anchor as "start" | "end" | "middle"}
+                dominantBaseline="middle"
+                fontSize="9"
+                fill="rgba(255,255,255,0.7)"
+                style={{ letterSpacing: "0.14em", textTransform: "uppercase" }}
+              >
+                {Math.round(a.frac * 100)}%
+              </text>
+            ))}
+          </svg>
+
+          <ul className="space-y-2">
+            {arcs.map((a, i) => (
+              <li key={i} className="flex items-center gap-3 rounded-xl bg-black/30 border border-white/10 px-3 py-2">
+                <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: a.color }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12.5px] truncate">{a.name}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[13px] font-medium">{a.pct}%</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
+
