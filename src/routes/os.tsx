@@ -30,10 +30,10 @@ type Hotspot = {
 };
 
 const HOTSPOTS: Hotspot[] = [
-  { id: "projects",  label: "Projects",  kpi: "12 Active",   meta: "7 on track · 3 at risk",  trend: "+2 MoM",     tone: "forest", Icon: Building2, x: 30, y: 42, to: "/app/projects"  },
-  { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "$24.8k pay", tone: "sand",   Icon: Users,     x: 70, y: 38, to: "/app/employees" },
-  { id: "finance",   label: "Finance",   kpi: "$128,450",    meta: "In $84.2k · Ex $52.1k",   trend: "+12.4% MoM", tone: "forest", Icon: Wallet,    x: 32, y: 72, to: "/app/dashboard" },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 in service", trend: "Fuel $1.2k", tone: "sand",   Icon: Truck,     x: 68, y: 68, to: "/app/fleet"     },
+  { id: "projects",  label: "Projects",  kpi: "12 Active",   meta: "7 on track · 3 at risk",  trend: "+2",        tone: "forest", Icon: Building2, x: 22, y: 40, to: "/app/projects"  },
+  { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "$24.8k",    tone: "sand",   Icon: Users,     x: 78, y: 34, to: "/app/employees" },
+  { id: "finance",   label: "Finance",   kpi: "$128,450",    meta: "In $84.2k · Ex $52.1k",   trend: "+12.4%",    tone: "forest", Icon: Wallet,    x: 24, y: 74, to: "/app/dashboard" },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 service",    trend: "$1.2k",     tone: "sand",   Icon: Truck,     x: 76, y: 70, to: "/app/fleet"     },
 ];
 
 function CommandCenter() {
@@ -219,17 +219,17 @@ function HotspotLabel({ spot, onClick }: { spot: Hotspot; onClick: () => void })
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 rounded-full border border-cyan-200/50 animate-ping" style={{ animationDuration: "2.8s" }} />
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-cyan-100/30 animate-ping" style={{ animationDuration: "3.6s", animationDelay: "0.6s" }} />
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full border border-cyan-100/20 animate-ping" style={{ animationDuration: "4.4s", animationDelay: "1.2s" }} />
-      <div className="relative mt-3 flex items-stretch gap-2.5 rounded-2xl pl-2.5 pr-3.5 py-2 text-white/95 transition-all duration-300 group-hover:scale-[1.05] bg-white/[0.06] border border-white/10 min-w-[170px]">
-        <span className="h-8 w-8 self-center rounded-xl bg-white/10 grid place-items-center shrink-0">
-          <Icon className="h-3.5 w-3.5 text-white/90" />
+      <div className="relative mt-3 flex items-stretch gap-2 rounded-2xl pl-2 pr-3 py-1.5 text-white/95 transition-all duration-300 group-hover:scale-[1.04] bg-black/25 border border-white/10 backdrop-blur-sm w-[150px]">
+        <span className="h-7 w-7 self-center rounded-lg bg-white/10 grid place-items-center shrink-0">
+          <Icon className="h-3 w-3 text-white/90" />
         </span>
-        <div className="text-left leading-tight">
-          <div className="flex items-baseline justify-between gap-2">
-            <p className="text-[9px] uppercase tracking-[0.25em] text-white/60">{spot.label}</p>
-            <p className={`text-[9px] ${toneText}`}>{spot.trend}</p>
+        <div className="text-left leading-tight min-w-0 flex-1">
+          <div className="flex items-baseline justify-between gap-1.5">
+            <p className="text-[8.5px] uppercase tracking-[0.22em] text-white/55 truncate">{spot.label}</p>
+            <p className={`text-[8.5px] ${toneText} shrink-0`}>{spot.trend}</p>
           </div>
-          <p className="text-[13px] font-medium mt-0.5">{spot.kpi}</p>
-          <p className="text-[10px] text-white/60 mt-0.5">{spot.meta}</p>
+          <p className="text-[12px] font-medium mt-0.5 truncate">{spot.kpi}</p>
+          <p className="text-[9.5px] text-white/50 mt-0.5 truncate">{spot.meta}</p>
         </div>
       </div>
     </button>
@@ -270,22 +270,43 @@ function RainLayer() {
 
 /* ─────────────── Stars (night) ─────────────── */
 function StarsLayer() {
-  const stars = Array.from({ length: 80 }, (_, i) => i);
+  // Deterministic pseudo-random spread across the whole sky
+  const stars = Array.from({ length: 110 }, (_, i) => {
+    const r1 = Math.sin(i * 12.9898) * 43758.5453;
+    const r2 = Math.sin(i * 78.233) * 12345.6789;
+    const left = ((r1 - Math.floor(r1)) * 100);
+    const top = ((r2 - Math.floor(r2)) * 70); // upper 70% of sky
+    const size = 0.6 + ((i * 7) % 5) * 0.25;
+    const delay = (i * 173) % 5000;
+    const baseOpacity = 0.35 + ((i * 19) % 45) / 100;
+    return { i, left, top, size, delay, baseOpacity };
+  });
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-[4]">
-      {/* Moon */}
-      <div className="absolute right-[8%] top-[10%] h-16 w-16 rounded-full bg-[radial-gradient(circle_at_35%_35%,#fff_0%,#e8ecf5_45%,#a9b3c9_100%)] shadow-[0_0_60px_20px_rgba(200,215,255,0.25)]" />
-      {stars.map((i) => {
-        const left = (i * 977) % 10000 / 100;
-        const top = (i * 613) % 6500 / 100;
-        const size = 1 + ((i * 7) % 3) * 0.5;
-        const delay = (i * 173) % 4000;
-        return (
-          <span key={i} className="absolute rounded-full bg-white"
-            style={{ left: `${left}%`, top: `${top}%`, width: size, height: size, opacity: 0.7, animation: `star-tw 3.5s ease-in-out ${delay}ms infinite` }} />
-        );
-      })}
-      <style>{`@keyframes star-tw { 0%,100% { opacity: 0.25 } 50% { opacity: 0.95 } }`}</style>
+      {/* Moon — subtle, soft */}
+      <div
+        className="absolute right-[10%] top-[12%] h-14 w-14 rounded-full"
+        style={{
+          background: "radial-gradient(circle at 38% 38%, rgba(245,240,225,0.85) 0%, rgba(220,215,200,0.55) 55%, rgba(180,180,175,0.15) 100%)",
+          boxShadow: "0 0 80px 30px rgba(230,225,210,0.08)",
+          filter: "blur(0.3px)",
+        }}
+      />
+      {stars.map((s) => (
+        <span
+          key={s.i}
+          className="absolute rounded-full bg-white"
+          style={{
+            left: `${s.left}%`,
+            top: `${s.top}%`,
+            width: s.size,
+            height: s.size,
+            opacity: s.baseOpacity,
+            animation: `star-tw 4s ease-in-out ${s.delay}ms infinite`,
+          }}
+        />
+      ))}
+      <style>{`@keyframes star-tw { 0%,100% { opacity: 0.2 } 50% { opacity: 0.75 } }`}</style>
     </div>
   );
 }
