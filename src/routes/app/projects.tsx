@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Building2, CheckCircle2, AlertTriangle, Wallet, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Building2, CheckCircle2, AlertTriangle, Wallet, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
 import riverside from "@/assets/proj-riverside.jpg";
 import karrada from "@/assets/proj-karrada.jpg";
 import erbil from "@/assets/proj-erbil.jpg";
