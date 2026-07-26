@@ -129,6 +129,40 @@
   border: 1px solid color-mix(in oklab, var(--foreground) 8%, transparent);
 }
 
+/* Dark forest theme scoped to the app shell. Applied via a wrapper class
+   so the Command Center and marketing routes keep their own palettes. */
+.app-dark {
+  --background: oklch(0.19 0.02 165);
+  --foreground: oklch(0.94 0.01 90);
+
+  --card: oklch(0.235 0.022 165);
+  --card-foreground: oklch(0.94 0.01 90);
+  --popover: oklch(0.235 0.022 165);
+  --popover-foreground: oklch(0.94 0.01 90);
+
+  --primary: oklch(0.72 0.14 145);
+  --primary-foreground: oklch(0.16 0.02 165);
+  --forest: oklch(0.72 0.14 145);
+  --forest-deep: oklch(0.32 0.06 155);
+
+  --secondary: oklch(0.27 0.02 165);
+  --secondary-foreground: oklch(0.92 0.01 90);
+
+  --muted: oklch(0.27 0.02 165);
+  --muted-foreground: oklch(0.68 0.015 90);
+
+  --accent: oklch(0.32 0.03 155);
+  --accent-foreground: oklch(0.94 0.01 90);
+
+  --border: color-mix(in oklab, white 10%, transparent);
+  --input: color-mix(in oklab, white 10%, transparent);
+  --ring: oklch(0.72 0.14 145);
+
+  color-scheme: dark;
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
 @utility grain {
   position: relative;
 }

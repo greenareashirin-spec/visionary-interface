@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Settings as SettingsIcon, Search, Bell } from "lucide-react";
+import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Handshake, FolderOpen, Settings as SettingsIcon, Search, Bell } from "lucide-react";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 
 export const Route = createFileRoute("/app")({
@@ -13,14 +13,17 @@ const nav = [
   { to: "/app/projects",  label: "Projects",       Icon: Building2 },
   { to: "/app/employees", label: "Employees",      Icon: Users },
   { to: "/app/materials", label: "Materials",      Icon: Package },
+  { to: "/app/settings",  label: "Fleet",          Icon: Truck },
+  { to: "/app/settings",  label: "Suppliers",      Icon: Handshake },
+  { to: "/app/daily-log", label: "Documents",      Icon: FolderOpen },
   { to: "/app/settings",  label: "Settings",       Icon: SettingsIcon },
 ] as const;
 
 function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <div className="min-h-screen bg-[oklch(0.95_0.018_82)] text-foreground flex">
-      <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-card/80 backdrop-blur sticky top-0 h-screen">
+    <div className="app-dark min-h-screen text-foreground flex">
+      <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-border bg-card/60 backdrop-blur sticky top-0 h-screen">
         <div className="px-6 py-7 flex items-center gap-3">
           <img src={logoAsset.url} alt="" className="h-9 w-9" />
           <div>
@@ -28,26 +31,26 @@ function AppShell() {
             <p className="text-[9px] uppercase tracking-[0.32em] text-muted-foreground mt-1.5">Operating System</p>
           </div>
         </div>
-        <nav className="px-3 mt-2 flex-1">
+        <nav className="px-3 mt-2 flex-1 overflow-y-auto">
           {nav.map(({ to, label, Icon }) => {
             const active = to === "/os" ? pathname === "/os" : pathname === to || pathname.startsWith(to + "/");
             return (
               <Link
-                key={to}
+                key={label}
                 to={to}
                 className={`group flex items-center gap-3 rounded-xl px-3.5 py-2.5 mb-0.5 transition ${
-                  active ? "bg-forest text-background" : "text-foreground/80 hover:bg-secondary"
+                  active ? "bg-forest/20 text-forest border border-forest/30" : "text-foreground/75 hover:bg-secondary"
                 }`}
               >
-                <Icon className={`h-4 w-4 ${active ? "opacity-90" : "opacity-70"}`} />
+                <Icon className={`h-4 w-4 ${active ? "opacity-100" : "opacity-70"}`} />
                 <span className="text-sm font-medium">{label}</span>
               </Link>
             );
           })}
         </nav>
-        <div className="p-5 m-3 rounded-2xl bg-secondary/70">
+        <div className="p-5 m-3 rounded-2xl bg-secondary/70 border border-border">
           <div className="flex items-center gap-2">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             <p className="text-xs text-muted-foreground">All systems operational</p>
           </div>
           <p className="text-sm mt-2">Green Area UK</p>
@@ -68,9 +71,9 @@ function AppShell() {
               </div>
               <button className="relative rounded-full p-2 hover:bg-secondary transition" aria-label="Notifications">
                 <Bell className="h-4 w-4 text-muted-foreground" />
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-forest text-background text-[9px] grid place-items-center">3</span>
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
               </button>
-              <div className="h-9 w-9 rounded-full bg-sand grid place-items-center text-forest-deep font-medium text-sm">GA</div>
+              <div className="h-9 w-9 rounded-full bg-forest/20 border border-forest/30 grid place-items-center text-forest font-medium text-sm">GA</div>
             </div>
           </div>
         </header>
