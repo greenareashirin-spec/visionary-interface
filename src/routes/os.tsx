@@ -98,6 +98,7 @@ function CommandCenter() {
           {/* Center: greeting + hotspots + fixed Ask OS input */}
           <section className="col-span-12 md:col-span-6 flex flex-col min-h-0 gap-3">
             <GreetingHeader period={period} />
+            <MobileFinanceBars />
             <div className="relative flex-1 min-h-0">
               {HOTSPOTS.map((s) => (
                 <HotspotLabel key={s.id} spot={s} onClick={() => flyTo(s)} />
@@ -117,7 +118,53 @@ function CommandCenter() {
   );
 }
 
-/* ─────────────── Top bar ─────────────── */
+/* ─────────────── Mobile-only financial mini bars ─────────────── */
+function MobileFinanceBars() {
+  // last 7 days, subtle stacked income vs expense
+  const days = ["M", "T", "W", "T", "F", "S", "S"];
+  const data = [
+    { in: 9.2, ex: 6.1 },
+    { in: 11.4, ex: 7.3 },
+    { in: 8.6, ex: 5.9 },
+    { in: 13.2, ex: 8.8 },
+    { in: 10.1, ex: 6.4 },
+    { in: 7.8, ex: 4.6 },
+    { in: 12.5, ex: 7.2 },
+  ];
+  const max = Math.max(...data.map((d) => d.in + d.ex));
+  const totalIn = data.reduce((s, d) => s + d.in, 0);
+  const totalEx = data.reduce((s, d) => s + d.ex, 0);
+  const net = totalIn - totalEx;
+  return (
+    <div className="md:hidden rounded-2xl border border-white/10 bg-black/32 backdrop-blur-md px-3 py-2.5">
+      <div className="flex items-baseline justify-between">
+        <p className="text-[8.5px] uppercase tracking-[0.28em] text-white/55">Finance · 7d</p>
+        <div className="flex items-center gap-2 text-[9px] text-white/60">
+          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-forest" />In</span>
+          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-white/40" />Ex</span>
+          <span className="text-white/85 font-medium">Net ${net.toFixed(1)}k</span>
+        </div>
+      </div>
+      <div className="mt-2 flex items-end gap-1.5 h-10">
+        {data.map((d, i) => {
+          const inH = (d.in / max) * 100;
+          const exH = (d.ex / max) * 100;
+          return (
+            <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
+              <div className="w-full flex flex-col-reverse h-9 rounded-[3px] overflow-hidden">
+                <div className="w-full bg-forest/80" style={{ height: `${inH}%` }} />
+                <div className="w-full bg-white/25" style={{ height: `${exH}%` }} />
+              </div>
+              <span className="text-[8px] text-white/45">{days[i]}</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+
 function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: Weather; period: Period; place: string; tempC: number | null }) {
   const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
   return (
