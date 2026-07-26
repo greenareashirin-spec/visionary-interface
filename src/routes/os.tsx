@@ -75,6 +75,7 @@ function CommandCenter() {
       <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/40 via-transparent to-black/55" />
       <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.55)_100%)]" />
       {period === "night" && weather !== "rain" && weather !== "thunder" && weather !== "snow" && <StarsLayer />}
+      {period === "night" && weather !== "rain" && weather !== "thunder" && weather !== "snow" && weather !== "fog" && weather !== "sandstorm" && <RealisticMoon now={now} />}
       {weather === "rain" && <RainLayer />}
       {weather === "thunder" && (<><RainLayer /><LightningLayer /></>)}
       {weather === "snow" && <SnowLayer />}
