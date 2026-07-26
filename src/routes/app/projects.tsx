@@ -155,3 +155,102 @@ function Select({ label }: { label: string }) {
     </button>
   );
 }
+
+/* ─────────────── Spend chart (solid "cake bites") ─────────────── */
+function SpendChartModal({ onClose }: { onClose: () => void }) {
+  const parseAmt = (s: string) => Number(s.replace(/[^0-9.]/g, ""));
+  const slices = projects.map((p) => ({ name: p.name, code: p.code, value: parseAmt(p.spent) }));
+  const total = slices.reduce((s, x) => s + x.value, 0);
+  const palette = ["#7CB342", "#F59E0B", "#F43F5E", "#38BDF8", "#A78BFA", "#F97316"];
+
+  const R = 120;
+  const cx = 160;
+  const cy = 160;
+  const gap = 0.02; // radians between slices for "cake bite" separation
+  let angle = -Math.PI / 2;
+
+  const arcs = slices.map((s, i) => {
+    const frac = s.value / total;
+    const sweep = frac * Math.PI * 2 - gap;
+    const start = angle + gap / 2;
+    const end = start + sweep;
+    const large = sweep > Math.PI ? 1 : 0;
+    // slight explode
+    const mid = (start + end) / 2;
+    const ox = Math.cos(mid) * 4;
+    const oy = Math.sin(mid) * 4;
+    const x1 = cx + ox + R * Math.cos(start);
+    const y1 = cy + oy + R * Math.sin(start);
+    const x2 = cx + ox + R * Math.cos(end);
+    const y2 = cy + oy + R * Math.sin(end);
+    const d = `M ${cx + ox} ${cy + oy} L ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2} Z`;
+    // label anchor beyond the arc
+    const lr = R + 22;
+    const lx = cx + ox + lr * Math.cos(mid);
+    const ly = cy + oy + lr * Math.sin(mid);
+    const anchor = Math.cos(mid) > 0.1 ? "start" : Math.cos(mid) < -0.1 ? "end" : "middle";
+    angle = end + gap / 2;
+    return { d, color: palette[i % palette.length], name: s.name, code: s.code, value: s.value, frac, lx, ly, anchor };
+  });
+
+  const fmt = (n: number) => "$" + n.toLocaleString();
+
+  return (
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-3xl rounded-3xl bg-[oklch(0.20_0.02_165)] border border-white/10 p-6"
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
+          <X className="h-4 w-4" />
+        </button>
+        <div className="mb-4">
+          <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Portfolio</p>
+          <h2 className="mt-1 font-display text-[22px] leading-none">Spend by Project</h2>
+          <p className="mt-1 text-[12px] text-white/60">Total spent · {fmt(total)}</p>
+        </div>
+
+        <div className="grid md:grid-cols-[320px_1fr] gap-6 items-center">
+          <svg viewBox="0 0 320 320" className="w-full h-auto max-w-[320px] mx-auto">
+            {arcs.map((a, i) => (
+              <path key={i} d={a.d} fill={a.color} stroke="oklch(0.20 0.02 165)" strokeWidth="2" />
+            ))}
+            {arcs.map((a, i) => (
+              <text
+                key={`t-${i}`}
+                x={a.lx}
+                y={a.ly}
+                textAnchor={a.anchor as "start" | "end" | "middle"}
+                dominantBaseline="middle"
+                fontSize="9"
+                fill="rgba(255,255,255,0.7)"
+                style={{ letterSpacing: "0.14em", textTransform: "uppercase" }}
+              >
+                {Math.round(a.frac * 100)}%
+              </text>
+            ))}
+          </svg>
+
+          <ul className="space-y-2">
+            {arcs.map((a, i) => (
+              <li key={i} className="flex items-center gap-3 rounded-xl bg-white/[0.03] border border-white/10 px-3 py-2">
+                <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: a.color }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12.5px] truncate">{a.name}</p>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">{a.code}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[13px] font-medium">{fmt(a.value)}</p>
+                  <p className="text-[10px] text-white/50">{(a.frac * 100).toFixed(1)}%</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
