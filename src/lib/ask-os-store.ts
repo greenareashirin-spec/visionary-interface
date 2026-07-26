@@ -8,6 +8,8 @@ type State = {
 };
 
 const KEY = "ask-os:v1";
+const MEMORY_MS = 6 * 60 * 60 * 1000; // 6 hours
+const prune = (msgs: AskMessage[]) => msgs.filter((m) => Date.now() - m.at < MEMORY_MS);
 const listeners = new Set<() => void>();
 
 function load(): AskMessage[] {
@@ -37,7 +39,16 @@ let hydrated = false;
 function ensureHydrated() {
   if (hydrated || typeof window === "undefined") return;
   hydrated = true;
-  state = { messages: load(), activeId: null };
+  state = { messages: prune(load()), activeId: null };
+  save(state.messages);
+  // Re-prune every 5 minutes so stale conversations drop off live.
+  window.setInterval(() => {
+    const kept = prune(state.messages);
+    if (kept.length !== state.messages.length) {
+      const activeId = state.activeId && kept.some((m) => m.id === state.activeId) ? state.activeId : null;
+      set({ messages: kept, activeId });
+    }
+  }, 5 * 60 * 1000);
 }
 
 function set(next: State) {
@@ -78,7 +89,7 @@ export function askOS(q: string) {
     ? crypto.randomUUID()
     : `m_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const msg: AskMessage = { id, q: text, a: stubAnswer(text), at: Date.now() };
-  set({ messages: [msg, ...state.messages].slice(0, 40), activeId: id });
+  set({ messages: prune([msg, ...state.messages]).slice(0, 40), activeId: id });
 }
 
 export function openMessage(id: string) {
