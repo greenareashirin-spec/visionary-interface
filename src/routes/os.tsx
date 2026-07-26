@@ -303,7 +303,7 @@ function AIAssistantBar({ hidden }: { hidden: boolean }) {
   const examples = ["Show fuel expenses", "Summarize today", "Missing receipts", "Project status", "Forecast cash flow"];
   return (
     <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[min(720px,92vw)] transition-all duration-500 ${hidden ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
-      <div className="rounded-2xl bg-white/[0.06] backdrop-blur-2xl backdrop-saturate-150 border border-white/10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)] px-4 py-3 text-white">
+      <div className="rounded-2xl bg-white/[0.04] border border-white/10 px-4 py-3 text-white">
         <div className="flex items-center gap-3">
           <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
             <Sparkles className="h-4 w-4" />
