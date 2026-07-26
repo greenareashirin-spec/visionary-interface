@@ -253,22 +253,22 @@ function AIAssistantBar({ hidden }: { hidden: boolean }) {
   const [q, setQ] = useState("");
   const examples = ["Show fuel expenses", "Summarize today", "Missing receipts", "Project status", "Forecast cash flow"];
   return (
-    <div className={`fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[min(720px,92vw)] transition-all duration-500 ${hidden ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
-      <div className="rounded-2xl bg-card/95 backdrop-blur-xl border border-border shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)] px-4 py-3">
+    <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[min(720px,92vw)] transition-all duration-500 ${hidden ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
+      <div className="rounded-2xl bg-black/55 backdrop-blur-xl border border-white/10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)] px-4 py-3 text-white">
         <div className="flex items-center gap-3">
-          <span className="h-8 w-8 rounded-full bg-forest text-background grid place-items-center shrink-0">
+          <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
             <Sparkles className="h-4 w-4" />
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground">Ask OS</p>
+            <p className="text-[10px] uppercase tracking-[0.28em] text-white/60">Ask OS</p>
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Ask anything about Green Area…"
-              className="w-full bg-transparent outline-none text-sm placeholder:text-muted-foreground/70 mt-0.5"
+              className="w-full bg-transparent outline-none text-sm placeholder:text-white/40 mt-0.5"
             />
           </div>
-          <button className="rounded-full bg-forest text-background text-xs px-4 py-2 hover:bg-forest-deep transition shrink-0">
+          <button className="rounded-full bg-forest text-forest-deep font-medium text-xs px-4 py-2 hover:brightness-110 transition shrink-0">
             Ask
           </button>
         </div>
@@ -277,7 +277,7 @@ function AIAssistantBar({ hidden }: { hidden: boolean }) {
             <button
               key={e}
               onClick={() => setQ(e)}
-              className="text-[11px] px-2.5 py-1 rounded-full bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground transition"
+              className="text-[11px] px-2.5 py-1 rounded-full bg-white/10 text-white/75 hover:bg-white/20 hover:text-white transition"
             >
               {e}
             </button>
