@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   Wallet, Building2, Users, Truck, FolderOpen, Package,
   Bell, Search, ChevronDown, Sparkles, ArrowRight, CloudRain, Cloud, Sun, Moon,
+  Receipt, FileText, Fuel, MapPin,
 } from "lucide-react";
 import landscape from "@/assets/command-landscape.jpg";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
@@ -31,9 +32,10 @@ type Hotspot = {
 };
 
 const HOTSPOTS: Hotspot[] = [
-  { id: "projects",  label: "Projects",  kpi: "12 Active",  Icon: Building2, x: 30, y: 40, to: "/app/projects"  },
-  { id: "employees", label: "Employees", kpi: "18 Active",  Icon: Users,     x: 55, y: 58, to: "/app/employees" },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles", Icon: Truck,     x: 78, y: 44, to: "/app/settings"  },
+  { id: "projects",  label: "Projects",  kpi: "12 Active",   Icon: Building2, x: 24, y: 30, to: "/app/projects"  },
+  { id: "employees", label: "Employees", kpi: "18 Active",   Icon: Users,     x: 76, y: 28, to: "/app/employees" },
+  { id: "finance",   label: "Finance",   kpi: "$128,450",    Icon: Wallet,    x: 22, y: 72, to: "/app/dashboard" },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  Icon: Truck,     x: 78, y: 70, to: "/app/settings"  },
 ];
 
 function CommandCenter() {
@@ -110,6 +112,7 @@ function CommandCenter() {
         </aside>
       </div>
 
+      <LatestEntriesBar hidden={!!zooming} />
       <AIAssistantBar hidden={!!zooming} />
     </div>
   );
@@ -244,6 +247,47 @@ function LandscapeLightsLayer() {
         />
       ))}
       <style>{`@keyframes light-flicker { 0%,100% { opacity: 0.85 } 50% { opacity: 1 } }`}</style>
+    </div>
+  );
+}
+
+/* ─────────────── Latest Entries Ticker ─────────────── */
+function LatestEntriesBar({ hidden }: { hidden: boolean }) {
+  const entries: { Icon: React.ComponentType<{ className?: string }>; kind: string; label: string; meta: string; time: string; tone: "forest" | "sand" | "rose" }[] = [
+    { Icon: Receipt,  kind: "Payment",  label: "Riverside Villa",  meta: "+$18,000",   time: "2m",  tone: "forest" },
+    { Icon: FileText, kind: "Invoice",  label: "Karrada Rooftop",  meta: "$6,500",     time: "18m", tone: "sand"   },
+    { Icon: MapPin,   kind: "Site Log", label: "Erbil Courtyard",  meta: "Ako",        time: "1h",  tone: "forest" },
+    { Icon: Fuel,     kind: "Fuel",     label: "Workshop truck",   meta: "-$120",      time: "2h",  tone: "rose"   },
+    { Icon: Users,    kind: "Roster",   label: "Omar Nabil on leave", meta: "1 day",   time: "3h",  tone: "sand"   },
+  ];
+  return (
+    <div className={`fixed bottom-28 left-1/2 -translate-x-1/2 z-40 w-[min(960px,94vw)] transition-all duration-500 ${hidden ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"}`}>
+      <div className="rounded-2xl bg-black/45 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_-25px_rgba(0,0,0,0.7)] px-4 py-2.5 text-white">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0 pr-3 border-r border-white/10">
+            <span className="h-1.5 w-1.5 rounded-full bg-forest animate-pulse" />
+            <p className="text-[10px] uppercase tracking-[0.28em] text-white/70">Latest Entries</p>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <div className="flex items-center gap-5 overflow-x-auto scrollbar-none">
+              {entries.map((e, i) => (
+                <div key={i} className="flex items-center gap-2.5 shrink-0">
+                  <span className={`h-6 w-6 rounded-full grid place-items-center ${e.tone === "forest" ? "bg-forest/20 text-forest" : e.tone === "rose" ? "bg-rose-500/15 text-rose-300" : "bg-sand/15 text-sand"}`}>
+                    <e.Icon className="h-3 w-3" />
+                  </span>
+                  <div className="leading-tight">
+                    <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{e.kind} · {e.time}</p>
+                    <p className="text-[12px]"><span className="text-white/90">{e.label}</span> <span className="text-white/60">· {e.meta}</span></p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <button className="shrink-0 flex items-center gap-1.5 text-[10px] uppercase tracking-[0.25em] text-white/60 hover:text-white transition">
+            View all <ArrowRight className="h-3 w-3" />
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
