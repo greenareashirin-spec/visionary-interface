@@ -494,52 +494,35 @@ function CashflowDonutCard() {
   const total = income + expense;
   const net = income - expense;
   const incomePct = (income / total) * 100;
-  const R = 42;
-  const C = 2 * Math.PI * R;
-  const incomeLen = (incomePct / 100) * C;
   const fmt = (n: number) => `$${(n / 1000).toFixed(1)}k`;
+
+  const cx = 50, cy = 50, r = 46;
+  const a = (incomePct / 100) * Math.PI * 2 - Math.PI / 2;
+  const x1 = cx + r * Math.cos(-Math.PI / 2);
+  const y1 = cy + r * Math.sin(-Math.PI / 2);
+  const x2 = cx + r * Math.cos(a);
+  const y2 = cy + r * Math.sin(a);
+  const large = incomePct > 50 ? 1 : 0;
+  const incomePath = `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} Z`;
+  const expensePath = `M${cx},${cy} L${x2},${y2} A${r},${r} 0 ${1 - large} 1 ${x1},${y1} Z`;
+
   return (
     <Card title="Cashflow" action="30d">
-      <div className="h-full flex items-center gap-4">
-        <div className="relative h-[112px] w-[112px] shrink-0">
-          <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-            <circle cx="50" cy="50" r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
-            <circle
-              cx="50" cy="50" r={R} fill="none"
-              stroke="hsl(var(--forest, 145 40% 55%))"
-              className="[stroke:theme(colors.forest.DEFAULT,#7fb08a)]"
-              strokeWidth="10" strokeLinecap="butt"
-              strokeDasharray={`${incomeLen} ${C}`}
-            />
-            <circle
-              cx="50" cy="50" r={R} fill="none"
-              stroke="rgb(251 113 133)"
-              strokeWidth="10" strokeLinecap="butt"
-              strokeDasharray={`${C - incomeLen} ${C}`}
-              strokeDashoffset={-incomeLen}
-            />
-          </svg>
-          <div className="absolute inset-0 grid place-items-center text-center leading-tight">
-            <div>
-              <p className="text-[8.5px] uppercase tracking-[0.22em] text-white/50">Net</p>
-              <p className="text-[13px] font-medium text-white">{fmt(net)}</p>
-            </div>
-          </div>
+      <div className="h-full flex flex-col items-center justify-center gap-2.5">
+        <div className="text-center leading-tight">
+          <p className="text-[9px] uppercase tracking-[0.28em] text-white/55">Net · 30d</p>
+          <p className="text-[26px] font-medium text-white mt-0.5">{fmt(net)}</p>
         </div>
-        <ul className="flex-1 space-y-2 text-[12px]">
-          <li>
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-white/75"><span className="h-2 w-2 rounded-full bg-forest" /> Income</span>
-              <span className="text-white/90 font-medium">{fmt(income)}</span>
-            </div>
-            <p className="text-[10px] text-white/45 mt-0.5">{incomePct.toFixed(0)}% of flow</p>
+        <svg viewBox="0 0 100 100" className="h-[110px] w-[110px]">
+          <path d={incomePath} fill="oklch(0.72 0.14 145)" />
+          <path d={expensePath} fill="rgb(251 113 133)" />
+        </svg>
+        <ul className="flex items-center gap-4 text-[11px]">
+          <li className="flex items-center gap-1.5 text-white/80">
+            <span className="h-2 w-2 rounded-full bg-forest" /> Income <span className="text-white/95 font-medium ml-1">{fmt(income)}</span>
           </li>
-          <li>
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-white/75"><span className="h-2 w-2 rounded-full bg-rose-400" /> Expense</span>
-              <span className="text-white/90 font-medium">{fmt(expense)}</span>
-            </div>
-            <p className="text-[10px] text-white/45 mt-0.5">{(100 - incomePct).toFixed(0)}% of flow</p>
+          <li className="flex items-center gap-1.5 text-white/80">
+            <span className="h-2 w-2 rounded-full bg-rose-400" /> Expense <span className="text-white/95 font-medium ml-1">{fmt(expense)}</span>
           </li>
         </ul>
       </div>
