@@ -209,8 +209,9 @@ function HotspotLabel({ spot, onClick }: { spot: Hotspot; onClick: () => void })
       style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
       aria-label={`${spot.label} — ${spot.kpi}`}
     >
-      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-white/90 shadow-[0_0_0_4px_rgba(255,255,255,0.15)]" />
-      <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-9 w-9 rounded-full bg-white/25 animate-ping opacity-60" style={{ animationDuration: "3.5s" }} />
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 rounded-full border border-cyan-200/50 animate-ping" style={{ animationDuration: "2.8s" }} />
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-cyan-100/30 animate-ping" style={{ animationDuration: "3.6s", animationDelay: "0.6s" }} />
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full border border-cyan-100/20 animate-ping" style={{ animationDuration: "4.4s", animationDelay: "1.2s" }} />
       <div className="relative mt-3 flex items-stretch gap-2.5 rounded-2xl pl-2.5 pr-3.5 py-2 text-white/95 transition-all duration-300 group-hover:scale-[1.05] bg-white/[0.06] border border-white/10 min-w-[170px]">
         <span className="h-8 w-8 self-center rounded-xl bg-white/10 grid place-items-center shrink-0">
           <Icon className="h-3.5 w-3.5 text-white/90" />
