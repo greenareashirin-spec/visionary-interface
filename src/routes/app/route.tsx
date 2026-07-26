@@ -31,7 +31,7 @@ function AppShell() {
       {/* floating workspace */}
       <div className="relative z-10 h-screen w-screen p-2 sm:p-3 lg:p-4 flex gap-2 sm:gap-3 lg:gap-4">
         {/* sidebar card — icon rail on mobile, full label on md+ */}
-        <aside className="flex w-20 md:w-56 lg:w-60 shrink-0 flex-col rounded-2xl md:rounded-3xl bg-white/[0.055] border border-white/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] overflow-hidden">
+        <aside className="flex w-20 md:w-56 lg:w-60 shrink-0 flex-col rounded-2xl md:rounded-3xl bg-black/45 backdrop-blur-xl border border-white/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] overflow-hidden">
           <div className="px-2 md:px-5 pt-4 md:pt-5 pb-3 md:pb-4 flex items-center gap-3 justify-center md:justify-start">
             <img src={logoAsset.url} alt="" className="h-8 w-8" />
             <div className="hidden md:block leading-tight">
@@ -62,7 +62,7 @@ function AppShell() {
               );
             })}
           </nav>
-          <div className="hidden md:block m-2.5 p-3 rounded-2xl bg-white/[0.04] border border-white/10">
+          <div className="hidden md:block m-2.5 p-3 rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10">
             <div className="flex items-center gap-2">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
               <p className="text-[11px] text-white/70">All systems operational</p>
@@ -73,7 +73,7 @@ function AppShell() {
         </aside>
 
         {/* main workspace card */}
-        <div className="flex-1 min-w-0 rounded-2xl md:rounded-3xl bg-white/[0.055] border border-white/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden">
+        <div className="flex-1 min-w-0 rounded-2xl md:rounded-3xl bg-black/45 backdrop-blur-xl border border-white/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] flex flex-col overflow-hidden">
           <header className="h-14 shrink-0 px-4 md:px-5 lg:px-6 flex items-center justify-between gap-4 border-b border-white/10">
             <Link to="/os" className="text-[10px] uppercase tracking-[0.28em] text-white/60 hover:text-white transition whitespace-nowrap">
               ← Command Center

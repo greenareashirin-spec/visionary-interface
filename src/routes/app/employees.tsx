@@ -33,7 +33,7 @@ function Employees() {
           <p className="mt-1 text-[12px] text-white/60">Manage your people, roles and activity.</p>
         </div>
         <div className="flex gap-2">
-          <button className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/10 transition">Export</button>
+          <button className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition">Export</button>
           <button className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium flex items-center gap-1.5 hover:brightness-110 transition">
             <Plus className="h-3.5 w-3.5" /> Add Employee
           </button>
@@ -42,7 +42,7 @@ function Employees() {
 
       <section className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-white/[0.04] border border-white/10 p-3.5">
+          <div key={s.label} className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-3.5">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
@@ -60,7 +60,7 @@ function Employees() {
         ))}
       </section>
 
-      <section className="rounded-2xl bg-white/[0.04] border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
+      <section className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
           <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
             <Search className="h-3.5 w-3.5 text-white/55" />
@@ -68,7 +68,7 @@ function Employees() {
           </div>
           <Select label="All Departments" />
           <Select label="All Status" />
-          <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition">
+          <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 transition">
             <Filter className="h-3 w-3" /> More Filters
           </button>
         </div>
@@ -96,7 +96,7 @@ function Employees() {
             </thead>
             <tbody>
               {team.map((m) => (
-                <tr key={m.id} className="border-t border-white/5 hover:bg-white/[0.03] transition">
+                <tr key={m.id} className="border-t border-white/5 hover:bg-black/30 transition">
                   <td className="py-2.5 px-4">
                     <div className="flex items-center gap-2.5">
                       <div className="h-7 w-7 rounded-full bg-forest/15 grid place-items-center font-medium text-forest text-[10px]">
@@ -134,7 +134,7 @@ function Employees() {
 
 function Select({ label }: { label: string }) {
   return (
-    <button className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition flex items-center gap-1.5">
+    <button className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 transition flex items-center gap-1.5">
       {label} <span className="text-white/50 text-[10px]">▾</span>
     </button>
   );
