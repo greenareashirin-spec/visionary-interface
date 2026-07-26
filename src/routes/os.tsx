@@ -268,7 +268,51 @@ function RainLayer() {
   );
 }
 
+/* ─────────────── Moon (true phase) ─────────────── */
+function MoonPhase() {
+  const now = Date.now();
+  const synodic = 29.530588853 * 86400000;
+  const knownNew = new Date("2000-01-06T18:14:00Z").getTime();
+  const phase = ((((now - knownNew) % synodic) + synodic) % synodic) / synodic;
+  const k = Math.cos(2 * Math.PI * phase); // -1..1
+  const rx = Math.max(0.02, Math.abs(k));
+  const waxing = phase < 0.5;
+  let d: string;
+  if (waxing) {
+    // dark region on the left
+    const sweep = k > 0 ? 0 : 1;
+    d = `M 0,-1 A 1,1 0 0,0 0,1 A ${rx},1 0 0,${sweep} 0,-1 Z`;
+  } else {
+    // dark region on the right
+    const sweep = k > 0 ? 1 : 0;
+    d = `M 0,-1 A 1,1 0 0,1 0,1 A ${rx},1 0 0,${sweep} 0,-1 Z`;
+  }
+  return (
+    <div className="absolute left-4 top-4 h-9 w-9">
+      <div
+        className="absolute inset-[-45%] rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(240,235,215,0.14) 0%, rgba(240,235,215,0.04) 45%, transparent 72%)",
+        }}
+      />
+      <svg viewBox="-1.05 -1.05 2.1 2.1" className="relative h-full w-full">
+        <defs>
+          <radialGradient id="moonLit" cx="0.35" cy="0.35" r="0.9">
+            <stop offset="0%" stopColor="#f7f1de" />
+            <stop offset="70%" stopColor="#d9cfae" />
+            <stop offset="100%" stopColor="#9a9074" />
+          </radialGradient>
+        </defs>
+        <circle r="1" fill="url(#moonLit)" />
+        <path d={d} fill="rgba(6,10,20,0.9)" />
+      </svg>
+    </div>
+  );
+}
+
 /* ─────────────── Stars (night) ─────────────── */
+
 function StarsLayer() {
   // Deterministic pseudo-random spread across the whole sky
   const stars = Array.from({ length: 110 }, (_, i) => {
@@ -283,26 +327,9 @@ function StarsLayer() {
   });
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-[4]">
-      {/* Moon — realistic with craters, terminator shadow, and soft halo */}
-      <div className="absolute right-[10%] top-[10%] h-16 w-16">
-        <div className="absolute inset-[-40%] rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(240,235,215,0.18) 0%, rgba(240,235,215,0.06) 40%, transparent 70%)" }} />
-        <div className="relative h-full w-full rounded-full overflow-hidden"
-          style={{
-            background:
-              "radial-gradient(circle at 34% 34%, #f5efdc 0%, #e5dcc0 42%, #b8ad8e 78%, #7a7159 100%)",
-            boxShadow: "inset -6px -8px 14px rgba(20,15,5,0.55), inset 4px 5px 10px rgba(255,250,230,0.25)",
-          }}
-        >
-          {/* craters */}
-          <span className="absolute rounded-full" style={{ left: "26%", top: "30%", width: "18%", height: "18%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.35), rgba(90,80,60,0.55) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "58%", top: "22%", width: "10%", height: "10%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.3), rgba(90,80,60,0.5) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "48%", top: "55%", width: "14%", height: "14%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.3), rgba(90,80,60,0.5) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "20%", top: "62%", width: "8%", height: "8%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.25), rgba(90,80,60,0.45) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "70%", top: "60%", width: "6%", height: "6%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.25), rgba(90,80,60,0.45) 70%)" }} />
-          <span className="absolute rounded-full" style={{ left: "38%", top: "14%", width: "5%", height: "5%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.25), rgba(90,80,60,0.4) 70%)" }} />
-        </div>
-      </div>
+      {/* Moon — true phase, small, tucked in upper-left away from text */}
+      <MoonPhase />
+
       {stars.map((s) => (
         <span
           key={s.i}
