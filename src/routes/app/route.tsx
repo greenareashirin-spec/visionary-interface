@@ -93,13 +93,11 @@ function AppShell() {
               );
             })}
           </nav>
-          <div className="hidden md:block m-2.5 p-3 rounded-2xl bg-black/30 backdrop-blur-xl border border-white/10">
-            <div className="flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-              <p className="text-[11px] text-white/70">All systems operational</p>
+          <div className="hidden md:flex flex-col gap-2 m-2.5 min-h-0">
+            <AskOSInput compact />
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <AskOSHistory />
             </div>
-            <p className="text-[12px] mt-1.5">Green Area UK</p>
-            <p className="text-[9px] uppercase tracking-[0.25em] text-white/50 mt-0.5">Data Engine v9.2</p>
           </div>
         </aside>
 
