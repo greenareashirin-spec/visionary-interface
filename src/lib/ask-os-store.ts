@@ -8,6 +8,8 @@ type State = {
 };
 
 const KEY = "ask-os:v1";
+const MEMORY_MS = 6 * 60 * 60 * 1000; // 6 hours
+const prune = (msgs: AskMessage[]) => msgs.filter((m) => Date.now() - m.at < MEMORY_MS);
 const listeners = new Set<() => void>();
 
 function load(): AskMessage[] {
