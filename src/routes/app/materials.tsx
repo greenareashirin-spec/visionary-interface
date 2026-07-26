@@ -53,6 +53,7 @@ const colorMap: Record<string, string> = {
 };
 
 function Materials() {
+  const [chartOpen, setChartOpen] = useState(false);
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
       <header className="flex items-end justify-between gap-4 flex-wrap">
@@ -62,14 +63,21 @@ function Materials() {
           <p className="mt-1 text-[12px] text-white/60">Track stock levels, materials and movements.</p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => setChartOpen(true)}
+            className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition flex items-center gap-1.5"
+          >
+            <PieChart className="h-3.5 w-3.5" /> See Chart
+          </button>
           <button className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition">Export</button>
           <button className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium flex items-center gap-1.5 hover:brightness-110 transition">
             <Plus className="h-3.5 w-3.5" /> Add Material
           </button>
         </div>
       </header>
+      {chartOpen && <CategoryChartModal onClose={() => setChartOpen(false)} />}
 
-      <section className="grid grid-cols-2 md:grid-cols-6 gap-1.5 md:gap-2.5">
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-1.5 md:gap-2.5">
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
             <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
@@ -77,19 +85,8 @@ function Materials() {
             <p className={`text-[10.5px] mt-0.5 ${s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55"}`}>{s.sub}</p>
           </div>
         ))}
-        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3 md:col-span-2 flex items-center gap-3">
-          <Donut segments={categories.map(c => ({ pct: c.pct, color: c.color }))} />
-          <ul className="flex-1 grid grid-cols-1 gap-y-1 text-[11px]">
-            {categories.map((c) => (
-              <li key={c.name} className="flex items-center gap-1.5">
-                <span className={`h-1.5 w-1.5 rounded-full ${colorMap[c.color]}`} />
-                <span className="text-white/60">{c.name}</span>
-                <span className="ml-auto text-white/75">{c.pct}%</span>
-              </li>
-            ))}
-          </ul>
-        </div>
       </section>
+
 
       <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
