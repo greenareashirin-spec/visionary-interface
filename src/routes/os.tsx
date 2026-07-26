@@ -305,25 +305,22 @@ function StarsLayer() {
   );
 }
 
-/* ─────────────── Realistic Moon (photo + phase shadow) ─────────────── */
+/* ─────────────── Realistic Moon (photo blended into sky) ─────────────── */
 function RealisticMoon({ now }: { now: Date }) {
   // Synodic month; reference new moon 2000-01-06 18:14 UTC
   const SYN = 29.530588853;
   const ref = Date.UTC(2000, 0, 6, 18, 14) / 86400000;
   const days = now.getTime() / 86400000;
-  const phase = (((days - ref) / SYN) % 1 + 1) % 1; // 0..1
-  const angle = phase * 2 * Math.PI;
-  const cosA = Math.cos(angle);
-  const R = 50;
-  const rx = Math.abs(cosA) * R;
+  const phase = (((days - ref) / SYN) % 1 + 1) % 1;
   const waxing = phase < 0.5;
-  const sweep1 = waxing ? 1 : 0;
-  const crescent = phase < 0.25 || phase > 0.75;
-  const sweep2 = crescent ? (waxing ? 0 : 1) : (waxing ? 1 : 0);
-  // shadow path = disc minus lit region
-  const shadowPath = `M 0 ${-R} A ${R} ${R} 0 0 ${waxing ? 0 : 1} 0 ${R} A ${rx} ${R} 0 0 ${sweep2} 0 ${-R} Z`;
-  const size = 88;
-  const id = "moonmask-" + Math.round(phase * 1000);
+  // Terminator offset: -1 (new) → 0 (full) → -1 (new again). Positive = lit side.
+  const illum = -Math.cos(phase * 2 * Math.PI); // -1..1
+  const size = 96;
+
+  // Soft shadow: an oversized dark radial gradient offset to the un-lit side.
+  // Positioned so the lit crescent/gibbous emerges naturally with a soft terminator.
+  const shadowOffset = illum * 60; // percent
+  const shadowX = waxing ? 50 - shadowOffset : 50 + shadowOffset;
 
   return (
     <div
@@ -331,43 +328,43 @@ function RealisticMoon({ now }: { now: Date }) {
       style={{ left: "27%", top: "10%", width: size, height: size }}
       aria-hidden
     >
-      {/* soft atmospheric halo */}
+      {/* soft atmospheric halo blended into sky */}
       <div
-        className="absolute inset-[-45%] rounded-full"
+        className="absolute inset-[-60%] rounded-full"
         style={{
           background:
-            "radial-gradient(circle, rgba(230,232,224,0.18) 0%, rgba(230,232,224,0.05) 40%, transparent 70%)",
-          filter: "blur(8px)",
+            "radial-gradient(circle, rgba(220,225,235,0.22) 0%, rgba(220,225,235,0.06) 38%, transparent 72%)",
+          mixBlendMode: "screen",
+          filter: "blur(10px)",
         }}
       />
-      <svg viewBox="-50 -50 100 100" width="100%" height="100%">
-        <defs>
-          <clipPath id={`${id}-clip`}>
-            <circle r={R} cx="0" cy="0" />
-          </clipPath>
-          <radialGradient id={`${id}-limb`} cx="0.5" cy="0.5" r="0.5">
-            <stop offset="70%" stopColor="rgba(0,0,0,0)" />
-            <stop offset="100%" stopColor="rgba(0,0,0,0.55)" />
-          </radialGradient>
-        </defs>
-        <g clipPath={`url(#${id}-clip)`}>
-          <image
-            href={moonPhoto}
-            x={-R}
-            y={-R}
-            width={R * 2}
-            height={R * 2}
-            preserveAspectRatio="xMidYMid slice"
-          />
-          {/* limb darkening */}
-          <circle r={R} cx="0" cy="0" fill={`url(#${id}-limb)`} />
-          {/* phase shadow (soft edge terminator) */}
-          <path d={shadowPath} fill="rgba(4,6,10,0.94)" />
-        </g>
-      </svg>
+      {/* moon disc: screen blend erases the photo's black background into the sky */}
+      <div className="relative w-full h-full">
+        <img
+          src={moonPhoto}
+          alt=""
+          width={size}
+          height={size}
+          className="w-full h-full select-none"
+          style={{ mixBlendMode: "screen" }}
+          draggable={false}
+        />
+        {/* phase terminator: soft dark gradient darkens un-lit side; multiplied for smooth falloff */}
+        <div
+          className="absolute inset-0 rounded-full"
+          style={{
+            background: `radial-gradient(circle at ${shadowX}% 50%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.55) 55%, rgba(0,0,0,0.95) 78%)`,
+            mixBlendMode: "multiply",
+            WebkitMaskImage:
+              "radial-gradient(circle, black 47%, transparent 50%)",
+            maskImage: "radial-gradient(circle, black 47%, transparent 50%)",
+          }}
+        />
+      </div>
     </div>
   );
 }
+
 
 
 /* ─────────────── Lightning (thunder) ─────────────── */
