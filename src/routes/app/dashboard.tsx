@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Wallet, TrendingUp, TrendingDown, Landmark, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Wallet, TrendingUp, TrendingDown, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
 
 export const Route = createFileRoute("/app/dashboard")({
   component: Dashboard,
