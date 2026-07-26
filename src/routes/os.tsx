@@ -106,7 +106,7 @@ function CommandCenter() {
           {/* Right rail */}
           <aside className="hidden md:flex md:col-span-3 flex-col gap-3 min-h-0">
             <ProjectsOverviewCard />
-            <AIInsightsCard />
+            <CashflowDonutCard />
           </aside>
         </div>
       </div>
