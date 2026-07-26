@@ -57,7 +57,7 @@ function CommandCenter() {
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black text-white">
+    <div className="app-dark relative min-h-screen w-full overflow-hidden bg-black text-white">
       {/* Full-bleed landscape */}
       <div
         className={`fixed inset-0 transition-all ease-out ${zooming ? "duration-[800ms]" : "duration-[1400ms]"}`}
