@@ -93,6 +93,19 @@ function AppShell() {
               );
             })}
           </nav>
+          {/* Ask OS — mobile: icon button opens drawer; desktop: full input + history */}
+          <div className="md:hidden px-1.5 pb-3">
+            <button
+              onClick={() => setMobileAskOpen(true)}
+              className="w-full flex flex-col items-center gap-1 rounded-xl py-2 text-forest hover:bg-white/5 transition"
+              aria-label="Ask OS"
+            >
+              <span className="h-7 w-7 rounded-full bg-forest text-forest-deep grid place-items-center">
+                <Sparkles className="h-3.5 w-3.5" />
+              </span>
+              <span className="text-[9px] tracking-wide">Ask OS</span>
+            </button>
+          </div>
           <div className="hidden md:flex flex-col gap-2 m-2.5 min-h-0">
             <AskOSInput compact />
             <div className="min-h-0 flex-1 overflow-hidden">
