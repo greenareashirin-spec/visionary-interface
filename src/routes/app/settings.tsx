@@ -17,7 +17,7 @@ const groups = [
 
 function Settings() {
   return (
-    <div className="max-w-6xl mx-auto space-y-12">
+    <div className="h-full overflow-auto px-6 py-6 space-y-8">
       <header>
         <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">System</p>
         <h1 className="mt-3 font-display text-5xl leading-none">Settings</h1>
