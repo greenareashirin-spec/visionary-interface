@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Truck, Fuel, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Truck, Fuel, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
 
 export const Route = createFileRoute("/app/fleet")({
   component: Fleet,
@@ -36,6 +37,7 @@ const sliceColors = [
 ];
 
 function Fleet() {
+  const [chartOpen, setChartOpen] = useState(false);
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
       <header className="flex items-end justify-between gap-4 flex-wrap">
@@ -45,44 +47,31 @@ function Fleet() {
           <p className="mt-1 text-[12px] text-white/60">Vehicles and fuel across the fleet.</p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => setChartOpen(true)}
+            className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition flex items-center gap-1.5"
+          >
+            <PieChart className="h-3.5 w-3.5" /> See Chart
+          </button>
           <button className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition">Export</button>
           <button className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium flex items-center gap-1.5 hover:brightness-110 transition">
             <Plus className="h-3.5 w-3.5" /> Add Vehicle
           </button>
         </div>
       </header>
+      {chartOpen && <FuelChartModal onClose={() => setChartOpen(false)} />}
 
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-        <div className="grid grid-cols-2 gap-2.5 md:col-span-1">
-          {stats.map((s) => (
-            <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3">
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
-                <s.Icon className="h-3 w-3 text-white/45" />
-              </div>
-              <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
-              <p className="text-[10.5px] mt-0.5 text-white/55">{s.sub}</p>
+      <section className="grid grid-cols-2 md:grid-cols-6 gap-2.5">
+        {stats.map((s) => (
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3">
+            <div className="flex items-start justify-between gap-2">
+              <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
+              <s.Icon className="h-3 w-3 text-white/45" />
             </div>
-          ))}
-        </div>
-        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 md:col-span-2 flex items-center gap-3 min-h-[180px]">
-          <PieBites
-            segments={fleet.map((v, i) => ({
-              label: v.model,
-              value: v.fuel,
-              color: sliceColors[i % sliceColors.length],
-            }))}
-          />
-          <div className="flex-1 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
-            {fleet.map((v, i) => (
-              <div key={v.id} className="flex items-center gap-1.5 min-w-0">
-                <span className="h-1.5 w-1.5 rounded-full shrink-0" style={{ background: sliceColors[i % sliceColors.length] }} />
-                <span className="text-white/70 truncate">{v.model}</span>
-                <span className="ml-auto text-white/50">${v.fuel}</span>
-              </div>
-            ))}
+            <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
+            <p className="text-[10.5px] mt-0.5 text-white/55">{s.sub}</p>
           </div>
-        </div>
+        ))}
       </section>
 
       <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
@@ -147,40 +136,84 @@ function Select({ label }: { label: string }) {
   );
 }
 
-function PieBites({ segments }: { segments: { label: string; value: number; color: string }[] }) {
-  const size = 260, cx = size / 2, cy = size / 2, r = 74, gap = 5;
-  const total = segments.reduce((s, x) => s + x.value, 0);
-  const gapAngle = gap / r;
+function FuelChartModal({ onClose }: { onClose: () => void }) {
+  const total = fleet.reduce((s, v) => s + v.fuel, 0);
+  const R = 120, cx = 160, cy = 160;
   let angle = -Math.PI / 2;
+  const arcs = fleet.map((v, i) => {
+    const frac = v.fuel / total;
+    const sweep = frac * Math.PI * 2;
+    const start = angle;
+    const end = start + sweep;
+    const large = sweep > Math.PI ? 1 : 0;
+    const mid = (start + end) / 2;
+    const x1 = cx + R * Math.cos(start), y1 = cy + R * Math.sin(start);
+    const x2 = cx + R * Math.cos(end),   y2 = cy + R * Math.sin(end);
+    const d = `M ${cx} ${cy} L ${x1} ${y1} A ${R} ${R} 0 ${large} 1 ${x2} ${y2} Z`;
+    const lr = R + 22;
+    const lx = cx + lr * Math.cos(mid);
+    const ly = cy + lr * Math.sin(mid);
+    const anchor = Math.cos(mid) > 0.1 ? "start" : Math.cos(mid) < -0.1 ? "end" : "middle";
+    angle = end;
+    return { ...v, d, color: sliceColors[i % sliceColors.length], frac, lx, ly, anchor };
+  });
+
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-[220px] h-[220px] shrink-0">
-      {segments.map((s, i) => {
-        const sweep = (s.value / total) * Math.PI * 2;
-        const a0 = angle + gapAngle / 2;
-        const a1 = angle + sweep - gapAngle / 2;
-        const mid = (a0 + a1) / 2;
-        angle += sweep;
-        const large = a1 - a0 > Math.PI ? 1 : 0;
-        const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
-        const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
-        const d = `M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`;
-        const lr = r + 6;
-        const lx = cx + lr * Math.cos(mid);
-        const ly = cy + lr * Math.sin(mid);
-        const tr = r + 18;
-        const tx = cx + tr * Math.cos(mid);
-        const ty = cy + tr * Math.sin(mid);
-        const anchor = Math.cos(mid) > 0.15 ? "start" : Math.cos(mid) < -0.15 ? "end" : "middle";
-        return (
-          <g key={i}>
-            <path d={d} fill={s.color} opacity={0.92} />
-            <line x1={cx + r * Math.cos(mid)} y1={cy + r * Math.sin(mid)} x2={lx} y2={ly} stroke="rgba(255,255,255,0.35)" strokeWidth="0.6" />
-            <text x={tx} y={ty} fontSize="8.5" fill="rgba(255,255,255,0.78)" textAnchor={anchor} dominantBaseline="middle">
-              {s.label}
-            </text>
-          </g>
-        );
-      })}
-    </svg>
+    <div
+      onClick={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-3xl rounded-3xl bg-[oklch(0.20_0.02_165)] border border-white/10 p-6 max-h-[90vh] overflow-auto"
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
+          <X className="h-4 w-4" />
+        </button>
+        <div className="mb-4">
+          <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Operations</p>
+          <h2 className="mt-1 font-display text-[22px] leading-none">Fuel by Vehicle</h2>
+          <p className="mt-1 text-[12px] text-white/60">Last 30 days · Total ${total.toLocaleString()}</p>
+        </div>
+
+        <div className="grid md:grid-cols-[320px_1fr] gap-6 items-center">
+          <svg viewBox="0 0 320 320" className="w-full h-auto max-w-[320px] mx-auto">
+            {arcs.map((a, i) => (
+              <path key={i} d={a.d} fill={a.color} stroke="oklch(0.20 0.02 165)" strokeWidth="2" />
+            ))}
+            {arcs.map((a, i) => a.frac > 0.03 && (
+              <text
+                key={`t-${i}`}
+                x={a.lx}
+                y={a.ly}
+                textAnchor={a.anchor as "start" | "end" | "middle"}
+                dominantBaseline="middle"
+                fontSize="9"
+                fill="rgba(255,255,255,0.75)"
+                style={{ letterSpacing: "0.14em", textTransform: "uppercase" }}
+              >
+                {Math.round(a.frac * 100)}%
+              </text>
+            ))}
+          </svg>
+
+          <ul className="space-y-2">
+            {arcs.map((a) => (
+              <li key={a.id} className="flex items-center gap-3 rounded-xl bg-black/30 border border-white/10 px-3 py-2">
+                <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: a.color }} />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12.5px] truncate">{a.model}</p>
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-white/50">{a.plate}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-[13px] font-medium">${a.fuel}</p>
+                  <p className="text-[10px] text-white/50">{(a.frac * 100).toFixed(1)}%</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
   );
 }
