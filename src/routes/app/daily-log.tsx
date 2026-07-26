@@ -46,8 +46,8 @@ function DailyLog() {
         {stats.map((s) => (
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 min-w-0">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-[9px] uppercase tracking-[0.22em] text-white/55 min-w-0 truncate">{s.label}</p>
-              <s.Icon className="h-3 w-3 text-white/45 shrink-0" />
+              <p className="text-[9px] uppercase tracking-[0.2em] text-white/55 min-w-0 leading-tight break-words">{s.label}</p>
+              <s.Icon className="hidden md:block h-3 w-3 text-white/45 shrink-0" />
             </div>
             <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
             <p className={`text-[10.5px] mt-0.5 truncate ${s.tone === "forest" ? "text-forest" : s.tone === "amber" ? "text-amber-300" : "text-white/55"}`}>{s.sub}</p>
