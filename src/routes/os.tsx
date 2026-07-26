@@ -430,6 +430,7 @@ function AIAssistantBar() {
   const examples = ["Show fuel expenses", "Summarize today", "Missing receipts"];
 
   function onPointerDown(e: React.PointerEvent) {
+    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
     startY.current = e.clientY;
     setDragging(true);
   }
@@ -440,7 +441,8 @@ function AIAssistantBar() {
     if (delta > 0) setDragY(delta);
   }
 
-  function onPointerUp() {
+  function onPointerUp(e: React.PointerEvent) {
+    (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
     setDragging(false);
     if (dragY > 60) {
       setExpanded(false);
