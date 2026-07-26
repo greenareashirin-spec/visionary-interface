@@ -31,12 +31,9 @@ type Hotspot = {
 };
 
 const HOTSPOTS: Hotspot[] = [
-  { id: "finance",   label: "Finance",   kpi: "$128,450",  Icon: Wallet,     x: 34, y: 52, to: "/app/dashboard"  },
-  { id: "projects",  label: "Projects",  kpi: "12 Active", Icon: Building2,  x: 50, y: 44, to: "/app/projects"   },
-  { id: "materials", label: "Materials", kpi: "156 Items", Icon: Package,    x: 66, y: 50, to: "/app/materials"  },
-  { id: "employees", label: "Employees", kpi: "18 Active", Icon: Users,      x: 42, y: 66, to: "/app/employees"  },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",Icon: Truck,      x: 58, y: 66, to: "/app/settings"   },
-  { id: "documents", label: "Documents", kpi: "128 Files", Icon: FolderOpen, x: 74, y: 66, to: "/app/daily-log"  },
+  { id: "projects",  label: "Projects",  kpi: "12 Active",  Icon: Building2, x: 30, y: 40, to: "/app/projects"  },
+  { id: "employees", label: "Employees", kpi: "18 Active",  Icon: Users,     x: 55, y: 58, to: "/app/employees" },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles", Icon: Truck,     x: 78, y: 44, to: "/app/settings"  },
 ];
 
 function CommandCenter() {
@@ -60,73 +57,64 @@ function CommandCenter() {
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[oklch(0.94_0.02_82)] text-foreground">
+    <div className="relative min-h-screen w-full overflow-hidden bg-black text-white">
+      {/* Full-bleed landscape */}
+      <div
+        className={`fixed inset-0 transition-all ease-out ${zooming ? "duration-[800ms]" : "duration-[1400ms]"}`}
+        style={{
+          transform: zooming
+            ? `scale(1.8) translate(${(50 - zooming.x) * 0.6}%, ${(50 - zooming.y) * 0.6}%)`
+            : "scale(1.02)",
+          filter: zooming ? "blur(8px) brightness(0.75)" : overlay.filter,
+        }}
+      >
+        <img src={landscape} alt="Green Area landscape" className="absolute inset-0 h-full w-full object-cover" />
+      </div>
+
+      {/* Time-of-day tint + edge vignette for legibility */}
+      <div className="fixed inset-0 pointer-events-none transition-opacity duration-[1500ms]"
+           style={{ background: overlay.gradient }} />
+      <div className="fixed inset-0 pointer-events-none mix-blend-overlay"
+           style={{ background: overlay.tint }} />
+      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/45 via-transparent to-black/55" />
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.5)_100%)]" />
+
+      {weather === "rain" && <RainLayer />}
+      {isNight && <LandscapeLightsLayer />}
+
       <TopBar zooming={!!zooming} now={now} weather={weather} period={period} />
 
-      <div className="pt-24 pb-40 px-6 lg:px-8 min-h-screen grid grid-cols-12 gap-5">
-        {/* Left rail */}
-        <aside className="hidden lg:flex col-span-3 xl:col-span-3 flex-col gap-4">
+      {/* Floating panels + hotspots overlay */}
+      <div className={`relative z-10 min-h-screen pt-24 pb-40 px-6 lg:px-8 grid grid-cols-12 gap-6 transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
+        <aside className="hidden lg:flex col-span-3 flex-col gap-4">
           <FinancialCard hidden={!!zooming} />
           <RecentActivityCard hidden={!!zooming} />
         </aside>
 
-        {/* Landscape scene */}
-        <section className="col-span-12 lg:col-span-6 xl:col-span-6 relative">
+        <section className="col-span-12 lg:col-span-6 relative flex flex-col">
           <GreetingHeader hidden={!!zooming} period={period} />
-          <div className="relative mt-4 rounded-[28px] overflow-hidden hairline shadow-[0_30px_80px_-40px_rgba(35,60,45,0.35)] aspect-[16/11]">
-            {/* Photo */}
-            <div
-              className={`absolute inset-0 transition-all ease-out ${zooming ? "duration-[800ms]" : "duration-[1400ms]"}`}
-              style={{
-                transform: zooming
-                  ? `scale(1.8) translate(${(50 - zooming.x) * 0.6}%, ${(50 - zooming.y) * 0.6}%)`
-                  : "scale(1.01)",
-                filter: zooming ? "blur(6px) brightness(0.85)" : overlay.filter,
-              }}
-            >
-              <img src={landscape} alt="Green Area landscape" className="absolute inset-0 h-full w-full object-cover" />
-            </div>
-
-            {/* Time-of-day tint */}
-            <div className="absolute inset-0 pointer-events-none transition-opacity duration-[1500ms]"
-                 style={{ background: overlay.gradient }} />
-            <div className="absolute inset-0 pointer-events-none mix-blend-overlay"
-                 style={{ background: overlay.tint }} />
-
-            {/* Weather layer */}
-            {weather === "rain" && <RainLayer />}
-            {isNight && <LandscapeLightsLayer />}
-
-            {/* Hotspots */}
-            <div className={`absolute inset-0 transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
-              {HOTSPOTS.map((s) => (
-                <HotspotLabel key={s.id} spot={s} onClick={() => flyTo(s)} dark={isNight} />
-              ))}
-            </div>
-
-            {/* Bottom caption */}
-            <div className={`absolute bottom-3 inset-x-0 flex items-center justify-between px-5 text-white/80 transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
-              <p className="text-[10px] uppercase tracking-[0.32em]">Every place is a room</p>
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em]">
-                <WeatherGlyph weather={weather} period={period} />
-                <span>{periodLabel(period)}</span>
-              </div>
-            </div>
+          <div className="relative flex-1 mt-6">
+            {HOTSPOTS.map((s) => (
+              <HotspotLabel key={s.id} spot={s} onClick={() => flyTo(s)} dark={isNight} />
+            ))}
+          </div>
+          <div className="mt-4 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.35em] text-white/70">
+            <WeatherGlyph weather={weather} period={period} />
+            <span>{periodLabel(period)} · every place is a room</span>
           </div>
         </section>
 
-        {/* Right rail */}
-        <aside className="hidden lg:flex col-span-3 xl:col-span-3 flex-col gap-4">
+        <aside className="hidden lg:flex col-span-3 flex-col gap-4">
           <ProjectsOverviewCard hidden={!!zooming} />
           <AIInsightsCard hidden={!!zooming} />
         </aside>
       </div>
 
-      {/* Persistent AI Assistant */}
       <AIAssistantBar hidden={!!zooming} />
     </div>
   );
 }
+
 
 /* ─────────────── top bar ─────────────── */
 function TopBar({ zooming, now, weather, period }: { zooming: boolean; now: Date; weather: Weather; period: Period }) {
