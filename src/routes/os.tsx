@@ -6,6 +6,7 @@ import {
   Search, Bell, ChevronDown, UploadCloud, FileSpreadsheet, CheckCircle2, X,
 } from "lucide-react";
 import landscape from "@/assets/command-landscape.jpg";
+import moonPhoto from "@/assets/moon-full.png";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import {
   currentPeriod, greeting, periodLabel, periodOverlay, useLiveWeather,
