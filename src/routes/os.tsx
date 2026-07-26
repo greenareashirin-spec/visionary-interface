@@ -169,6 +169,7 @@ function GreetingHeader({ hidden, period }: { hidden: boolean; period: Period })
 /* ─────────────── hotspot ─────────────── */
 function HotspotLabel({ spot, onClick, dark }: { spot: Hotspot; onClick: () => void; dark: boolean }) {
   const { Icon } = spot;
+  const toneText = spot.tone === "forest" ? "text-forest" : spot.tone === "rose" ? "text-rose-300" : "text-sand";
   return (
     <button
       onClick={onClick}
@@ -176,17 +177,19 @@ function HotspotLabel({ spot, onClick, dark }: { spot: Hotspot; onClick: () => v
       style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
       aria-label={`${spot.label} — ${spot.kpi}`}
     >
-      {/* pin dot */}
       <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-1.5 w-1.5 rounded-full bg-white/90 shadow-[0_0_0_4px_rgba(255,255,255,0.15)]" />
       <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 rounded-full bg-white/25 animate-ping opacity-60" style={{ animationDuration: "3.5s" }} />
-      {/* elegant label pill */}
-      <div className={`relative mt-3 flex items-center gap-2 rounded-full pl-2.5 pr-3.5 py-1.5 text-white/95 transition-all duration-300 group-hover:scale-[1.06] ${dark ? "bg-black/45" : "bg-black/35"} backdrop-blur-md border border-white/15 shadow-[0_6px_20px_-6px_rgba(0,0,0,0.45)]`}>
-        <span className="h-5 w-5 rounded-full bg-white/10 grid place-items-center">
-          <Icon className="h-3 w-3 text-white/90" />
+      <div className={`relative mt-3 flex items-stretch gap-2.5 rounded-2xl pl-2.5 pr-3.5 py-2 text-white/95 transition-all duration-300 group-hover:scale-[1.05] ${dark ? "bg-black/50" : "bg-black/40"} backdrop-blur-md border border-white/15 shadow-[0_8px_24px_-8px_rgba(0,0,0,0.5)] min-w-[168px]`}>
+        <span className="h-8 w-8 self-center rounded-xl bg-white/10 grid place-items-center shrink-0">
+          <Icon className="h-3.5 w-3.5 text-white/90" />
         </span>
         <div className="text-left leading-tight">
-          <p className="text-[9px] uppercase tracking-[0.25em] text-white/70">{spot.label}</p>
-          <p className="text-[11px] font-medium">{spot.kpi}</p>
+          <div className="flex items-baseline justify-between gap-2">
+            <p className="text-[9px] uppercase tracking-[0.25em] text-white/60">{spot.label}</p>
+            <p className={`text-[9px] ${toneText}`}>{spot.trend}</p>
+          </div>
+          <p className="text-[13px] font-medium mt-0.5">{spot.kpi}</p>
+          <p className="text-[10px] text-white/60 mt-0.5">{spot.meta}</p>
         </div>
       </div>
     </button>
