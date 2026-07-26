@@ -211,8 +211,8 @@ const SUCCESS_QUOTES = [
 ];
 
 function GreetingHeader({ period }: { period: Period }) {
-  const [quote, setQuote] = React.useState(SUCCESS_QUOTES[0]);
-  React.useEffect(() => {
+  const [quote, setQuote] = useState(SUCCESS_QUOTES[0]);
+  useEffect(() => {
     setQuote(SUCCESS_QUOTES[Math.floor(Math.random() * SUCCESS_QUOTES.length)]);
   }, []);
   return (
