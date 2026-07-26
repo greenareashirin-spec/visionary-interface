@@ -31,12 +31,9 @@ type Hotspot = {
 };
 
 const HOTSPOTS: Hotspot[] = [
-  { id: "finance",   label: "Finance",   kpi: "$128,450",  Icon: Wallet,     x: 34, y: 52, to: "/app/dashboard"  },
-  { id: "projects",  label: "Projects",  kpi: "12 Active", Icon: Building2,  x: 50, y: 44, to: "/app/projects"   },
-  { id: "materials", label: "Materials", kpi: "156 Items", Icon: Package,    x: 66, y: 50, to: "/app/materials"  },
-  { id: "employees", label: "Employees", kpi: "18 Active", Icon: Users,      x: 42, y: 66, to: "/app/employees"  },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",Icon: Truck,      x: 58, y: 66, to: "/app/settings"   },
-  { id: "documents", label: "Documents", kpi: "128 Files", Icon: FolderOpen, x: 74, y: 66, to: "/app/daily-log"  },
+  { id: "projects",  label: "Projects",  kpi: "12 Active",  Icon: Building2, x: 30, y: 40, to: "/app/projects"  },
+  { id: "employees", label: "Employees", kpi: "18 Active",  Icon: Users,     x: 55, y: 58, to: "/app/employees" },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles", Icon: Truck,     x: 78, y: 44, to: "/app/settings"  },
 ];
 
 function CommandCenter() {
@@ -60,73 +57,64 @@ function CommandCenter() {
   }
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-[oklch(0.94_0.02_82)] text-foreground">
+    <div className="app-dark relative min-h-screen w-full overflow-hidden bg-black text-white">
+      {/* Full-bleed landscape */}
+      <div
+        className={`fixed inset-0 transition-all ease-out ${zooming ? "duration-[800ms]" : "duration-[1400ms]"}`}
+        style={{
+          transform: zooming
+            ? `scale(1.8) translate(${(50 - zooming.x) * 0.6}%, ${(50 - zooming.y) * 0.6}%)`
+            : "scale(1.02)",
+          filter: zooming ? "blur(8px) brightness(0.75)" : overlay.filter,
+        }}
+      >
+        <img src={landscape} alt="Green Area landscape" className="absolute inset-0 h-full w-full object-cover" />
+      </div>
+
+      {/* Time-of-day tint + edge vignette for legibility */}
+      <div className="fixed inset-0 pointer-events-none transition-opacity duration-[1500ms]"
+           style={{ background: overlay.gradient }} />
+      <div className="fixed inset-0 pointer-events-none mix-blend-overlay"
+           style={{ background: overlay.tint }} />
+      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/45 via-transparent to-black/55" />
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.5)_100%)]" />
+
+      {weather === "rain" && <RainLayer />}
+      {isNight && <LandscapeLightsLayer />}
+
       <TopBar zooming={!!zooming} now={now} weather={weather} period={period} />
 
-      <div className="pt-24 pb-40 px-6 lg:px-8 min-h-screen grid grid-cols-12 gap-5">
-        {/* Left rail */}
-        <aside className="hidden lg:flex col-span-3 xl:col-span-3 flex-col gap-4">
+      {/* Floating panels + hotspots overlay */}
+      <div className={`relative z-10 min-h-screen pt-24 pb-40 px-6 lg:px-8 grid grid-cols-12 gap-6 transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
+        <aside className="app-dark hidden lg:flex col-span-3 flex-col gap-4">
           <FinancialCard hidden={!!zooming} />
           <RecentActivityCard hidden={!!zooming} />
         </aside>
 
-        {/* Landscape scene */}
-        <section className="col-span-12 lg:col-span-6 xl:col-span-6 relative">
+        <section className="col-span-12 lg:col-span-6 relative flex flex-col">
           <GreetingHeader hidden={!!zooming} period={period} />
-          <div className="relative mt-4 rounded-[28px] overflow-hidden hairline shadow-[0_30px_80px_-40px_rgba(35,60,45,0.35)] aspect-[16/11]">
-            {/* Photo */}
-            <div
-              className={`absolute inset-0 transition-all ease-out ${zooming ? "duration-[800ms]" : "duration-[1400ms]"}`}
-              style={{
-                transform: zooming
-                  ? `scale(1.8) translate(${(50 - zooming.x) * 0.6}%, ${(50 - zooming.y) * 0.6}%)`
-                  : "scale(1.01)",
-                filter: zooming ? "blur(6px) brightness(0.85)" : overlay.filter,
-              }}
-            >
-              <img src={landscape} alt="Green Area landscape" className="absolute inset-0 h-full w-full object-cover" />
-            </div>
-
-            {/* Time-of-day tint */}
-            <div className="absolute inset-0 pointer-events-none transition-opacity duration-[1500ms]"
-                 style={{ background: overlay.gradient }} />
-            <div className="absolute inset-0 pointer-events-none mix-blend-overlay"
-                 style={{ background: overlay.tint }} />
-
-            {/* Weather layer */}
-            {weather === "rain" && <RainLayer />}
-            {isNight && <LandscapeLightsLayer />}
-
-            {/* Hotspots */}
-            <div className={`absolute inset-0 transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
-              {HOTSPOTS.map((s) => (
-                <HotspotLabel key={s.id} spot={s} onClick={() => flyTo(s)} dark={isNight} />
-              ))}
-            </div>
-
-            {/* Bottom caption */}
-            <div className={`absolute bottom-3 inset-x-0 flex items-center justify-between px-5 text-white/80 transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
-              <p className="text-[10px] uppercase tracking-[0.32em]">Every place is a room</p>
-              <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em]">
-                <WeatherGlyph weather={weather} period={period} />
-                <span>{periodLabel(period)}</span>
-              </div>
-            </div>
+          <div className="relative flex-1 mt-6">
+            {HOTSPOTS.map((s) => (
+              <HotspotLabel key={s.id} spot={s} onClick={() => flyTo(s)} dark={isNight} />
+            ))}
+          </div>
+          <div className="mt-4 flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.35em] text-white/70">
+            <WeatherGlyph weather={weather} period={period} />
+            <span>{periodLabel(period)} · every place is a room</span>
           </div>
         </section>
 
-        {/* Right rail */}
-        <aside className="hidden lg:flex col-span-3 xl:col-span-3 flex-col gap-4">
+        <aside className="app-dark hidden lg:flex col-span-3 flex-col gap-4">
           <ProjectsOverviewCard hidden={!!zooming} />
           <AIInsightsCard hidden={!!zooming} />
         </aside>
       </div>
 
-      {/* Persistent AI Assistant */}
       <AIAssistantBar hidden={!!zooming} />
     </div>
   );
 }
+
 
 /* ─────────────── top bar ─────────────── */
 function TopBar({ zooming, now, weather, period }: { zooming: boolean; now: Date; weather: Weather; period: Period }) {
@@ -167,9 +155,9 @@ function TopBar({ zooming, now, weather, period }: { zooming: boolean; now: Date
 /* ─────────────── greeting ─────────────── */
 function GreetingHeader({ hidden, period }: { hidden: boolean; period: Period }) {
   return (
-    <div className={`text-center transition-opacity duration-500 ${hidden ? "opacity-0" : "opacity-100"}`}>
-      <h1 className="font-display text-4xl md:text-5xl leading-none">{periodLabel(period)}</h1>
-      <p className="mt-2 text-sm text-muted-foreground">{greeting(period)}, Ako</p>
+    <div className={`text-center text-white transition-opacity duration-500 ${hidden ? "opacity-0" : "opacity-100"}`}>
+      <h1 className="font-display text-4xl md:text-5xl leading-none drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">{periodLabel(period)}</h1>
+      <p className="mt-2 text-sm text-white/75">{greeting(period)}, Ako</p>
     </div>
   );
 }
@@ -265,22 +253,22 @@ function AIAssistantBar({ hidden }: { hidden: boolean }) {
   const [q, setQ] = useState("");
   const examples = ["Show fuel expenses", "Summarize today", "Missing receipts", "Project status", "Forecast cash flow"];
   return (
-    <div className={`fixed bottom-5 left-1/2 -translate-x-1/2 z-40 w-[min(720px,92vw)] transition-all duration-500 ${hidden ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
-      <div className="rounded-2xl bg-card/95 backdrop-blur-xl border border-border shadow-[0_30px_60px_-30px_rgba(0,0,0,0.35)] px-4 py-3">
+    <div className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 w-[min(720px,92vw)] transition-all duration-500 ${hidden ? "opacity-0 translate-y-4" : "opacity-100 translate-y-0"}`}>
+      <div className="rounded-2xl bg-black/55 backdrop-blur-xl border border-white/10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.7)] px-4 py-3 text-white">
         <div className="flex items-center gap-3">
-          <span className="h-8 w-8 rounded-full bg-forest text-background grid place-items-center shrink-0">
+          <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
             <Sparkles className="h-4 w-4" />
           </span>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground">Ask OS</p>
+            <p className="text-[10px] uppercase tracking-[0.28em] text-white/60">Ask OS</p>
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Ask anything about Green Area…"
-              className="w-full bg-transparent outline-none text-sm placeholder:text-muted-foreground/70 mt-0.5"
+              className="w-full bg-transparent outline-none text-sm placeholder:text-white/40 mt-0.5"
             />
           </div>
-          <button className="rounded-full bg-forest text-background text-xs px-4 py-2 hover:bg-forest-deep transition shrink-0">
+          <button className="rounded-full bg-forest text-forest-deep font-medium text-xs px-4 py-2 hover:brightness-110 transition shrink-0">
             Ask
           </button>
         </div>
@@ -289,7 +277,7 @@ function AIAssistantBar({ hidden }: { hidden: boolean }) {
             <button
               key={e}
               onClick={() => setQ(e)}
-              className="text-[11px] px-2.5 py-1 rounded-full bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground transition"
+              className="text-[11px] px-2.5 py-1 rounded-full bg-white/10 text-white/75 hover:bg-white/20 hover:text-white transition"
             >
               {e}
             </button>
@@ -303,10 +291,10 @@ function AIAssistantBar({ hidden }: { hidden: boolean }) {
 /* ─────────────── side cards ─────────────── */
 function Card({ title, children, hidden, action }: { title: string; children: React.ReactNode; hidden: boolean; action?: React.ReactNode }) {
   return (
-    <div className={`rounded-2xl bg-card/90 backdrop-blur-sm border border-border p-5 transition-all duration-500 shadow-[0_10px_30px_-20px_rgba(0,0,0,0.15)] ${hidden ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
+    <div className={`rounded-2xl bg-black/45 backdrop-blur-xl border border-white/10 p-5 text-white transition-all duration-500 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.6)] ${hidden ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"}`}>
       <div className="flex items-center justify-between mb-4">
-        <p className="text-[10px] uppercase tracking-[0.28em] text-muted-foreground">{title}</p>
-        {action}
+        <p className="text-[10px] uppercase tracking-[0.28em] text-white/60">{title}</p>
+        {action && <span className="text-[10px] text-white/60">{action}</span>}
       </div>
       {children}
     </div>
