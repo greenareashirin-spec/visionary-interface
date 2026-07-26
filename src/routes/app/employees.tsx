@@ -46,7 +46,7 @@ function Employees() {
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
-                <p className="mt-1 text-xl font-medium tracking-tight">{s.value}</p>
+                <p className="mt-1 text-[13px] sm:text-lg md:text-xl font-medium tracking-tight">{s.value}</p>
                 <p className="text-[10.5px] text-white/55 mt-0.5">
                   {s.sub}
                   {s.delta && <span className="text-forest ml-1.5">▲ {s.delta}</span>}
