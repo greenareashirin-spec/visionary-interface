@@ -158,34 +158,28 @@ function Select({ label }: { label: string }) {
 }
 
 function Donut({ segments }: { segments: { pct: number; color: string }[] }) {
-  const size = 72, r = 26, cx = size / 2, cy = size / 2;
-  const circ = 2 * Math.PI * r;
-  let offset = 0;
+  const size = 80, cx = size / 2, cy = size / 2, r = 34, gap = 4;
   const stroke = (c: string) =>
     c === "forest"   ? "oklch(0.72 0.14 145)" :
     c === "sand"     ? "oklch(0.72 0.08 80)"  :
     c === "olive"    ? "oklch(0.55 0.07 115)" :
     c === "charcoal" ? "oklch(0.85 0.005 70)" :
                        "oklch(0.6 0.01 70)";
+  const total = segments.reduce((s, x) => s + x.pct, 0);
+  const gapAngle = (gap / r); // radians of gap on arc
+  let angle = -Math.PI / 2;
   return (
-    <svg viewBox={`0 0 ${size} ${size}`} className="w-[72px] h-[72px] -rotate-90 shrink-0">
-      <circle cx={cx} cy={cy} r={r} stroke="rgba(255,255,255,0.08)" strokeWidth="8" fill="none" />
+    <svg viewBox={`0 0 ${size} ${size}`} className="w-[80px] h-[80px] shrink-0">
       {segments.map((s, i) => {
-        const len = (s.pct / 100) * circ;
-        const dash = `${len} ${circ - len}`;
-        const el = (
-          <circle
-            key={i}
-            cx={cx} cy={cy} r={r}
-            fill="none"
-            strokeWidth="8"
-            strokeDasharray={dash}
-            strokeDashoffset={-offset}
-            stroke={stroke(s.color)}
-          />
-        );
-        offset += len;
-        return el;
+        const sweep = (s.pct / total) * Math.PI * 2;
+        const a0 = angle + gapAngle / 2;
+        const a1 = angle + sweep - gapAngle / 2;
+        angle += sweep;
+        const large = a1 - a0 > Math.PI ? 1 : 0;
+        const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
+        const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+        const d = `M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z`;
+        return <path key={i} d={d} fill={stroke(s.color)} opacity={0.9} />;
       })}
     </svg>
   );
