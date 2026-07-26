@@ -89,7 +89,7 @@ export function askOS(q: string) {
     ? crypto.randomUUID()
     : `m_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const msg: AskMessage = { id, q: text, a: stubAnswer(text), at: Date.now() };
-  set({ messages: [msg, ...state.messages].slice(0, 40), activeId: id });
+  set({ messages: prune([msg, ...state.messages]).slice(0, 40), activeId: id });
 }
 
 export function openMessage(id: string) {
