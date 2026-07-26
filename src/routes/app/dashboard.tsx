@@ -67,7 +67,7 @@ function Dashboard() {
           <div className="flex items-center justify-between mb-2">
             <div>
               <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">Cashflow · 30 days</p>
-              <p className="text-[11px] text-white/50">All currencies (USD equiv.)</p>
+              <p className="text-[11px] text-white/50">Native currencies · ask OS to convert to USD</p>
             </div>
             <div className="flex gap-3 text-[10px] text-white/60">
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-forest" /> Income</span>
