@@ -488,14 +488,61 @@ function ProjectsOverviewCard() {
   );
 }
 
-function AIInsightsCard() {
+function CashflowDonutCard() {
+  const income = 84200;
+  const expense = 52100;
+  const total = income + expense;
+  const net = income - expense;
+  const incomePct = (income / total) * 100;
+  const R = 42;
+  const C = 2 * Math.PI * R;
+  const incomeLen = (incomePct / 100) * C;
+  const fmt = (n: number) => `$${(n / 1000).toFixed(1)}k`;
   return (
-    <Card title="AI Insights">
-      <ul className="space-y-2 text-[12px] text-white/80">
-        <li className="flex gap-2"><span className="text-forest">◆</span> Fuel spend up 18% vs last month — 2 vehicles over budget.</li>
-        <li className="flex gap-2"><span className="text-sand">◆</span> Riverside Villa cashflow healthy; +$18k received today.</li>
-        <li className="flex gap-2"><span className="text-rose-300">◆</span> Baghdad Garden behind schedule — payroll due Friday.</li>
-      </ul>
+    <Card title="Cashflow" action="30d">
+      <div className="h-full flex items-center gap-4">
+        <div className="relative h-[112px] w-[112px] shrink-0">
+          <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
+            <circle cx="50" cy="50" r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
+            <circle
+              cx="50" cy="50" r={R} fill="none"
+              stroke="hsl(var(--forest, 145 40% 55%))"
+              className="[stroke:theme(colors.forest.DEFAULT,#7fb08a)]"
+              strokeWidth="10" strokeLinecap="butt"
+              strokeDasharray={`${incomeLen} ${C}`}
+            />
+            <circle
+              cx="50" cy="50" r={R} fill="none"
+              stroke="rgb(251 113 133)"
+              strokeWidth="10" strokeLinecap="butt"
+              strokeDasharray={`${C - incomeLen} ${C}`}
+              strokeDashoffset={-incomeLen}
+            />
+          </svg>
+          <div className="absolute inset-0 grid place-items-center text-center leading-tight">
+            <div>
+              <p className="text-[8.5px] uppercase tracking-[0.22em] text-white/50">Net</p>
+              <p className="text-[13px] font-medium text-white">{fmt(net)}</p>
+            </div>
+          </div>
+        </div>
+        <ul className="flex-1 space-y-2 text-[12px]">
+          <li>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-white/75"><span className="h-2 w-2 rounded-full bg-forest" /> Income</span>
+              <span className="text-white/90 font-medium">{fmt(income)}</span>
+            </div>
+            <p className="text-[10px] text-white/45 mt-0.5">{incomePct.toFixed(0)}% of flow</p>
+          </li>
+          <li>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-1.5 text-white/75"><span className="h-2 w-2 rounded-full bg-rose-400" /> Expense</span>
+              <span className="text-white/90 font-medium">{fmt(expense)}</span>
+            </div>
+            <p className="text-[10px] text-white/45 mt-0.5">{(100 - incomePct).toFixed(0)}% of flow</p>
+          </li>
+        </ul>
+      </div>
     </Card>
   );
 }
