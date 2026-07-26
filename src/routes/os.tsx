@@ -27,7 +27,7 @@ export const Route = createFileRoute("/os")({
 type Hotspot = {
   id: string; label: string; kpi: string; meta: string; trend: string;
   tone: "forest" | "sand" | "rose";
-  Icon: React.ComponentType<{ className?: string }>;
+  Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   x: number; y: number; to: string;
 };
 
