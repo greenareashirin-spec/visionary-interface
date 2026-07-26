@@ -87,7 +87,7 @@ function CommandCenter() {
 
       {/* Floating panels + hotspots overlay */}
       <div className={`relative z-10 min-h-screen pt-24 pb-40 px-6 lg:px-8 grid grid-cols-12 gap-6 transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
-        <aside className="app-dark hidden lg:flex col-span-3 flex-col gap-4">
+        <aside className="app-dark bg-transparent hidden lg:flex col-span-3 flex-col gap-4">
           <FinancialCard hidden={!!zooming} />
           <RecentActivityCard hidden={!!zooming} />
         </aside>
