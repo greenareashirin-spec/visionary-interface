@@ -32,10 +32,10 @@ type Hotspot = {
 };
 
 const HOTSPOTS: Hotspot[] = [
-  { id: "projects",  label: "Projects",  kpi: "12 Active",   meta: "7 on track · 3 at risk",  trend: "+2",        tone: "forest", Icon: Building2, x: 22, y: 38, to: "/app/projects"  },
-  { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "$24.8k",    tone: "sand",   Icon: Users,     x: 78, y: 38, to: "/app/employees" },
-  { id: "finance",   label: "Finance",   kpi: "$128,450",    meta: "In $84.2k · Ex $52.1k",   trend: "+12.4%",    tone: "forest", Icon: Wallet,    x: 22, y: 72, to: "/app/dashboard" },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 service",    trend: "$1.2k",     tone: "sand",   Icon: Truck,     x: 78, y: 72, to: "/app/fleet"     },
+  { id: "projects",  label: "Projects",  kpi: "12 Active",   meta: "7 on track · 3 at risk",  trend: "+2",        tone: "forest", Icon: HardHat,     x: 22, y: 38, to: "/app/projects"  },
+  { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "$24.8k",    tone: "sand",   Icon: UsersRound,  x: 78, y: 38, to: "/app/employees" },
+  { id: "finance",   label: "Finance",   kpi: "$128,450",    meta: "In $84.2k · Ex $52.1k",   trend: "+12.4%",    tone: "forest", Icon: Coins,       x: 22, y: 72, to: "/app/dashboard" },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 service",    trend: "$1.2k",     tone: "sand",   Icon: Truck,       x: 78, y: 72, to: "/app/fleet"     },
 ];
 
 function CommandCenter() {
