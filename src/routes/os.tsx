@@ -115,7 +115,7 @@ function CommandCenter() {
 }
 
 /* ─────────────── Top bar ─────────────── */
-function TopBar({ now, weather, period }: { now: Date; weather: Weather; period: Period }) {
+function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: Weather; period: Period; place: string; tempC: number | null }) {
   const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
   return (
     <header className="h-14 shrink-0 px-4 lg:px-5 flex items-center justify-between gap-4">
@@ -124,7 +124,7 @@ function TopBar({ now, weather, period }: { now: Date; weather: Weather; period:
         <div className="leading-tight hidden sm:block">
           <p className="font-medium tracking-[0.2em] text-[12px] text-white">GREEN AREA</p>
           <p className="text-[8.5px] uppercase tracking-[0.32em] text-white/55 mt-0.5 flex items-center gap-1.5">
-            <WeatherGlyph weather={weather} period={period} /> {dateStr} · Baghdad
+            <WeatherGlyph weather={weather} period={period} /> {dateStr} · {place}{tempC != null && ` · ${Math.round(tempC)}°`}
           </p>
         </div>
       </div>
