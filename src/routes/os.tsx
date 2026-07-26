@@ -95,7 +95,7 @@ function CommandCenter() {
             <RecentActivityCard />
           </aside>
 
-          {/* Center: greeting + hotspots */}
+          {/* Center: greeting + hotspots + fixed Ask OS input */}
           <section className="col-span-12 md:col-span-6 flex flex-col min-h-0 gap-3">
             <GreetingHeader period={period} />
             <div className="relative flex-1 min-h-0">
@@ -103,6 +103,7 @@ function CommandCenter() {
                 <HotspotLabel key={s.id} spot={s} onClick={() => flyTo(s)} />
               ))}
             </div>
+            <AskOSInput />
           </section>
 
           {/* Right rail */}
@@ -112,9 +113,6 @@ function CommandCenter() {
           </aside>
         </div>
       </div>
-
-      {/* Ask OS — bottom glass window */}
-      <AIAssistantBar />
     </div>
   );
 }
