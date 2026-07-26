@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Building2, Users, Truck, Wallet, ArrowRight,
+  HardHat, UsersRound, Truck, Coins, ArrowRight,
   CloudRain, Cloud, Sun, Moon, CloudSnow, CloudLightning, Wind, CloudFog,
   Search, Bell, ChevronDown, UploadCloud, FileSpreadsheet, CheckCircle2, X,
 } from "lucide-react";
