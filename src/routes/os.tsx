@@ -112,6 +112,7 @@ function CommandCenter() {
         </aside>
       </div>
 
+      <LatestEntriesBar hidden={!!zooming} />
       <AIAssistantBar hidden={!!zooming} />
     </div>
   );
