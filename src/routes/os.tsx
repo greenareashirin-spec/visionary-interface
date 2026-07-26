@@ -94,7 +94,7 @@ function CommandCenter() {
             <RecentActivityCard />
           </aside>
 
-          {/* Center: greeting + hotspots + Ask OS */}
+          {/* Center: greeting + hotspots */}
           <section className="col-span-12 md:col-span-6 flex flex-col min-h-0 gap-3">
             <GreetingHeader period={period} />
             <div className="relative flex-1 min-h-0">
@@ -102,7 +102,6 @@ function CommandCenter() {
                 <HotspotLabel key={s.id} spot={s} onClick={() => flyTo(s)} />
               ))}
             </div>
-            <AIAssistantBar />
           </section>
 
           {/* Right rail */}
@@ -112,6 +111,9 @@ function CommandCenter() {
           </aside>
         </div>
       </div>
+
+      {/* Ask OS — bottom glass window */}
+      <AIAssistantBar />
     </div>
   );
 }
@@ -418,35 +420,99 @@ function FogLayer() {
   );
 }
 
-/* ─────────────── Ask OS bar (inline, aligned with rails) ─────────────── */
+/* ─────────────── Ask OS — bottom glass window that rolls up / slides down ─────────────── */
 function AIAssistantBar() {
   const [q, setQ] = useState("");
+  const [expanded, setExpanded] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [dragY, setDragY] = useState(0);
+  const startY = useRef(0);
+  const moved = useRef(false);
   const examples = ["Show fuel expenses", "Summarize today", "Missing receipts"];
+
+  function onPointerDown(e: React.PointerEvent) {
+    startY.current = e.clientY;
+    moved.current = false;
+    setDragging(true);
+  }
+
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragging) return;
+    const delta = e.clientY - startY.current;
+    if (Math.abs(delta) > 4) moved.current = true;
+    if (delta > 0) setDragY(delta);
+  }
+
+  function onPointerUp() {
+    setDragging(false);
+    if (dragY > 60) {
+      setExpanded(false);
+    } else if (!moved.current) {
+      setExpanded((v) => !v);
+    }
+    setDragY(0);
+  }
+
+  const translateY = dragging ? dragY : 0;
+
   return (
-    <div className="shrink-0 rounded-2xl bg-black/38 backdrop-blur-xl border border-white/10 px-4 py-2.5 text-white">
-      <div className="flex items-center gap-3">
-        <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
-          <Sparkles className="h-4 w-4" />
-        </span>
-        <div className="flex-1 min-w-0">
-          <p className="text-[9px] uppercase tracking-[0.28em] text-white/60">Ask OS</p>
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Ask anything about Green Area…"
-            className="w-full bg-transparent outline-none text-[13px] placeholder:text-white/40 mt-0.5"
-          />
+    <div
+      className={`fixed left-1/2 z-40 w-[min(92vw,720px)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+        expanded ? "bottom-0" : "bottom-5"
+      }`}
+      style={{ transform: `translateX(-50%) translateY(${translateY}px)` }}
+    >
+      <div
+        className={`rounded-t-2xl border border-white/10 border-b-0 bg-black/38 backdrop-blur-xl text-white shadow-[0_-8px_40px_rgba(0,0,0,0.35)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-hidden ${
+          expanded ? "max-h-[320px] opacity-100" : "max-h-[58px] opacity-95"
+        }`}
+      >
+        {/* Drag handle */}
+        <div
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+          className="h-7 w-full flex items-center justify-center cursor-pointer hover:bg-white/[0.04] transition touch-none"
+        >
+          <div className="w-10 h-1 rounded-full bg-white/35" />
         </div>
-        <div className="hidden xl:flex gap-1.5">
-          {examples.map((e) => (
-            <button key={e} onClick={() => setQ(e)} className="text-[10.5px] px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 hover:bg-white/15 hover:text-white transition">
-              {e}
+
+        {/* Collapsed preview */}
+        <div className={`px-4 transition-all duration-300 ${expanded ? "h-0 opacity-0 -mt-1" : "h-6 opacity-100 -mt-1"}`}>
+          <div className="flex items-center justify-center gap-2">
+            <Sparkles className="h-3 w-3 text-forest" />
+            <p className="text-[11px] text-white/70">Ask OS</p>
+          </div>
+        </div>
+
+        {/* Expanded content */}
+        <div className={`px-4 pb-4 transition-all duration-500 ${expanded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 h-0 overflow-hidden"}`}>
+          <div className="flex items-center gap-3">
+            <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
+              <Sparkles className="h-4 w-4" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-[9px] uppercase tracking-[0.28em] text-white/60">Ask OS</p>
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Ask anything about Green Area…"
+                className="w-full bg-transparent outline-none text-[13px] placeholder:text-white/40 mt-0.5"
+              />
+            </div>
+            <button className="rounded-full bg-forest text-forest-deep font-medium text-xs px-4 py-1.5 hover:brightness-110 transition shrink-0">
+              Ask
             </button>
-          ))}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {examples.map((e) => (
+              <button key={e} onClick={() => setQ(e)} className="text-[10.5px] px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/70 hover:bg-white/15 hover:text-white transition">
+                {e}
+              </button>
+            ))}
+          </div>
         </div>
-        <button className="rounded-full bg-forest text-forest-deep font-medium text-xs px-4 py-1.5 hover:brightness-110 transition shrink-0">
-          Ask
-        </button>
       </div>
     </div>
   );
