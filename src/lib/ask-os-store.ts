@@ -39,7 +39,16 @@ let hydrated = false;
 function ensureHydrated() {
   if (hydrated || typeof window === "undefined") return;
   hydrated = true;
-  state = { messages: load(), activeId: null };
+  state = { messages: prune(load()), activeId: null };
+  save(state.messages);
+  // Re-prune every 5 minutes so stale conversations drop off live.
+  window.setInterval(() => {
+    const kept = prune(state.messages);
+    if (kept.length !== state.messages.length) {
+      const activeId = state.activeId && kept.some((m) => m.id === state.activeId) ? state.activeId : null;
+      set({ messages: kept, activeId });
+    }
+  }, 5 * 60 * 1000);
 }
 
 function set(next: State) {
