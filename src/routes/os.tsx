@@ -429,27 +429,39 @@ function AIAssistantBar() {
   const startY = useRef(0);
   const examples = ["Show fuel expenses", "Summarize today", "Missing receipts"];
 
+  useEffect(() => {
+    if (!dragging) return;
+
+    function onMove(e: PointerEvent) {
+      const delta = e.clientY - startY.current;
+      if (delta > 0) setDragY(delta);
+    }
+
+    function onUp(e: PointerEvent) {
+      const delta = e.clientY - startY.current;
+      setDragging(false);
+      if (delta > 60) {
+        setExpanded(false);
+      } else if (Math.abs(delta) <= 10) {
+        setExpanded((v) => !v);
+      }
+      setDragY(0);
+    }
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp, { once: true });
+    window.addEventListener("pointercancel", onUp, { once: true });
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+    };
+  }, [dragging]);
+
   function onPointerDown(e: React.PointerEvent) {
-    (e.currentTarget as HTMLDivElement).setPointerCapture(e.pointerId);
+    e.preventDefault();
     startY.current = e.clientY;
     setDragging(true);
-  }
-
-  function onPointerMove(e: React.PointerEvent) {
-    if (!dragging) return;
-    const delta = e.clientY - startY.current;
-    if (delta > 0) setDragY(delta);
-  }
-
-  function onPointerUp(e: React.PointerEvent) {
-    (e.currentTarget as HTMLDivElement).releasePointerCapture(e.pointerId);
-    setDragging(false);
-    if (dragY > 60) {
-      setExpanded(false);
-    } else if (dragY <= 10) {
-      setExpanded((v) => !v);
-    }
-    setDragY(0);
   }
 
   const translateY = dragging ? dragY : 0;
@@ -462,16 +474,14 @@ function AIAssistantBar() {
       style={{ transform: `translateX(-50%) translateY(${translateY}px)` }}
     >
       <div
-        className={`rounded-t-2xl border border-white/10 border-b-0 bg-black/38 backdrop-blur-xl text-white shadow-[0_-8px_40px_rgba(0,0,0,0.35)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-hidden ${
+        className={`rounded-t-2xl border border-white/10 border-b-0 bg-black/38 backdrop-blur-xl text-white shadow-[0_-8px_40px_rgba(0,0,0,0.35)] transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-hidden select-none ${
           expanded ? "max-h-[320px] opacity-100" : "max-h-[58px] opacity-95"
         }`}
       >
         {/* Drag handle */}
         <div
           onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          className="h-7 w-full flex items-center justify-center cursor-pointer hover:bg-white/[0.04] transition touch-none select-none"
+          className="h-7 w-full flex items-center justify-center cursor-pointer hover:bg-white/[0.04] transition touch-none"
         >
           <div className="w-10 h-1 rounded-full bg-white/35" />
         </div>
@@ -499,7 +509,7 @@ function AIAssistantBar() {
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Ask anything about Green Area…"
-                className="w-full bg-transparent outline-none text-[13px] placeholder:text-white/40 mt-0.5"
+                className="w-full bg-transparent outline-none text-[13px] placeholder:text-white/40 mt-0.5 select-text"
               />
             </div>
             <button className="rounded-full bg-forest text-forest-deep font-medium text-xs px-4 py-1.5 hover:brightness-110 transition shrink-0">
