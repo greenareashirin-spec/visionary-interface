@@ -304,6 +304,86 @@ function StarsLayer() {
   );
 }
 
+/* ─────────────── Realistic Moon (natural lunar phase) ─────────────── */
+function RealisticMoon({ now }: { now: Date }) {
+  // Synodic month; reference new moon 2000-01-06 18:14 UTC
+  const SYN = 29.530588853;
+  const ref = Date.UTC(2000, 0, 6, 18, 14) / 86400000;
+  const days = now.getTime() / 86400000;
+  const phase = (((days - ref) / SYN) % 1 + 1) % 1; // 0..1
+  const angle = phase * 2 * Math.PI;
+  const cosA = Math.cos(angle);
+  const R = 30;
+  const rx = Math.abs(cosA) * R;
+  // Lit-region path: right semicircle (waxing) or left (waning) combined with terminator ellipse
+  const waxing = phase < 0.5;
+  const sweep1 = waxing ? 1 : 0;
+  const crescent = phase < 0.25 || phase > 0.75;
+  const sweep2 = crescent ? (waxing ? 0 : 1) : (waxing ? 1 : 0);
+  const litPath = `M 0 ${-R} A ${R} ${R} 0 0 ${sweep1} 0 ${R} A ${rx} ${R} 0 0 ${sweep2} 0 ${-R} Z`;
+
+  const id = "moon-" + Math.round(phase * 1000);
+  return (
+    <div
+      className="fixed pointer-events-none z-[5]"
+      style={{ left: "28%", top: "11%", width: 96, height: 96, opacity: 0.92 }}
+      aria-hidden
+    >
+      {/* soft atmospheric halo */}
+      <div
+        className="absolute inset-[-40%] rounded-full"
+        style={{
+          background:
+            "radial-gradient(circle, rgba(230,232,224,0.18) 0%, rgba(230,232,224,0.06) 35%, transparent 65%)",
+          filter: "blur(6px)",
+        }}
+      />
+      <svg viewBox="-40 -40 80 80" width="100%" height="100%">
+        <defs>
+          <radialGradient id={`${id}-lit`} cx="0.35" cy="0.35" r="0.85">
+            <stop offset="0%" stopColor="#f7f3e6" />
+            <stop offset="55%" stopColor="#e5dfcc" />
+            <stop offset="100%" stopColor="#b8b09a" />
+          </radialGradient>
+          <radialGradient id={`${id}-dark`} cx="0.5" cy="0.5" r="0.6">
+            <stop offset="0%" stopColor="#3b3a36" />
+            <stop offset="100%" stopColor="#1a1a1c" />
+          </radialGradient>
+          <filter id={`${id}-tex`} x="-10%" y="-10%" width="120%" height="120%">
+            <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="2" seed="7" />
+            <feColorMatrix values="0 0 0 0 0.55  0 0 0 0 0.53  0 0 0 0 0.48  0 0 0 0.35 0" />
+            <feComposite in2="SourceGraphic" operator="in" />
+          </filter>
+          <clipPath id={`${id}-clip`}>
+            <circle r={R} cx="0" cy="0" />
+          </clipPath>
+        </defs>
+
+        {/* dark side of moon (always visible, dim) */}
+        <circle r={R} cx="0" cy="0" fill={`url(#${id}-dark)`} />
+
+        {/* lit region */}
+        <path d={litPath} fill={`url(#${id}-lit)`} />
+
+        {/* subtle surface texture (craters/maria feel) clipped to disc */}
+        <g clipPath={`url(#${id}-clip)`} opacity="0.55">
+          <rect x="-40" y="-40" width="80" height="80" filter={`url(#${id}-tex)`} />
+          {/* a few soft maria patches */}
+          <ellipse cx="-6" cy="-8" rx="7" ry="5" fill="#8a8677" opacity="0.35" />
+          <ellipse cx="8" cy="4" rx="5" ry="4" fill="#8a8677" opacity="0.3" />
+          <ellipse cx="-3" cy="10" rx="4" ry="3" fill="#8a8677" opacity="0.28" />
+          <circle cx="12" cy="-10" r="1.8" fill="#6a6658" opacity="0.5" />
+          <circle cx="-11" cy="6" r="1.4" fill="#6a6658" opacity="0.45" />
+          <circle cx="4" cy="-4" r="1.1" fill="#6a6658" opacity="0.4" />
+        </g>
+
+        {/* limb darkening on the lit crescent for depth */}
+        <circle r={R} cx="0" cy="0" fill="none" stroke="rgba(0,0,0,0.35)" strokeWidth="1.2" />
+      </svg>
+    </div>
+  );
+}
+
 /* ─────────────── Lightning (thunder) ─────────────── */
 function LightningLayer() {
   return (
