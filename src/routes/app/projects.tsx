@@ -35,6 +35,7 @@ const statusTone: Record<string, string> = {
 };
 
 function Projects() {
+  const [chartOpen, setChartOpen] = useState(false);
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
       <header className="flex items-end justify-between gap-4 flex-wrap">
@@ -44,12 +45,19 @@ function Projects() {
           <p className="mt-1 text-[12px] text-white/60">Track all projects, budgets and progress.</p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => setChartOpen(true)}
+            className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/10 transition flex items-center gap-1.5"
+          >
+            <PieChart className="h-3.5 w-3.5" /> See Chart
+          </button>
           <button className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/10 transition">Export</button>
           <button className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium flex items-center gap-1.5 hover:brightness-110 transition">
             <Plus className="h-3.5 w-3.5" /> New Project
           </button>
         </div>
       </header>
+      {chartOpen && <SpendChartModal onClose={() => setChartOpen(false)} />}
 
       <section className="grid grid-cols-3 md:grid-cols-6 gap-2.5">
         {stats.map((s) => (
