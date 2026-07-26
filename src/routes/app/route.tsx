@@ -43,6 +43,22 @@ function AppShell() {
         </div>
       )}
 
+      {/* mobile Ask OS drawer */}
+      {mobileAskOpen && (
+        <div className="fixed inset-0 z-50 md:hidden bg-black/70 backdrop-blur-md p-4 pt-6 flex flex-col gap-3" onClick={() => setMobileAskOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="flex flex-col gap-3 min-h-0">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] uppercase tracking-[0.28em] text-white/60">Ask OS</p>
+              <button onClick={() => setMobileAskOpen(false)} className="text-white/60 hover:text-white"><X className="h-4 w-4" /></button>
+            </div>
+            <AskOSInput />
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <AskOSHistory />
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* floating workspace */}
       <div className="relative z-10 h-screen w-screen p-2 sm:p-3 lg:p-4 flex gap-2 sm:gap-3 lg:gap-4">
         {/* sidebar card — icon rail on mobile, full label on md+ */}
