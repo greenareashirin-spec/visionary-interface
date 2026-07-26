@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Search, Bell, ChevronDown, X } from "lucide-react";
+import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Search, Bell, ChevronDown, X, Sparkles } from "lucide-react";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import landscape from "@/assets/command-landscape.jpg";
 import { AskOSInput, AskOSHistory } from "@/components/ask-os";
@@ -23,6 +23,7 @@ const nav = [
 function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileAskOpen, setMobileAskOpen] = useState(false);
   return (
     <div className="app-dark relative h-screen w-screen overflow-hidden text-foreground">
       {/* landscape background */}
@@ -39,6 +40,22 @@ function AppShell() {
             <button onClick={() => setMobileSearchOpen(false)} className="text-white/60 hover:text-white"><X className="h-4 w-4" /></button>
           </div>
           <p className="text-[10px] uppercase tracking-[0.24em] text-white/45 px-1">Tap anywhere to close</p>
+        </div>
+      )}
+
+      {/* mobile Ask OS drawer */}
+      {mobileAskOpen && (
+        <div className="fixed inset-0 z-50 md:hidden bg-black/70 backdrop-blur-md p-4 pt-6 flex flex-col gap-3" onClick={() => setMobileAskOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="flex flex-col gap-3 min-h-0">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] uppercase tracking-[0.28em] text-white/60">Ask OS</p>
+              <button onClick={() => setMobileAskOpen(false)} className="text-white/60 hover:text-white"><X className="h-4 w-4" /></button>
+            </div>
+            <AskOSInput />
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <AskOSHistory />
+            </div>
+          </div>
         </div>
       )}
 
@@ -93,6 +110,19 @@ function AppShell() {
               );
             })}
           </nav>
+          {/* Ask OS — mobile: icon button opens drawer; desktop: full input + history */}
+          <div className="md:hidden px-1.5 pb-3">
+            <button
+              onClick={() => setMobileAskOpen(true)}
+              className="w-full flex flex-col items-center gap-1 rounded-xl py-2 text-forest hover:bg-white/5 transition"
+              aria-label="Ask OS"
+            >
+              <span className="h-7 w-7 rounded-full bg-forest text-forest-deep grid place-items-center">
+                <Sparkles className="h-3.5 w-3.5" />
+              </span>
+              <span className="text-[9px] tracking-wide">Ask OS</span>
+            </button>
+          </div>
           <div className="hidden md:flex flex-col gap-2 m-2.5 min-h-0">
             <AskOSInput compact />
             <div className="min-h-0 flex-1 overflow-hidden">
