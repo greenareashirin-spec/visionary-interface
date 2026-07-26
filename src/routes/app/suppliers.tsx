@@ -47,11 +47,11 @@ function Suppliers() {
         </div>
       </header>
 
-      <section className="grid grid-cols-2 md:grid-cols-6 gap-2.5">
+      <section className="grid grid-cols-2 md:grid-cols-6 gap-1.5 md:gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3">
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
             <div className="flex items-start justify-between gap-2">
-              <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
+              <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
               <s.Icon className="h-3 w-3 text-white/45" />
             </div>
             <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
@@ -82,7 +82,7 @@ function Suppliers() {
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-[12px]">
             <thead className="sticky top-0 bg-[oklch(0.22_0.02_165)]/95 backdrop-blur">
-              <tr className="text-left text-[9px] uppercase tracking-[0.22em] text-white/55">
+              <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
                 <th className="py-2.5 px-4 font-normal">Supplier</th>
                 <th className="py-2.5 px-3 font-normal">Category</th>
                 <th className="py-2.5 px-3 font-normal">Contact</th>

@@ -67,15 +67,15 @@ function Materials() {
         </div>
       </header>
 
-      <section className="grid grid-cols-2 md:grid-cols-6 gap-2.5">
+      <section className="grid grid-cols-2 md:grid-cols-6 gap-1.5 md:gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3">
-            <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
+            <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
             <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
             <p className={`text-[10.5px] mt-0.5 ${s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55"}`}>{s.sub}</p>
           </div>
         ))}
-        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 md:col-span-2 flex items-center gap-3">
+        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3 md:col-span-2 flex items-center gap-3">
           <Donut segments={categories.map(c => ({ pct: c.pct, color: c.color }))} />
           <ul className="flex-1 grid grid-cols-1 gap-y-1 text-[11px]">
             {categories.map((c) => (
@@ -111,7 +111,7 @@ function Materials() {
         <div className="flex-1 min-h-0 overflow-auto">
           <table className="w-full text-[12px]">
             <thead className="sticky top-0 bg-[oklch(0.22_0.02_165)]/95 backdrop-blur">
-              <tr className="text-left text-[9px] uppercase tracking-[0.22em] text-white/55">
+              <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
                 <th className="py-2.5 px-4 font-normal">Material</th>
                 <th className="py-2.5 px-3 font-normal">Category</th>
                 <th className="py-2.5 px-3 font-normal">Unit</th>
