@@ -27,7 +27,7 @@ export const Route = createFileRoute("/os")({
 type Hotspot = {
   id: string; label: string; kpi: string; meta: string; trend: string;
   tone: "forest" | "sand" | "rose";
-  Icon: React.ComponentType<{ className?: string }>;
+  Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
   x: number; y: number; to: string;
 };
 
@@ -285,10 +285,8 @@ function HotspotLabel({ spot, onClick }: { spot: Hotspot; onClick: () => void })
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 rounded-full border border-cyan-200/50 animate-ping" style={{ animationDuration: "2.8s" }} />
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-cyan-100/30 animate-ping" style={{ animationDuration: "3.6s", animationDelay: "0.6s" }} />
       <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full border border-cyan-100/20 animate-ping" style={{ animationDuration: "4.4s", animationDelay: "1.2s" }} />
-      <div className="relative mt-3 flex items-stretch gap-2 rounded-2xl pl-2 pr-3 py-1.5 text-white/95 transition-all duration-300 group-hover:scale-[1.04] bg-black/30 border border-white/10 backdrop-blur-sm w-[150px]">
-        <span className="h-7 w-7 self-center rounded-lg bg-white/10 grid place-items-center shrink-0">
-          <Icon className="h-3 w-3 text-white/90" />
-        </span>
+      <Icon className="relative mx-auto mb-1.5 h-5 w-5 text-white" strokeWidth={1.5} />
+      <div className="relative flex items-stretch gap-2 rounded-2xl px-3 py-1.5 text-white/95 transition-all duration-300 group-hover:scale-[1.04] bg-black/30 border border-white/10 backdrop-blur-sm w-[150px]">
         <div className="text-left leading-tight min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-1.5">
             <p className="text-[8.5px] uppercase tracking-[0.22em] text-white/55 truncate">{spot.label}</p>
