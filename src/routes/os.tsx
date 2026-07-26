@@ -1,13 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Building2, Users, Truck, Wallet, Sparkles, ArrowRight,
+  Building2, Users, Truck, Wallet, ArrowRight,
   CloudRain, Cloud, Sun, Moon, CloudSnow, CloudLightning, Wind, CloudFog,
   Search, Bell, ChevronDown, UploadCloud, FileSpreadsheet, CheckCircle2, X,
 } from "lucide-react";
 import landscape from "@/assets/command-landscape.jpg";
 import moonPhoto from "@/assets/moon-full.png";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
+import { AskOSInput } from "@/components/ask-os";
 import {
   currentPeriod, greeting, periodLabel, periodOverlay, useLiveWeather,
   type Period, type Weather,
