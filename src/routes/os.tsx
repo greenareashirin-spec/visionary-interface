@@ -283,15 +283,26 @@ function StarsLayer() {
   });
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-[4]">
-      {/* Moon — subtle, soft */}
-      <div
-        className="absolute right-[10%] top-[12%] h-14 w-14 rounded-full"
-        style={{
-          background: "radial-gradient(circle at 38% 38%, rgba(245,240,225,0.85) 0%, rgba(220,215,200,0.55) 55%, rgba(180,180,175,0.15) 100%)",
-          boxShadow: "0 0 80px 30px rgba(230,225,210,0.08)",
-          filter: "blur(0.3px)",
-        }}
-      />
+      {/* Moon — realistic with craters, terminator shadow, and soft halo */}
+      <div className="absolute right-[10%] top-[10%] h-16 w-16">
+        <div className="absolute inset-[-40%] rounded-full"
+          style={{ background: "radial-gradient(circle, rgba(240,235,215,0.18) 0%, rgba(240,235,215,0.06) 40%, transparent 70%)" }} />
+        <div className="relative h-full w-full rounded-full overflow-hidden"
+          style={{
+            background:
+              "radial-gradient(circle at 34% 34%, #f5efdc 0%, #e5dcc0 42%, #b8ad8e 78%, #7a7159 100%)",
+            boxShadow: "inset -6px -8px 14px rgba(20,15,5,0.55), inset 4px 5px 10px rgba(255,250,230,0.25)",
+          }}
+        >
+          {/* craters */}
+          <span className="absolute rounded-full" style={{ left: "26%", top: "30%", width: "18%", height: "18%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.35), rgba(90,80,60,0.55) 70%)" }} />
+          <span className="absolute rounded-full" style={{ left: "58%", top: "22%", width: "10%", height: "10%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.3), rgba(90,80,60,0.5) 70%)" }} />
+          <span className="absolute rounded-full" style={{ left: "48%", top: "55%", width: "14%", height: "14%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.3), rgba(90,80,60,0.5) 70%)" }} />
+          <span className="absolute rounded-full" style={{ left: "20%", top: "62%", width: "8%", height: "8%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.25), rgba(90,80,60,0.45) 70%)" }} />
+          <span className="absolute rounded-full" style={{ left: "70%", top: "60%", width: "6%", height: "6%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.25), rgba(90,80,60,0.45) 70%)" }} />
+          <span className="absolute rounded-full" style={{ left: "38%", top: "14%", width: "5%", height: "5%", background: "radial-gradient(circle at 35% 35%, rgba(255,250,235,0.25), rgba(90,80,60,0.4) 70%)" }} />
+        </div>
+      </div>
       {stars.map((s) => (
         <span
           key={s.i}
@@ -494,52 +505,35 @@ function CashflowDonutCard() {
   const total = income + expense;
   const net = income - expense;
   const incomePct = (income / total) * 100;
-  const R = 42;
-  const C = 2 * Math.PI * R;
-  const incomeLen = (incomePct / 100) * C;
   const fmt = (n: number) => `$${(n / 1000).toFixed(1)}k`;
+
+  const cx = 50, cy = 50, r = 46;
+  const a = (incomePct / 100) * Math.PI * 2 - Math.PI / 2;
+  const x1 = cx + r * Math.cos(-Math.PI / 2);
+  const y1 = cy + r * Math.sin(-Math.PI / 2);
+  const x2 = cx + r * Math.cos(a);
+  const y2 = cy + r * Math.sin(a);
+  const large = incomePct > 50 ? 1 : 0;
+  const incomePath = `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} Z`;
+  const expensePath = `M${cx},${cy} L${x2},${y2} A${r},${r} 0 ${1 - large} 1 ${x1},${y1} Z`;
+
   return (
     <Card title="Cashflow" action="30d">
-      <div className="h-full flex items-center gap-4">
-        <div className="relative h-[112px] w-[112px] shrink-0">
-          <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
-            <circle cx="50" cy="50" r={R} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="10" />
-            <circle
-              cx="50" cy="50" r={R} fill="none"
-              stroke="hsl(var(--forest, 145 40% 55%))"
-              className="[stroke:theme(colors.forest.DEFAULT,#7fb08a)]"
-              strokeWidth="10" strokeLinecap="butt"
-              strokeDasharray={`${incomeLen} ${C}`}
-            />
-            <circle
-              cx="50" cy="50" r={R} fill="none"
-              stroke="rgb(251 113 133)"
-              strokeWidth="10" strokeLinecap="butt"
-              strokeDasharray={`${C - incomeLen} ${C}`}
-              strokeDashoffset={-incomeLen}
-            />
-          </svg>
-          <div className="absolute inset-0 grid place-items-center text-center leading-tight">
-            <div>
-              <p className="text-[8.5px] uppercase tracking-[0.22em] text-white/50">Net</p>
-              <p className="text-[13px] font-medium text-white">{fmt(net)}</p>
-            </div>
-          </div>
+      <div className="h-full flex flex-col items-center justify-center gap-2.5">
+        <div className="text-center leading-tight">
+          <p className="text-[9px] uppercase tracking-[0.28em] text-white/55">Net · 30d</p>
+          <p className="text-[26px] font-medium text-white mt-0.5">{fmt(net)}</p>
         </div>
-        <ul className="flex-1 space-y-2 text-[12px]">
-          <li>
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-white/75"><span className="h-2 w-2 rounded-full bg-forest" /> Income</span>
-              <span className="text-white/90 font-medium">{fmt(income)}</span>
-            </div>
-            <p className="text-[10px] text-white/45 mt-0.5">{incomePct.toFixed(0)}% of flow</p>
+        <svg viewBox="0 0 100 100" className="h-[110px] w-[110px]">
+          <path d={incomePath} fill="oklch(0.72 0.14 145)" />
+          <path d={expensePath} fill="rgb(251 113 133)" />
+        </svg>
+        <ul className="flex items-center gap-4 text-[11px]">
+          <li className="flex items-center gap-1.5 text-white/80">
+            <span className="h-2 w-2 rounded-full bg-forest" /> Income <span className="text-white/95 font-medium ml-1">{fmt(income)}</span>
           </li>
-          <li>
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-white/75"><span className="h-2 w-2 rounded-full bg-rose-400" /> Expense</span>
-              <span className="text-white/90 font-medium">{fmt(expense)}</span>
-            </div>
-            <p className="text-[10px] text-white/45 mt-0.5">{(100 - incomePct).toFixed(0)}% of flow</p>
+          <li className="flex items-center gap-1.5 text-white/80">
+            <span className="h-2 w-2 rounded-full bg-rose-400" /> Expense <span className="text-white/95 font-medium ml-1">{fmt(expense)}</span>
           </li>
         </ul>
       </div>
