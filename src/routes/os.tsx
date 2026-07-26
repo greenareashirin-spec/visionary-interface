@@ -427,7 +427,6 @@ function AIAssistantBar() {
   const [dragging, setDragging] = useState(false);
   const [dragY, setDragY] = useState(0);
   const startY = useRef(0);
-  const moved = useRef(false);
   const examples = ["Show fuel expenses", "Summarize today", "Missing receipts"];
 
   function onPointerDown(e: React.PointerEvent) {
