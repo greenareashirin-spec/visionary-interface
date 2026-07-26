@@ -98,6 +98,7 @@ function CommandCenter() {
           {/* Center: greeting + hotspots + fixed Ask OS input */}
           <section className="col-span-12 md:col-span-6 flex flex-col min-h-0 gap-3">
             <GreetingHeader period={period} />
+            <MobileFinanceBars />
             <div className="relative flex-1 min-h-0">
               {HOTSPOTS.map((s) => (
                 <HotspotLabel key={s.id} spot={s} onClick={() => flyTo(s)} />
