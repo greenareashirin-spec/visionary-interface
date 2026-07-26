@@ -1,5 +1,6 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Handshake, FolderOpen, Search, Bell, ChevronDown } from "lucide-react";
+import { useState } from "react";
+import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Handshake, Search, Bell, ChevronDown, X } from "lucide-react";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import landscape from "@/assets/command-landscape.jpg";
 
@@ -16,8 +17,8 @@ const nav = [
   { to: "/app/materials", label: "Materials",      Icon: Package },
   { to: "/app/fleet",     label: "Fleet",          Icon: Truck },
   { to: "/app/suppliers", label: "Suppliers",      Icon: Handshake },
-  { to: "/app/daily-log", label: "Documents",      Icon: FolderOpen },
 ] as const;
+
 
 function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
