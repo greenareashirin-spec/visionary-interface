@@ -114,6 +114,7 @@ function CommandCenter() {
         </aside>
       </div>
 
+      <LatestEntriesBar hidden={!!zooming} />
       <AIAssistantBar hidden={!!zooming} />
     </div>
   );
@@ -270,7 +271,7 @@ function LatestEntriesBar({ hidden }: { hidden: boolean }) {
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 shrink-0 pr-3 border-r border-white/10">
             <span className="h-1.5 w-1.5 rounded-full bg-forest animate-pulse" />
-            <p className="text-[10px] uppercase tracking-[0.28em] text-white/70">Latest Entries</p>
+            <p className="text-[10px] uppercase tracking-[0.28em] text-white/70">Latest ERP</p>
           </div>
           <div className="flex-1 overflow-hidden">
             <div className="flex items-center gap-5 overflow-x-auto scrollbar-none">
