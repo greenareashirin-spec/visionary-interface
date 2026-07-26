@@ -31,7 +31,7 @@ function AppShell() {
       {/* floating workspace */}
       <div className="relative z-10 h-screen w-screen p-2 sm:p-3 lg:p-4 flex gap-2 sm:gap-3 lg:gap-4">
         {/* sidebar card — icon rail on mobile, full label on md+ */}
-        <aside className="flex w-14 md:w-56 lg:w-60 shrink-0 flex-col rounded-2xl md:rounded-3xl bg-white/[0.055] border border-white/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] overflow-hidden">
+        <aside className="flex w-20 md:w-56 lg:w-60 shrink-0 flex-col rounded-2xl md:rounded-3xl bg-white/[0.055] border border-white/10 shadow-[0_30px_80px_-30px_rgba(0,0,0,0.6)] overflow-hidden">
           <div className="px-2 md:px-5 pt-4 md:pt-5 pb-3 md:pb-4 flex items-center gap-3 justify-center md:justify-start">
             <img src={logoAsset.url} alt="" className="h-8 w-8" />
             <div className="hidden md:block leading-tight">
@@ -49,13 +49,14 @@ function AppShell() {
                   key={label}
                   to={to}
                   title={label}
-                  className={`group flex items-center gap-3 rounded-xl px-2.5 md:px-3 py-2 mb-0.5 transition justify-center md:justify-start ${
+                  className={`group flex flex-col md:flex-row items-center md:gap-3 gap-1 rounded-xl px-1.5 md:px-3 py-2 mb-0.5 transition justify-center md:justify-start ${
                     active
                       ? "bg-forest/20 text-forest border border-forest/30"
                       : "text-white/75 hover:bg-white/5"
                   }`}
                 >
                   <Icon className={`h-4 w-4 md:h-3.5 md:w-3.5 shrink-0 ${active ? "opacity-100" : "opacity-70"}`} />
+                  <span className="md:hidden text-[9px] leading-tight text-center tracking-wide">{label}</span>
                   <span className="hidden md:inline text-[12.5px]">{label}</span>
                 </Link>
               );
