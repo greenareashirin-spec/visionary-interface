@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app/index'
 import { Route as AppSettingsRouteImport } from './routes/app/settings'
 import { Route as AppProjectsRouteImport } from './routes/app/projects'
+import { Route as AppMaterialsRouteImport } from './routes/app/materials'
 import { Route as AppEmployeesRouteImport } from './routes/app/employees'
 import { Route as AppDashboardRouteImport } from './routes/app/dashboard'
 import { Route as AppDailyLogRouteImport } from './routes/app/daily-log'
@@ -49,6 +50,11 @@ const AppProjectsRoute = AppProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppMaterialsRoute = AppMaterialsRouteImport.update({
+  id: '/materials',
+  path: '/materials',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppEmployeesRoute = AppEmployeesRouteImport.update({
   id: '/employees',
   path: '/employees',
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/app/daily-log': typeof AppDailyLogRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/employees': typeof AppEmployeesRoute
+  '/app/materials': typeof AppMaterialsRoute
   '/app/projects': typeof AppProjectsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/': typeof AppIndexRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/app/daily-log': typeof AppDailyLogRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/employees': typeof AppEmployeesRoute
+  '/app/materials': typeof AppMaterialsRoute
   '/app/projects': typeof AppProjectsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app': typeof AppIndexRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/app/daily-log': typeof AppDailyLogRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/employees': typeof AppEmployeesRoute
+  '/app/materials': typeof AppMaterialsRoute
   '/app/projects': typeof AppProjectsRoute
   '/app/settings': typeof AppSettingsRoute
   '/app/': typeof AppIndexRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/app/daily-log'
     | '/app/dashboard'
     | '/app/employees'
+    | '/app/materials'
     | '/app/projects'
     | '/app/settings'
     | '/app/'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/app/daily-log'
     | '/app/dashboard'
     | '/app/employees'
+    | '/app/materials'
     | '/app/projects'
     | '/app/settings'
     | '/app'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/app/daily-log'
     | '/app/dashboard'
     | '/app/employees'
+    | '/app/materials'
     | '/app/projects'
     | '/app/settings'
     | '/app/'
@@ -183,6 +195,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppProjectsRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/app/materials': {
+      id: '/app/materials'
+      path: '/materials'
+      fullPath: '/app/materials'
+      preLoaderRoute: typeof AppMaterialsRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/app/employees': {
       id: '/app/employees'
       path: '/employees'
@@ -211,6 +230,7 @@ interface AppRouteRouteChildren {
   AppDailyLogRoute: typeof AppDailyLogRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppEmployeesRoute: typeof AppEmployeesRoute
+  AppMaterialsRoute: typeof AppMaterialsRoute
   AppProjectsRoute: typeof AppProjectsRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -220,6 +240,7 @@ const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppDailyLogRoute: AppDailyLogRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppEmployeesRoute: AppEmployeesRoute,
+  AppMaterialsRoute: AppMaterialsRoute,
   AppProjectsRoute: AppProjectsRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
