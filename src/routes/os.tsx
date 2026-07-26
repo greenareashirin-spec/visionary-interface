@@ -26,16 +26,19 @@ type Hotspot = {
   id: string;
   label: string;
   kpi: string;
+  meta: string;
+  trend: string;
+  tone: "forest" | "sand" | "rose";
   Icon: React.ComponentType<{ className?: string }>;
   x: number; y: number;
   to: string;
 };
 
 const HOTSPOTS: Hotspot[] = [
-  { id: "projects",  label: "Projects",  kpi: "12 Active",   Icon: Building2, x: 24, y: 30, to: "/app/projects"  },
-  { id: "employees", label: "Employees", kpi: "18 Active",   Icon: Users,     x: 76, y: 28, to: "/app/employees" },
-  { id: "finance",   label: "Finance",   kpi: "$128,450",    Icon: Wallet,    x: 22, y: 72, to: "/app/dashboard" },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  Icon: Truck,     x: 78, y: 70, to: "/app/settings"  },
+  { id: "projects",  label: "Projects",  kpi: "12 Active",  meta: "7 on track · 3 at risk",  trend: "+2 this month", tone: "forest", Icon: Building2, x: 24, y: 30, to: "/app/projects"  },
+  { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "Payroll $24.8k", tone: "sand",   Icon: Users,     x: 76, y: 28, to: "/app/employees" },
+  { id: "finance",   label: "Finance",   kpi: "$128,450",   meta: "Income $84.2k · Exp $52.1k", trend: "+12.4% MoM",  tone: "forest", Icon: Wallet,    x: 22, y: 72, to: "/app/dashboard" },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles", meta: "4 active · 1 service",    trend: "Fuel $1,240",   tone: "sand",   Icon: Truck,     x: 78, y: 70, to: "/app/settings"  },
 ];
 
 function CommandCenter() {
