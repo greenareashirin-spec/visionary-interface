@@ -1,8 +1,9 @@
 import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Handshake, Search, Bell, ChevronDown, X } from "lucide-react";
+import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Search, Bell, ChevronDown, X } from "lucide-react";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import landscape from "@/assets/command-landscape.jpg";
+import { AskOSInput, AskOSHistory } from "@/components/ask-os";
 
 export const Route = createFileRoute("/app")({
   component: AppShell,
@@ -16,7 +17,6 @@ const nav = [
   { to: "/app/employees", label: "Employees",      Icon: Users },
   { to: "/app/materials", label: "Materials",      Icon: Package },
   { to: "/app/fleet",     label: "Fleet",          Icon: Truck },
-  { to: "/app/suppliers", label: "Suppliers",      Icon: Handshake },
 ] as const;
 
 
