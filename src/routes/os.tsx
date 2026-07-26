@@ -479,12 +479,15 @@ function AIAssistantBar() {
         </div>
 
         {/* Collapsed preview */}
-        <div className={`px-4 transition-all duration-300 ${expanded ? "h-0 opacity-0 -mt-1" : "h-6 opacity-100 -mt-1"}`}>
+        <button
+          onClick={() => setExpanded(true)}
+          className={`w-full px-4 transition-all duration-300 text-left ${expanded ? "h-0 opacity-0 -mt-1" : "h-6 opacity-100 -mt-1"}`}
+        >
           <div className="flex items-center justify-center gap-2">
             <Sparkles className="h-3 w-3 text-forest" />
             <p className="text-[11px] text-white/70">Ask OS</p>
           </div>
-        </div>
+        </button>
 
         {/* Expanded content */}
         <div className={`px-4 pb-4 transition-all duration-500 ${expanded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 h-0 overflow-hidden"}`}>
