@@ -23,6 +23,7 @@ const nav = [
 function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [mobileAskOpen, setMobileAskOpen] = useState(false);
   return (
     <div className="app-dark relative h-screen w-screen overflow-hidden text-foreground">
       {/* landscape background */}
