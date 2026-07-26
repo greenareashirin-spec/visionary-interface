@@ -123,8 +123,8 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
         <img src={logoAsset.url} alt="" className="h-8 w-8" />
         <div className="leading-tight hidden sm:block">
           <p className="font-medium tracking-[0.2em] text-[12px] text-white">GREEN AREA</p>
-          <p className="text-[8.5px] uppercase tracking-[0.32em] text-white/55 mt-0.5 flex items-center gap-1.5">
-            {dateStr} · {place}{tempC != null && ` · ${Math.round(tempC)}°`} <WeatherGlyph weather={weather} period={period} />
+          <p className="text-[8.5px] uppercase tracking-[0.32em] text-white/55 mt-0.5">
+            {dateStr} · {place}
           </p>
         </div>
       </div>
@@ -132,6 +132,10 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
         <div className="hidden md:flex items-center gap-2 rounded-full bg-white/[0.06] border border-white/10 px-3.5 py-1.5 text-xs text-white/70 w-64">
           <Search className="h-3.5 w-3.5 opacity-70" />
           <span className="font-light">Search projects, entries, people…</span>
+        </div>
+        <div className="hidden md:flex items-center gap-1.5 rounded-full bg-white/[0.06] border border-white/10 px-3 py-1.5 text-xs text-white/85">
+          <WeatherGlyph weather={weather} period={period} />
+          {tempC != null && <span>{Math.round(tempC)}°C</span>}
         </div>
         <UploadERPPill />
         <button className="relative rounded-full p-2 hover:bg-white/10 bg-white/[0.04] border border-white/10 transition" aria-label="Notifications">
@@ -268,51 +272,7 @@ function RainLayer() {
   );
 }
 
-/* ─────────────── Moon (true phase) ─────────────── */
-function MoonPhase() {
-  const now = Date.now();
-  const synodic = 29.530588853 * 86400000;
-  const knownNew = new Date("2000-01-06T18:14:00Z").getTime();
-  const phase = ((((now - knownNew) % synodic) + synodic) % synodic) / synodic;
-  const k = Math.cos(2 * Math.PI * phase); // -1..1
-  const rx = Math.max(0.02, Math.abs(k));
-  const waxing = phase < 0.5;
-  let d: string;
-  if (waxing) {
-    // dark region on the left
-    const sweep = k > 0 ? 0 : 1;
-    d = `M 0,-1 A 1,1 0 0,0 0,1 A ${rx},1 0 0,${sweep} 0,-1 Z`;
-  } else {
-    // dark region on the right
-    const sweep = k > 0 ? 1 : 0;
-    d = `M 0,-1 A 1,1 0 0,1 0,1 A ${rx},1 0 0,${sweep} 0,-1 Z`;
-  }
-  return (
-    <div className="absolute left-4 top-4 h-9 w-9">
-      <div
-        className="absolute inset-[-45%] rounded-full"
-        style={{
-          background:
-            "radial-gradient(circle, rgba(240,235,215,0.14) 0%, rgba(240,235,215,0.04) 45%, transparent 72%)",
-        }}
-      />
-      <svg viewBox="-1.05 -1.05 2.1 2.1" className="relative h-full w-full">
-        <defs>
-          <radialGradient id="moonLit" cx="0.35" cy="0.35" r="0.9">
-            <stop offset="0%" stopColor="#f7f1de" />
-            <stop offset="70%" stopColor="#d9cfae" />
-            <stop offset="100%" stopColor="#9a9074" />
-          </radialGradient>
-        </defs>
-        <circle r="1" fill="url(#moonLit)" />
-        <path d={d} fill="rgba(6,10,20,0.9)" />
-      </svg>
-    </div>
-  );
-}
-
 /* ─────────────── Stars (night) ─────────────── */
-
 function StarsLayer() {
   // Deterministic pseudo-random spread across the whole sky
   const stars = Array.from({ length: 110 }, (_, i) => {
@@ -327,9 +287,6 @@ function StarsLayer() {
   });
   return (
     <div className="fixed inset-0 pointer-events-none overflow-hidden z-[4]">
-      {/* Moon — true phase, small, tucked in upper-left away from text */}
-      <MoonPhase />
-
       {stars.map((s) => (
         <span
           key={s.i}
