@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Building2, Users, Truck, Wallet, ArrowRight,
+  HardHat, UsersRound, Truck, Coins, ArrowRight,
   CloudRain, Cloud, Sun, Moon, CloudSnow, CloudLightning, Wind, CloudFog,
   Search, Bell, ChevronDown, UploadCloud, FileSpreadsheet, CheckCircle2, X,
 } from "lucide-react";
@@ -32,10 +32,10 @@ type Hotspot = {
 };
 
 const HOTSPOTS: Hotspot[] = [
-  { id: "projects",  label: "Projects",  kpi: "12 Active",   meta: "7 on track · 3 at risk",  trend: "+2",        tone: "forest", Icon: Building2, x: 22, y: 38, to: "/app/projects"  },
-  { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "$24.8k",    tone: "sand",   Icon: Users,     x: 78, y: 38, to: "/app/employees" },
-  { id: "finance",   label: "Finance",   kpi: "$128,450",    meta: "In $84.2k · Ex $52.1k",   trend: "+12.4%",    tone: "forest", Icon: Wallet,    x: 22, y: 72, to: "/app/dashboard" },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 service",    trend: "$1.2k",     tone: "sand",   Icon: Truck,     x: 78, y: 72, to: "/app/fleet"     },
+  { id: "projects",  label: "Projects",  kpi: "12 Active",   meta: "7 on track · 3 at risk",  trend: "+2",        tone: "forest", Icon: HardHat,     x: 22, y: 38, to: "/app/projects"  },
+  { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "$24.8k",    tone: "sand",   Icon: UsersRound,  x: 78, y: 38, to: "/app/employees" },
+  { id: "finance",   label: "Finance",   kpi: "$128,450",    meta: "In $84.2k · Ex $52.1k",   trend: "+12.4%",    tone: "forest", Icon: Coins,       x: 22, y: 72, to: "/app/dashboard" },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 service",    trend: "$1.2k",     tone: "sand",   Icon: Truck,       x: 78, y: 72, to: "/app/fleet"     },
 ];
 
 function CommandCenter() {
@@ -282,10 +282,38 @@ function HotspotLabel({ spot, onClick }: { spot: Hotspot; onClick: () => void })
       style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
       aria-label={`${spot.label} — ${spot.kpi}`}
     >
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-6 w-6 rounded-full border border-cyan-200/50 animate-ping" style={{ animationDuration: "2.8s" }} />
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-10 w-10 rounded-full border border-cyan-100/30 animate-ping" style={{ animationDuration: "3.6s", animationDelay: "0.6s" }} />
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-16 w-16 rounded-full border border-cyan-100/20 animate-ping" style={{ animationDuration: "4.4s", animationDelay: "1.2s" }} />
-      <Icon className="relative mx-auto mb-1.5 h-5 w-5 text-white" strokeWidth={1.5} />
+      {/* soft tone-tinted glow halo — like a lit place on a map */}
+      <span
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2 h-16 w-16 rounded-full blur-2xl opacity-70"
+        style={{
+          top: "-6px",
+          background:
+            spot.tone === "forest"
+              ? "radial-gradient(circle, rgba(134,239,172,0.55), rgba(134,239,172,0) 70%)"
+              : spot.tone === "rose"
+              ? "radial-gradient(circle, rgba(253,164,175,0.55), rgba(253,164,175,0) 70%)"
+              : "radial-gradient(circle, rgba(253,224,181,0.55), rgba(253,224,181,0) 70%)",
+        }}
+      />
+      {/* concentric water ripples */}
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 h-8 w-8 rounded-full border border-cyan-100/40 animate-ping" style={{ animationDuration: "2.8s" }} />
+      <span aria-hidden className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 h-14 w-14 rounded-full border border-cyan-100/20 animate-ping" style={{ animationDuration: "4s", animationDelay: "0.6s" }} />
+      {/* map-style icon medallion: compass ticks + centered icon + pin drop */}
+      <span
+        aria-hidden
+        className="relative mx-auto mb-2 grid h-11 w-11 place-items-center rounded-full border border-white/25 bg-black/25 backdrop-blur-md shadow-[0_6px_18px_-4px_rgba(0,0,0,0.55)] transition-transform duration-300 group-hover:-translate-y-0.5"
+      >
+        {/* compass N/S/E/W ticks */}
+        <span className="absolute top-[-3px] left-1/2 -translate-x-1/2 h-1 w-px bg-white/60" />
+        <span className="absolute bottom-[-3px] left-1/2 -translate-x-1/2 h-1 w-px bg-white/30" />
+        <span className="absolute left-[-3px] top-1/2 -translate-y-1/2 h-px w-1 bg-white/30" />
+        <span className="absolute right-[-3px] top-1/2 -translate-y-1/2 h-px w-1 bg-white/30" />
+        <Icon className="h-[18px] w-[18px] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]" strokeWidth={1.5} />
+        {/* pin tail dropping to the card */}
+        <span className="absolute -bottom-1.5 left-1/2 h-2 w-px -translate-x-1/2 bg-white/40" />
+        <span className="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-white/70 shadow-[0_0_6px_rgba(255,255,255,0.7)]" />
+      </span>
       <div className="relative flex items-stretch gap-2 rounded-2xl px-3 py-1.5 text-white/95 transition-all duration-300 group-hover:scale-[1.04] bg-black/30 border border-white/10 backdrop-blur-sm w-[150px]">
         <div className="text-left leading-tight min-w-0 flex-1">
           <div className="flex items-baseline justify-between gap-1.5">
