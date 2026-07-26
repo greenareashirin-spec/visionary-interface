@@ -82,7 +82,6 @@ function CommandCenter() {
       <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.5)_100%)]" />
 
       {weather === "rain" && <RainLayer />}
-      {isNight && <LandscapeLightsLayer />}
 
       <TopBar zooming={!!zooming} now={now} weather={weather} period={period} />
 
