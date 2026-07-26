@@ -28,7 +28,7 @@ const projects = [
 
 function Dashboard() {
   return (
-    <div className="max-w-7xl mx-auto space-y-14">
+    <div className="h-full overflow-auto px-6 py-6 space-y-8">
       <header className="flex items-end justify-between gap-6">
         <div>
           <p className="text-xs uppercase tracking-[0.3em] text-muted-foreground">Sunday, 26 July</p>
