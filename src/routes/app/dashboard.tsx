@@ -7,12 +7,12 @@ export const Route = createFileRoute("/app/dashboard")({
 });
 
 const stats = [
-  { label: "Cash Balance",  value: "$128,450", sub: "+12.4% MoM", Icon: Wallet,     tone: "forest" as const },
-  { label: "Income (30d)",  value: "$84,220",  sub: "+8.1%",      Icon: TrendingUp, tone: "forest" as const },
-  { label: "Expense (30d)", value: "$52,180",  sub: "-3.4%",      Icon: TrendingDown },
-  { label: "Net Margin",    value: "38.1%",    sub: "Healthy",    Icon: Landmark,   tone: "forest" as const },
-  { label: "Receivables",   value: "$46,900",  sub: "5 open",     Icon: Wallet,     tone: "amber" as const },
-  { label: "Payables",      value: "$18,240",  sub: "3 due",      Icon: Wallet },
+  { label: "USD Balance", value: "$128,450",     sub: "+12.4% MoM", Icon: Wallet,     tone: "forest" as const },
+  { label: "EUR Balance", value: "€84,220",      sub: "+3.2%",      Icon: Wallet,     tone: "forest" as const },
+  { label: "GBP Balance", value: "£62,180",      sub: "-1.1%",      Icon: Wallet,     tone: "rose"   as const },
+  { label: "IQD Balance", value: "د.ع 184.9m",   sub: "+0.6%",      Icon: Wallet,     tone: "forest" as const },
+  { label: "Receivables", value: "5 open",       sub: "Mixed cur.", Icon: TrendingUp, tone: "amber"  as const },
+  { label: "Payables",    value: "3 due",        sub: "Mixed cur.", Icon: TrendingDown },
 ];
 
 const balances = [
