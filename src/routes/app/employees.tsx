@@ -42,7 +42,7 @@ function Employees() {
 
       <section className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-3.5">
+          <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3.5">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
@@ -60,7 +60,7 @@ function Employees() {
         ))}
       </section>
 
-      <section className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
+      <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
           <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
             <Search className="h-3.5 w-3.5 text-white/55" />
