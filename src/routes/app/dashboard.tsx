@@ -57,7 +57,7 @@ function Dashboard() {
               <s.Icon className="h-3 w-3 text-white/45" />
             </div>
             <p className="mt-1 text-xl font-medium tracking-tight">{s.value}</p>
-            <p className={`text-[10.5px] mt-0.5 ${s.tone === "forest" ? "text-forest" : s.tone === "amber" ? "text-amber-300" : "text-white/55"}`}>{s.sub}</p>
+            <p className={`text-[10.5px] mt-0.5 ${s.tone === "forest" ? "text-forest" : s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55"}`}>{s.sub}</p>
           </div>
         ))}
       </section>
