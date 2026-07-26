@@ -306,7 +306,6 @@ function StarsLayer() {
 }
 
 /* ─────────────── Realistic Moon (photo + phase shadow) ─────────────── */
-import moonPhoto from "@/assets/moon-full.png";
 function RealisticMoon({ now }: { now: Date }) {
   // Synodic month; reference new moon 2000-01-06 18:14 UTC
   const SYN = 29.530588853;
