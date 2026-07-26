@@ -60,7 +60,7 @@ function Fleet() {
                 <p className="text-[9px] uppercase tracking-[0.22em] text-white/55">{s.label}</p>
                 <s.Icon className="h-3 w-3 text-white/45" />
               </div>
-              <p className="mt-1 text-[13px] sm:text-lg md:text-xl font-medium tracking-tight">{s.value}</p>
+              <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
               <p className="text-[10.5px] mt-0.5 text-white/55">{s.sub}</p>
             </div>
           ))}
