@@ -22,12 +22,25 @@ const nav = [
 
 function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   return (
     <div className="app-dark relative h-screen w-screen overflow-hidden text-foreground">
       {/* landscape background */}
       <img src={landscape} alt="" className="fixed inset-0 h-full w-full object-cover" />
       <div className="fixed inset-0 bg-gradient-to-br from-black/75 via-black/65 to-black/80" />
       <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_center,transparent_35%,rgba(0,0,0,0.55)_100%)]" />
+
+      {/* mobile search overlay */}
+      {mobileSearchOpen && (
+        <div className="fixed inset-0 z-50 md:hidden bg-black/70 backdrop-blur-md p-4 pt-6 flex flex-col gap-3" onClick={() => setMobileSearchOpen(false)}>
+          <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-4 py-2.5">
+            <Search className="h-4 w-4 text-white/70" />
+            <input autoFocus placeholder="Search projects, entries, people…" className="bg-transparent text-sm outline-none flex-1 placeholder:text-white/45" />
+            <button onClick={() => setMobileSearchOpen(false)} className="text-white/60 hover:text-white"><X className="h-4 w-4" /></button>
+          </div>
+          <p className="text-[10px] uppercase tracking-[0.24em] text-white/45 px-1">Tap anywhere to close</p>
+        </div>
+      )}
 
       {/* floating workspace */}
       <div className="relative z-10 h-screen w-screen p-2 sm:p-3 lg:p-4 flex gap-2 sm:gap-3 lg:gap-4">
@@ -40,6 +53,23 @@ function AppShell() {
               <p className="text-[8.5px] uppercase tracking-[0.32em] text-white/55 mt-1">Operating System</p>
             </div>
           </div>
+
+          {/* search — full input on md+, icon-button on mobile */}
+          <div className="px-2 md:px-3 pb-2">
+            <button
+              onClick={() => setMobileSearchOpen(true)}
+              className="md:hidden w-full flex flex-col items-center gap-1 rounded-xl py-2 text-white/70 hover:bg-white/5 transition"
+              aria-label="Search"
+            >
+              <Search className="h-4 w-4" />
+              <span className="text-[9px] tracking-wide">Search</span>
+            </button>
+            <div className="hidden md:flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5">
+              <Search className="h-3.5 w-3.5 text-white/55 shrink-0" />
+              <input placeholder="Search…" className="bg-transparent text-xs outline-none flex-1 min-w-0 placeholder:text-white/45" />
+            </div>
+          </div>
+
           <nav className="px-1.5 md:px-2.5 mt-1 flex-1 overflow-y-auto">
             {nav.map(({ to, label, Icon }) => {
               const active = to === "/os"
@@ -80,10 +110,6 @@ function AppShell() {
               ← Command Center
             </Link>
             <div className="flex items-center gap-2.5">
-              <div className="hidden md:flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs text-white/60 w-56 lg:w-72">
-                <Search className="h-3.5 w-3.5 opacity-60" />
-                <span className="font-light">Search projects, entries, people…</span>
-              </div>
               <button className="relative rounded-full p-2 hover:bg-white/5 transition" aria-label="Notifications">
                 <Bell className="h-3.5 w-3.5 text-white/70" />
                 <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
@@ -102,3 +128,4 @@ function AppShell() {
     </div>
   );
 }
+
