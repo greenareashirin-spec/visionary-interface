@@ -105,7 +105,7 @@ function CommandCenter() {
           </div>
         </section>
 
-        <aside className="app-dark hidden lg:flex col-span-3 flex-col gap-4">
+        <aside className="app-dark bg-transparent hidden lg:flex col-span-3 flex-col gap-4">
           <ProjectsOverviewCard hidden={!!zooming} />
           <AIInsightsCard hidden={!!zooming} />
         </aside>
