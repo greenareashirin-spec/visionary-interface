@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Truck, Fuel, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useState } from "react";
+import { Truck, Fuel, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
 
 export const Route = createFileRoute("/app/fleet")({
   component: Fleet,
