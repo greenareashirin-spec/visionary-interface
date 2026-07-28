@@ -1,16 +1,16 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  HardHat, UsersRound, Truck, Coins, ArrowRight,
+  HardHat, UsersRound, Truck, Coins, FileText, Package, ArrowRight, ArrowUp,
   CloudRain, Cloud, Sun, Moon, CloudSnow, CloudLightning, Wind, CloudFog,
-  Search, Bell, ChevronDown, UploadCloud, FileSpreadsheet, CheckCircle2, X,
+  Search, Bell, ChevronDown, Plus, Sparkles, CheckCircle2,
 } from "lucide-react";
 import landscape from "@/assets/command-landscape.jpg";
 import moonPhoto from "@/assets/moon-full.png";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
-import { AskOSInput } from "@/components/ask-os";
+import { askOS } from "@/lib/ask-os-store";
 import {
-  currentPeriod, greeting, periodLabel, periodOverlay, useLiveWeather,
+  currentPeriod, greeting, periodOverlay, useLiveWeather,
   type Period, type Weather,
 } from "@/lib/weather";
 
@@ -25,17 +25,18 @@ export const Route = createFileRoute("/os")({
 });
 
 type Hotspot = {
-  id: string; label: string; kpi: string; meta: string; trend: string;
-  tone: "forest" | "sand" | "rose";
+  id: string; label: string; kpi: string;
   Icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
-  x: number; y: number; to: string;
+  x: number; y: number; to: string; essential?: boolean;
 };
 
 const HOTSPOTS: Hotspot[] = [
-  { id: "projects",  label: "Projects",  kpi: "12 Active",   meta: "7 on track · 3 at risk",  trend: "+2",        tone: "forest", Icon: HardHat,     x: 22, y: 38, to: "/app/projects"  },
-  { id: "employees", label: "Employees", kpi: "18 On Staff", meta: "12 on site · 2 on leave", trend: "$24.8k",    tone: "sand",   Icon: UsersRound,  x: 78, y: 38, to: "/app/employees" },
-  { id: "finance",   label: "Finance",   kpi: "$128,450",    meta: "In $84.2k · Ex $52.1k",   trend: "+12.4%",    tone: "forest", Icon: Coins,       x: 22, y: 72, to: "/app/dashboard" },
-  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",  meta: "4 active · 1 service",    trend: "$1.2k",     tone: "sand",   Icon: Truck,       x: 78, y: 72, to: "/app/fleet"     },
+  { id: "projects",  label: "Projects",  kpi: "12 Active",    Icon: HardHat,    x: 18, y: 34, to: "/app/projects",  essential: true },
+  { id: "employees", label: "Employees", kpi: "18 On site",   Icon: UsersRound, x: 46, y: 26, to: "/app/employees" },
+  { id: "finance",   label: "Finance",   kpi: "$128,450",     Icon: Coins,      x: 78, y: 44, to: "/app/dashboard", essential: true },
+  { id: "documents", label: "Documents", kpi: "128 Files",    Icon: FileText,   x: 32, y: 62, to: "/app/daily-log" },
+  { id: "materials", label: "Materials", kpi: "156 Items",    Icon: Package,    x: 62, y: 68, to: "/app/materials" },
+  { id: "fleet",     label: "Fleet",     kpi: "6 Vehicles",   Icon: Truck,      x: 84, y: 74, to: "/app/fleet"     },
 ];
 
 function CommandCenter() {
@@ -59,7 +60,7 @@ function CommandCenter() {
   }
 
   return (
-    <div className="app-dark relative h-screen w-screen overflow-hidden text-foreground">
+    <div className="app-dark relative min-h-screen md:h-screen w-screen md:overflow-hidden text-foreground">
       {/* Full-bleed scene */}
       <div
         className={`fixed inset-0 transition-all ease-out ${zooming ? "duration-[700ms]" : "duration-[1200ms]"}`}
@@ -74,8 +75,9 @@ function CommandCenter() {
       </div>
       <div className="fixed inset-0 pointer-events-none" style={{ background: overlay.gradient }} />
       <div className="fixed inset-0 pointer-events-none mix-blend-overlay" style={{ background: overlay.tint }} />
-      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/40 via-transparent to-black/55" />
-      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.55)_100%)]" />
+      {/* Permanent legibility overlay: top→bottom + vignette */}
+      <div className="fixed inset-0 pointer-events-none bg-gradient-to-b from-black/25 via-black/20 to-black/55" />
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,transparent_40%,rgba(0,0,0,0.55)_100%)]" />
       {period === "night" && weather !== "rain" && weather !== "thunder" && weather !== "snow" && <StarsLayer />}
       {period === "night" && weather !== "rain" && weather !== "thunder" && weather !== "snow" && weather !== "fog" && weather !== "sandstorm" && <RealisticMoon now={now} />}
       {weather === "rain" && <RainLayer />}
@@ -85,246 +87,255 @@ function CommandCenter() {
       {weather === "fog" && <FogLayer />}
 
       {/* Content */}
-      <div className={`relative z-10 h-screen w-screen flex flex-col transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
+      <div className={`relative z-10 min-h-screen md:h-screen w-screen flex flex-col transition-opacity duration-500 ${zooming ? "opacity-0" : "opacity-100"}`}>
         <TopBar now={now} weather={weather} period={period} place={live.place} tempC={live.tempC} />
 
-        <div className="flex-1 min-h-0 grid grid-cols-12 gap-3 lg:gap-4 px-4 lg:px-5 pb-4 lg:pb-5 pt-3">
-          {/* Left rail */}
+        {/* Greeting */}
+        <GreetingHeader period={period} place={live.place} tempC={live.tempC} now={now} />
+
+        {/* Hero region with cards + hotspots (desktop/tablet) */}
+        <div className="flex-1 min-h-0 grid grid-cols-12 gap-3 lg:gap-4 px-4 lg:px-5 pt-2 md:pt-3">
+          {/* Left column: two stacked cards, hidden on mobile */}
           <aside className="hidden md:flex md:col-span-3 flex-col gap-3 min-h-0">
             <FinancialCard />
             <RecentActivityCard />
           </aside>
 
-          {/* Center: greeting + hotspots + fixed Ask OS input */}
-          <section className="col-span-12 md:col-span-6 flex flex-col min-h-0 gap-3">
-            <GreetingHeader period={period} />
-            <MobileFinanceBars />
-            <div className="relative flex-1 min-h-0">
-              {HOTSPOTS.map((s) => (
-                <HotspotLabel key={s.id} spot={s} onClick={() => flyTo(s)} />
-              ))}
-            </div>
-            <AskOSInput />
+          {/* Center: hotspots layer */}
+          <section className="hidden md:block col-span-12 md:col-span-6 relative min-h-0">
+            {HOTSPOTS.map((s) => (
+              <HotspotPill key={s.id} spot={s} onClick={() => flyTo(s)} />
+            ))}
           </section>
 
-          {/* Right rail */}
+          {/* Mobile hotspots: only the essentials, on the photo */}
+          <section className="md:hidden col-span-12 relative h-[38vh]">
+            {HOTSPOTS.filter((s) => s.essential).map((s, i) => (
+              <div
+                key={s.id}
+                className="absolute -translate-x-1/2 -translate-y-1/2"
+                style={{ left: i === 0 ? "28%" : "72%", top: i === 0 ? "45%" : "62%" }}
+              >
+                <HotspotPill spot={s} onClick={() => flyTo(s)} compact />
+              </div>
+            ))}
+          </section>
+
+          {/* Right column: two stacked cards, hidden on mobile */}
           <aside className="hidden md:flex md:col-span-3 flex-col gap-3 min-h-0">
             <ProjectsOverviewCard />
-            <CashflowDonutCard />
+            <CashflowCard />
           </aside>
         </div>
-      </div>
-    </div>
-  );
-}
 
-/* ─────────────── Mobile-only financial mini bars ─────────────── */
-function MobileFinanceBars() {
-  // last 7 days, subtle stacked income vs expense
-  const days = ["M", "T", "W", "T", "F", "S", "S"];
-  const data = [
-    { in: 9.2, ex: 6.1 },
-    { in: 11.4, ex: 7.3 },
-    { in: 8.6, ex: 5.9 },
-    { in: 13.2, ex: 8.8 },
-    { in: 10.1, ex: 6.4 },
-    { in: 7.8, ex: 4.6 },
-    { in: 12.5, ex: 7.2 },
-  ];
-  const max = Math.max(...data.map((d) => d.in + d.ex));
-  const totalIn = data.reduce((s, d) => s + d.in, 0);
-  const totalEx = data.reduce((s, d) => s + d.ex, 0);
-  const net = totalIn - totalEx;
-  return (
-    <div className="md:hidden rounded-2xl border border-white/10 bg-black/32 backdrop-blur-md px-3 py-2.5">
-      <div className="flex items-baseline justify-between">
-        <p className="text-[8.5px] uppercase tracking-[0.28em] text-white/55">Finance · 7d</p>
-        <div className="flex items-center gap-2 text-[9px] text-white/60">
-          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-forest" />In</span>
-          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-white/40" />Ex</span>
-          <span className="text-white/85 font-medium">Net ${net.toFixed(1)}k</span>
+        {/* Mobile: cards stacked below photo */}
+        <div className="md:hidden flex flex-col gap-3 px-4 pt-2 pb-4">
+          <FinancialCard />
+          <ProjectsOverviewCard />
+          <CashflowCard />
+          <RecentActivityCard />
         </div>
-      </div>
-      <div className="mt-2 flex items-end gap-1.5 h-10">
-        {data.map((d, i) => {
-          const inH = (d.in / max) * 100;
-          const exH = (d.ex / max) * 100;
-          return (
-            <div key={i} className="flex-1 flex flex-col items-center gap-0.5">
-              <div className="w-full flex flex-col-reverse h-9 rounded-[3px] overflow-hidden">
-                <div className="w-full bg-forest/80" style={{ height: `${inH}%` }} />
-                <div className="w-full bg-white/25" style={{ height: `${exH}%` }} />
-              </div>
-              <span className="text-[8px] text-white/45">{days[i]}</span>
-            </div>
-          );
-        })}
+
+        {/* Bottom command bar */}
+        <CommandBar />
       </div>
     </div>
   );
 }
 
-
+/* ─────────────── Top Bar ─────────────── */
 function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: Weather; period: Period; place: string; tempC: number | null }) {
-  const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  void now; void place; void tempC;
+  const [searchOpen, setSearchOpen] = useState(false);
   return (
-    <header className="h-14 shrink-0 px-4 lg:px-5 flex items-center justify-between gap-4">
-      <div className="flex items-center gap-3">
-        <img src={logoAsset.url} alt="" className="h-8 w-8" />
+    <header className="h-14 shrink-0 px-4 lg:px-5 flex items-center justify-between gap-3">
+      {/* Left: logo + wordmark */}
+      <div className="flex items-center gap-3 min-w-0">
+        <img src={logoAsset.url} alt="" className="h-8 w-8 shrink-0" />
         <div className="leading-tight hidden sm:block">
-          <p className="font-medium tracking-[0.2em] text-[12px] text-white">GREEN AREA</p>
+          <p className="font-medium tracking-[0.24em] text-[11px] text-white">GREEN AREA</p>
           <p className="text-[8.5px] uppercase tracking-[0.32em] text-white/55 mt-0.5 flex items-center gap-1.5">
             <WeatherGlyph weather={weather} period={period} />
-            <span>{dateStr} · {place}{tempC != null ? ` · ${Math.round(tempC)}°C` : ""}</span>
+            <span>Operating System</span>
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-2.5">
-        <div className="hidden md:flex items-center gap-2 rounded-full bg-black/38 backdrop-blur-xl border border-white/10 px-3.5 py-1.5 text-xs text-white/70 w-64">
-          <Search className="h-3.5 w-3.5 opacity-70" />
-          <span className="font-light">Search projects, entries, people…</span>
-        </div>
-        <UploadERPPill />
-        <button className="relative rounded-full p-2 hover:bg-white/15 bg-black/38 backdrop-blur-xl border border-white/10 transition" aria-label="Notifications">
+
+      {/* Center: search (desktop/tablet) */}
+      <div className="hidden md:flex items-center gap-2 rounded-full bg-black/38 backdrop-blur-xl border border-white/10 px-4 py-2 text-xs text-white/70 flex-1 max-w-md mx-2">
+        <Search className="h-3.5 w-3.5 opacity-70" />
+        <input
+          placeholder="Search projects, entries, people…"
+          className="bg-transparent outline-none flex-1 placeholder:text-white/45 font-light"
+        />
+      </div>
+
+      {/* Right cluster */}
+      <div className="flex items-center gap-2">
+        {/* Mobile search icon */}
+        <button
+          onClick={() => setSearchOpen((v) => !v)}
+          aria-label="Search"
+          className="md:hidden rounded-full p-2 bg-black/38 backdrop-blur-xl border border-white/10 hover:bg-white/15 transition"
+        >
+          <Search className="h-3.5 w-3.5 text-white/80" />
+        </button>
+        <WorkspacePill />
+        <AddERPButton />
+        <button
+          aria-label="Notifications"
+          className="relative rounded-full p-2 hover:bg-white/15 bg-black/38 backdrop-blur-xl border border-white/10 transition"
+        >
           <Bell className="h-3.5 w-3.5 text-white/80" />
-          <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
+          <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
         </button>
         <button className="flex items-center gap-1.5 rounded-full pl-1 pr-2 py-1 bg-black/38 backdrop-blur-xl border border-white/10 hover:bg-white/15 transition">
           <span className="h-7 w-7 rounded-full bg-forest/25 border border-forest/30 grid place-items-center text-forest font-medium text-[11px]">GA</span>
           <ChevronDown className="h-3 w-3 text-white/70" />
         </button>
       </div>
+
+      {searchOpen && (
+        <div className="md:hidden absolute left-3 right-3 top-14 z-30">
+          <div className="flex items-center gap-2 rounded-full bg-black/70 backdrop-blur-xl border border-white/10 px-3.5 py-2">
+            <Search className="h-3.5 w-3.5 text-white/70" />
+            <input
+              autoFocus
+              placeholder="Search projects, entries, people…"
+              className="bg-transparent outline-none flex-1 text-[12px] text-white placeholder:text-white/45"
+            />
+          </div>
+        </div>
+      )}
     </header>
   );
 }
 
-/* ─────────────── Upload ERP (top bar pill) ─────────────── */
-function UploadERPPill() {
+function WorkspacePill() {
+  return (
+    <button className="hidden sm:flex items-center gap-1.5 rounded-full bg-black/38 backdrop-blur-xl border border-white/10 px-2.5 py-1.5 text-[11px] text-white/85 hover:bg-white/15 transition">
+      <span className="h-1.5 w-1.5 rounded-full bg-forest shadow-[0_0_6px_rgba(120,220,150,0.7)]" />
+      <span className="font-medium">GreenArea ERP</span>
+      <span className="text-white/45">· Latest</span>
+      <ChevronDown className="h-3 w-3 text-white/70 ml-0.5" />
+    </button>
+  );
+}
+
+function AddERPButton() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
-  const [dragging, setDragging] = useState(false);
-
-  function onFiles(list: FileList | null) {
-    const f = list?.[0];
-    if (!f) return;
-    setFile(f);
-  }
-
   return (
-    <div
-      onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
-      onDragLeave={() => setDragging(false)}
-      onDrop={(e) => { e.preventDefault(); setDragging(false); onFiles(e.dataTransfer.files); }}
-      className={`hidden md:flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition ${
-        dragging ? "border-forest/60 bg-forest/15" : "border-white/10 bg-black/38 backdrop-blur-xl hover:bg-white/15"
-      }`}
-    >
-      <span className="h-6 w-6 rounded-full bg-forest/25 border border-forest/30 grid place-items-center shrink-0">
-        {file ? <CheckCircle2 className="h-3 w-3 text-forest" /> : <UploadCloud className="h-3 w-3 text-forest" />}
-      </span>
-      {file ? (
-        <>
-          <FileSpreadsheet className="h-3 w-3 text-white/70" />
-          <span className="text-white/90 max-w-[140px] truncate">{file.name}</span>
-          <button className="rounded-full bg-forest text-forest-deep font-medium text-[10.5px] px-2.5 py-0.5 hover:brightness-110 transition">Import</button>
-          <button onClick={() => setFile(null)} className="text-white/60 hover:text-white" aria-label="Remove"><X className="h-3 w-3" /></button>
-        </>
-      ) : (
-        <button onClick={() => inputRef.current?.click()} className="text-white/85 hover:text-white flex items-center gap-1.5">
-          Drop latest <span className="text-white">GreenArea ERP</span>
-          <span className="text-white/50">· .xlsx</span>
-        </button>
-      )}
+    <>
+      <button
+        onClick={() => inputRef.current?.click()}
+        className="flex items-center gap-1.5 rounded-full border border-forest/40 bg-forest/15 backdrop-blur-xl px-2.5 py-1.5 text-[11px] text-forest hover:bg-forest/25 transition"
+      >
+        {file ? <CheckCircle2 className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
+        <span className="font-medium">{file ? "Uploaded" : "Add ERP"}</span>
+      </button>
       <input
         ref={inputRef}
         type="file"
         accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         className="hidden"
-        onChange={(e) => onFiles(e.target.files)}
+        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
       />
-    </div>
+    </>
   );
 }
 
 /* ─────────────── Greeting ─────────────── */
-const SUCCESS_QUOTES = [
-  "Success is built one decision at a time.",
-  "The best view comes after the hardest climb.",
-  "Small steps today, giant leaps tomorrow.",
-  "Your focus determines your reality.",
-  "Excellence is not an act, but a habit.",
-  "Make each day your masterpiece.",
-  "Progress, not perfection, moves mountains.",
-  "Turn ambition into action.",
-];
-
-function GreetingHeader({ period }: { period: Period }) {
-  const [quote, setQuote] = useState(SUCCESS_QUOTES[0]);
-  useEffect(() => {
-    setQuote(SUCCESS_QUOTES[Math.floor(Math.random() * SUCCESS_QUOTES.length)]);
-  }, []);
+function GreetingHeader({ period, place, tempC, now }: { period: Period; place: string; tempC: number | null; now: Date }) {
+  const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   return (
-    <div className="text-center text-white shrink-0">
-      <h1 className="font-display text-3xl md:text-4xl leading-none drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">{periodLabel(period)}</h1>
-      <p className="mt-1.5 text-[12px] text-white/75">{greeting(period)}, Ako · {quote}</p>
+    <div className="text-center text-white shrink-0 px-4 pt-3 md:pt-5">
+      <p className="text-[9.5px] uppercase tracking-[0.32em] text-white/65">
+        {dateStr} · {place}{tempC != null ? ` · ${Math.round(tempC)}°C` : ""}
+      </p>
+      <h1 className="font-display text-[26px] md:text-[42px] leading-[1.05] mt-1.5 drop-shadow-[0_2px_20px_rgba(0,0,0,0.5)]">
+        {greeting(period)}, Ako
+      </h1>
+      <p className="mt-1 md:mt-2 text-[12px] md:text-[13.5px] italic font-light text-white/75">
+        Make each day your masterpiece.
+      </p>
     </div>
   );
 }
 
-/* ─────────────── Hotspot ─────────────── */
-function HotspotLabel({ spot, onClick }: { spot: Hotspot; onClick: () => void }) {
+/* ─────────────── Hotspot pill ─────────────── */
+function HotspotPill({ spot, onClick, compact }: { spot: Hotspot; onClick: () => void; compact?: boolean }) {
   const { Icon } = spot;
-  const toneText = spot.tone === "forest" ? "text-forest" : spot.tone === "rose" ? "text-rose-300" : "text-sand";
+  const style = compact ? undefined : { left: `${spot.x}%`, top: `${spot.y}%` };
+  const positional = compact ? "" : "absolute -translate-x-1/2 -translate-y-1/2";
   return (
     <button
       onClick={onClick}
-      className="absolute -translate-x-1/2 -translate-y-1/2 group focus:outline-none"
-      style={{ left: `${spot.x}%`, top: `${spot.y}%` }}
+      className={`${positional} group focus:outline-none`}
+      style={style}
       aria-label={`${spot.label} — ${spot.kpi}`}
     >
-      {/* soft tone-tinted glow halo — like a lit place on a map */}
-      <span
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2 h-16 w-16 rounded-full blur-2xl opacity-70"
-        style={{
-          top: "-6px",
-          background:
-            spot.tone === "forest"
-              ? "radial-gradient(circle, rgba(134,239,172,0.55), rgba(134,239,172,0) 70%)"
-              : spot.tone === "rose"
-              ? "radial-gradient(circle, rgba(253,164,175,0.55), rgba(253,164,175,0) 70%)"
-              : "radial-gradient(circle, rgba(253,224,181,0.55), rgba(253,224,181,0) 70%)",
-        }}
-      />
-      {/* concentric water ripples */}
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 h-8 w-8 rounded-full border border-cyan-100/40 animate-ping" style={{ animationDuration: "2.8s" }} />
-      <span aria-hidden className="pointer-events-none absolute left-1/2 top-2 -translate-x-1/2 h-14 w-14 rounded-full border border-cyan-100/20 animate-ping" style={{ animationDuration: "4s", animationDelay: "0.6s" }} />
-      {/* map-style icon medallion: compass ticks + centered icon + pin drop */}
-      <span
-        aria-hidden
-        className="relative mx-auto mb-2 grid h-11 w-11 place-items-center rounded-full border border-white/25 bg-black/25 backdrop-blur-md shadow-[0_6px_18px_-4px_rgba(0,0,0,0.55)] transition-transform duration-300 group-hover:-translate-y-0.5"
-      >
-        {/* compass N/S/E/W ticks */}
-        <span className="absolute top-[-3px] left-1/2 -translate-x-1/2 h-1 w-px bg-white/60" />
-        <span className="absolute bottom-[-3px] left-1/2 -translate-x-1/2 h-1 w-px bg-white/30" />
-        <span className="absolute left-[-3px] top-1/2 -translate-y-1/2 h-px w-1 bg-white/30" />
-        <span className="absolute right-[-3px] top-1/2 -translate-y-1/2 h-px w-1 bg-white/30" />
-        <Icon className="h-[18px] w-[18px] text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]" strokeWidth={1.5} />
-        {/* pin tail dropping to the card */}
-        <span className="absolute -bottom-1.5 left-1/2 h-2 w-px -translate-x-1/2 bg-white/40" />
-        <span className="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-white/70 shadow-[0_0_6px_rgba(255,255,255,0.7)]" />
+      <span aria-hidden className="pointer-events-none absolute inset-0 -m-2 rounded-full border border-cyan-100/25 animate-ping" style={{ animationDuration: "3s" }} />
+      <span className="relative flex items-center gap-2 rounded-full bg-black/45 backdrop-blur-md border border-white/15 pl-2 pr-3 py-1.5 text-white shadow-[0_6px_20px_-6px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:scale-[1.05] group-hover:bg-black/60">
+        <span className="h-6 w-6 rounded-full bg-white/10 border border-white/20 grid place-items-center shrink-0">
+          <Icon className="h-3 w-3 text-white" strokeWidth={1.6} />
+        </span>
+        <span className="text-left leading-tight">
+          <span className="block text-[8.5px] uppercase tracking-[0.22em] text-white/60">{spot.label}</span>
+          <span className="block text-[11px] font-medium text-white">{spot.kpi}</span>
+        </span>
       </span>
-      <div className="relative flex items-stretch gap-2 rounded-2xl px-3 py-1.5 text-white/95 transition-all duration-300 group-hover:scale-[1.04] bg-black/30 border border-white/10 backdrop-blur-sm w-[150px]">
-        <div className="text-left leading-tight min-w-0 flex-1">
-          <div className="flex items-baseline justify-between gap-1.5">
-            <p className="text-[8.5px] uppercase tracking-[0.22em] text-white/55 truncate">{spot.label}</p>
-            <p className={`text-[8.5px] ${toneText} shrink-0`}>{spot.trend}</p>
-          </div>
-          <p className="text-[12px] font-medium mt-0.5 truncate">{spot.kpi}</p>
-          <p className="text-[9.5px] text-white/50 mt-0.5 truncate">{spot.meta}</p>
+    </button>
+  );
+}
+
+/* ─────────────── Bottom Command Bar ─────────────── */
+const QUICK_SUGGESTIONS = ["Fuel expenses", "Project status", "Missing receipts", "Today's summary"];
+
+function CommandBar() {
+  const [q, setQ] = useState("");
+  function submit(text?: string) {
+    const value = (text ?? q).trim();
+    if (!value) return;
+    askOS(value);
+    setQ("");
+  }
+  return (
+    <div className="shrink-0 px-4 lg:px-5 pt-2 pb-3 md:pb-4">
+      <div className="mx-auto w-full max-w-3xl">
+        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/45 backdrop-blur-xl px-2 py-1.5 text-white">
+          <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
+            <Sparkles className="h-3.5 w-3.5" />
+          </span>
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter") submit(); }}
+            placeholder="Ask OS anything…"
+            className="flex-1 bg-transparent outline-none text-[13px] placeholder:text-white/45 min-w-0"
+          />
+          <button
+            onClick={() => submit()}
+            aria-label="Send"
+            className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center hover:brightness-110 transition shrink-0"
+          >
+            <ArrowUp className="h-3.5 w-3.5" />
+          </button>
+        </div>
+        {/* Chips */}
+        <div className="mt-2 flex gap-1.5 overflow-x-auto md:flex-wrap md:justify-center md:overflow-visible no-scrollbar">
+          {QUICK_SUGGESTIONS.map((c) => (
+            <button
+              key={c}
+              onClick={() => submit(c)}
+              className="shrink-0 text-[10.5px] px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/75 hover:bg-white/15 hover:text-white transition"
+            >
+              {c}
+            </button>
+          ))}
         </div>
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -360,14 +371,13 @@ function RainLayer() {
   );
 }
 
-/* ─────────────── Stars (night) ─────────────── */
+/* ─────────────── Stars ─────────────── */
 function StarsLayer() {
-  // Deterministic pseudo-random spread across the whole sky
   const stars = Array.from({ length: 110 }, (_, i) => {
     const r1 = Math.sin(i * 12.9898) * 43758.5453;
     const r2 = Math.sin(i * 78.233) * 12345.6789;
     const left = ((r1 - Math.floor(r1)) * 100);
-    const top = ((r2 - Math.floor(r2)) * 70); // upper 70% of sky
+    const top = ((r2 - Math.floor(r2)) * 70);
     const size = 0.6 + ((i * 7) % 5) * 0.25;
     const delay = (i * 173) % 5000;
     const baseOpacity = 0.35 + ((i * 19) % 45) / 100;
@@ -379,14 +389,7 @@ function StarsLayer() {
         <span
           key={s.i}
           className="absolute rounded-full bg-white"
-          style={{
-            left: `${s.left}%`,
-            top: `${s.top}%`,
-            width: s.size,
-            height: s.size,
-            opacity: s.baseOpacity,
-            animation: `star-tw 4s ease-in-out ${s.delay}ms infinite`,
-          }}
+          style={{ left: `${s.left}%`, top: `${s.top}%`, width: s.size, height: s.size, opacity: s.baseOpacity, animation: `star-tw 4s ease-in-out ${s.delay}ms infinite` }}
         />
       ))}
       <style>{`@keyframes star-tw { 0%,100% { opacity: 0.2 } 50% { opacity: 0.75 } }`}</style>
@@ -394,16 +397,14 @@ function StarsLayer() {
   );
 }
 
-/* ─────────────── Realistic Moon (photo, softly faded into sky) ─────────────── */
+/* ─────────────── Realistic moon ─────────────── */
 function RealisticMoon({ now }: { now: Date }) {
-  // Synodic phase — reference new moon 2000-01-06 18:14 UTC
   const REF = Date.UTC(2000, 0, 6, 18, 14) / 1000;
   const SYNODIC = 29.530588853 * 86400;
   const t = now.getTime() / 1000;
-  const phase = (((t - REF) % SYNODIC) + SYNODIC) % SYNODIC / SYNODIC; // 0..1
-  const k = Math.cos(2 * Math.PI * phase); // 1 new → -1 full → 1 new
+  const phase = (((t - REF) % SYNODIC) + SYNODIC) % SYNODIC / SYNODIC;
+  const k = Math.cos(2 * Math.PI * phase);
   const waxing = phase < 0.5;
-
   const R = 50;
   const rx = Math.abs(k) * R;
   const outerSweep = waxing ? 0 : 1;
@@ -411,65 +412,32 @@ function RealisticMoon({ now }: { now: Date }) {
   const shadowPath =
     `M ${R},0 A ${R},${R} 0 1 ${outerSweep} ${R},${2 * R} ` +
     `A ${rx},${R} 0 1 ${innerSweep} ${R},0 Z`;
-
   return (
-    <div
-      className="fixed pointer-events-none z-[5] w-[54px] h-[54px] md:w-[64px] md:h-[64px] lg:w-[84px] lg:h-[84px]"
-      style={{ left: "22%", top: "5%" }}
-      aria-hidden
-    >
-      {/* soft moonlight halo */}
-      <div
-        className="absolute rounded-full"
+    <div className="fixed pointer-events-none z-[5] w-[54px] h-[54px] md:w-[64px] md:h-[64px] lg:w-[84px] lg:h-[84px]" style={{ left: "22%", top: "5%" }} aria-hidden>
+      <div className="absolute rounded-full" style={{ inset: "-70%", background: "radial-gradient(circle, rgba(230,232,240,0.18) 0%, rgba(230,232,240,0.05) 40%, transparent 72%)", filter: "blur(12px)" }} />
+      <img src={moonPhoto} alt="" draggable={false} className="absolute inset-0 w-full h-full select-none"
         style={{
-          inset: "-70%",
-          background:
-            "radial-gradient(circle, rgba(230,232,240,0.18) 0%, rgba(230,232,240,0.05) 40%, transparent 72%)",
-          filter: "blur(12px)",
-        }}
-      />
-      {/* moon disc — photo softly fades into sky */}
-      <img
-        src={moonPhoto}
-        alt=""
-        draggable={false}
-        className="absolute inset-0 w-full h-full select-none"
-        style={{
-          WebkitMaskImage:
-            "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.85) 48%, transparent 50%)",
-          maskImage:
-            "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.85) 48%, transparent 50%)",
+          WebkitMaskImage: "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.85) 48%, transparent 50%)",
+          maskImage: "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.85) 48%, transparent 50%)",
           filter: "brightness(1.02) contrast(1.02)",
         }}
       />
-      {/* shadow following actual lunar phase */}
-      <svg
-        viewBox={`0 0 ${2 * R} ${2 * R}`}
-        className="absolute inset-0 w-full h-full"
+      <svg viewBox={`0 0 ${2 * R} ${2 * R}`} className="absolute inset-0 w-full h-full"
         style={{
           WebkitMaskImage: "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.9) 48%, transparent 50%)",
           maskImage: "radial-gradient(circle at 50% 50%, black 42%, rgba(0,0,0,0.9) 48%, transparent 50%)",
-        }}
-      >
+        }}>
         <path d={shadowPath} fill="rgba(6,8,14,0.88)" />
       </svg>
     </div>
   );
 }
 
-
-
-
-
-/* ─────────────── Lightning (thunder) ─────────────── */
+/* ─────────────── Lightning ─────────────── */
 function LightningLayer() {
   return (
-    <div className="fixed inset-0 pointer-events-none z-[6] bg-white"
-      style={{ animation: "lightning 6s linear infinite", opacity: 0 }}>
-      <style>{`@keyframes lightning {
-        0%,92%,100% { opacity: 0 }
-        93% { opacity: 0.55 } 94% { opacity: 0.05 } 95% { opacity: 0.45 } 96% { opacity: 0 }
-      }`}</style>
+    <div className="fixed inset-0 pointer-events-none z-[6] bg-white" style={{ animation: "lightning 6s linear infinite", opacity: 0 }}>
+      <style>{`@keyframes lightning { 0%,92%,100% { opacity: 0 } 93% { opacity: 0.55 } 94% { opacity: 0.05 } 95% { opacity: 0.45 } 96% { opacity: 0 } }`}</style>
     </div>
   );
 }
@@ -494,62 +462,66 @@ function SnowLayer() {
   );
 }
 
-/* ─────────────── Sandstorm ─────────────── */
+/* ─────────────── Sandstorm & fog ─────────────── */
 function SandstormLayer() {
   return (
     <div className="fixed inset-0 pointer-events-none z-[5]">
       <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(200,150,90,0.35), rgba(150,100,60,0.25))", mixBlendMode: "multiply" }} />
-      <div className="absolute inset-0 opacity-40"
-        style={{
-          background: "radial-gradient(circle at 30% 60%, rgba(230,180,120,0.5), transparent 55%), radial-gradient(circle at 70% 40%, rgba(210,160,100,0.5), transparent 55%)",
-          animation: "sand-drift 14s ease-in-out infinite",
-        }} />
+      <div className="absolute inset-0 opacity-40" style={{ background: "radial-gradient(circle at 30% 60%, rgba(230,180,120,0.5), transparent 55%), radial-gradient(circle at 70% 40%, rgba(210,160,100,0.5), transparent 55%)", animation: "sand-drift 14s ease-in-out infinite" }} />
       <style>{`@keyframes sand-drift { 0%,100% { transform: translateX(-3%) } 50% { transform: translateX(3%) } }`}</style>
     </div>
   );
 }
-
-/* ─────────────── Fog ─────────────── */
 function FogLayer() {
+  return <div className="fixed inset-0 pointer-events-none z-[5]" style={{ background: "linear-gradient(180deg, rgba(220,225,235,0.15), rgba(200,210,225,0.35) 60%, rgba(180,190,205,0.25))" }} />;
+}
+
+/* ─────────────── Cards ─────────────── */
+function Card({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 pointer-events-none z-[5]"
-      style={{ background: "linear-gradient(180deg, rgba(220,225,235,0.15), rgba(200,210,225,0.35) 60%, rgba(180,190,205,0.25))" }} />
+    <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-4 text-white min-h-0 flex flex-col md:flex-1">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[9px] uppercase tracking-[0.28em] text-white/60">{title}</p>
+        {action && <span className="text-[10px] text-white/60">{action}</span>}
+      </div>
+      <div className="min-h-0 flex-1">{children}</div>
+    </div>
   );
 }
 
-
-
-
-/* ─────────────── Side rail cards ─────────────── */
-function Card({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const w = 60, h = 18;
+  const min = Math.min(...data), max = Math.max(...data);
+  const span = max - min || 1;
+  const step = w / (data.length - 1);
+  const d = data.map((v, i) => `${i === 0 ? "M" : "L"}${i * step},${h - ((v - min) / span) * h}`).join(" ");
   return (
-    <div className="rounded-2xl bg-black/38 backdrop-blur-xl border border-white/10 p-4 text-white min-h-0 flex flex-col flex-1">
-      <div className="flex items-center justify-between mb-3">
-        <p className="text-[9px] uppercase tracking-[0.28em] text-white/55">{title}</p>
-        {action && <span className="text-[10px] text-white/55">{action}</span>}
-      </div>
-      <div className="min-h-0 flex-1 overflow-hidden">{children}</div>
-    </div>
+    <svg width={w} height={h} className="opacity-90">
+      <path d={d} fill="none" stroke={color} strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 
 function FinancialCard() {
   const rows = [
-    { code: "USD", val: "$128,450",   pct: "+12.4%" },
-    { code: "EUR", val: "€84,220",    pct: "+3.2%"  },
-    { code: "GBP", val: "£62,180",    pct: "-1.1%"  },
-    { code: "IQD", val: "د.ع 184.9m", pct: "+0.6%"  },
+    { code: "USD", val: "$128,450",   pct: "+12.4%", up: true,  data: [20,22,21,25,24,28,30,32,31,34,36,38] },
+    { code: "EUR", val: "€84,220",    pct: "+3.2%",  up: true,  data: [40,41,39,42,43,44,43,45,44,46,47,48] },
+    { code: "GBP", val: "£62,180",    pct: "-1.1%",  up: false, data: [50,49,51,48,49,47,48,46,47,45,46,44] },
+    { code: "IQD", val: "د.ع 184.9m", pct: "+0.6%",  up: true,  data: [30,31,30,32,31,33,32,34,33,34,35,36] },
   ];
   return (
-    <Card title="Financial Overview" action="30d">
+    <Card title="Financial Overview · 30d">
       <ul className="divide-y divide-white/5">
         {rows.map((r) => (
-          <li key={r.code} className="py-1.5 flex items-center justify-between">
-            <div>
+          <li key={r.code} className="py-1.5 flex items-center justify-between gap-2">
+            <div className="min-w-0">
               <p className="text-[10px] text-white/55">{r.code}</p>
-              <p className="text-[12.5px] font-medium">{r.val}</p>
+              <p className="text-[12.5px] font-medium truncate">{r.val}</p>
             </div>
-            <span className={`text-[10.5px] ${r.pct.startsWith("+") ? "text-forest" : "text-rose-300"}`}>{r.pct}</span>
+            <div className="flex items-center gap-2 shrink-0">
+              <Sparkline data={r.data} color={r.up ? "oklch(0.72 0.14 145)" : "rgb(251 113 133)"} />
+              <span className={`text-[10.5px] ${r.up ? "text-forest" : "text-rose-300"}`}>{r.pct}</span>
+            </div>
           </li>
         ))}
       </ul>
@@ -559,20 +531,20 @@ function FinancialCard() {
 
 function RecentActivityCard() {
   const rows = [
-    { d: "2m",  t: "Payment received · Riverside", tone: "forest" as const },
-    { d: "18m", t: "Invoice issued · Karrada",     tone: "sand"   as const },
-    { d: "1h",  t: "Site log · Erbil",             tone: "forest" as const },
-    { d: "2h",  t: "Fuel expense · Workshop",      tone: "rose"   as const },
+    { d: "2m",  t: "Payment received", p: "Riverside Villa",  tone: "forest" as const },
+    { d: "18m", t: "Invoice issued",   p: "Karrada Rooftop",  tone: "sand"   as const },
+    { d: "1h",  t: "Site log",         p: "Erbil Courtyard",  tone: "forest" as const },
+    { d: "2h",  t: "Fuel expense",     p: "Workshop",         tone: "rose"   as const },
   ];
   return (
-    <Card title="Recent Activity" action={<button className="flex items-center gap-1 hover:text-white transition">View <ArrowRight className="h-2.5 w-2.5" /></button>}>
+    <Card title="Recent Activity" action={<button className="flex items-center gap-1 hover:text-white transition">View all <ArrowRight className="h-2.5 w-2.5" /></button>}>
       <ul className="space-y-2">
         {rows.map((r, i) => (
           <li key={i} className="flex items-start gap-2 text-[12px]">
             <span className={`mt-1.5 h-1.5 w-1.5 rounded-full shrink-0 ${r.tone === "forest" ? "bg-forest" : r.tone === "rose" ? "bg-rose-400" : "bg-sand"}`} />
-            <div className="flex-1 leading-tight">
-              <p className="text-white/85">{r.t}</p>
-              <p className="text-[10px] text-white/50 mt-0.5">{r.d} ago</p>
+            <div className="flex-1 leading-tight min-w-0">
+              <p className="text-white/90 truncate">{r.t}</p>
+              <p className="text-[10px] text-white/50 mt-0.5 truncate">{r.p} · {r.d} ago</p>
             </div>
           </li>
         ))}
@@ -583,10 +555,10 @@ function RecentActivityCard() {
 
 function ProjectsOverviewCard() {
   const rows = [
-    { name: "Riverside Villa",  pct: 72, tone: "forest" as const },
-    { name: "Karrada Rooftop",  pct: 48, tone: "sand"   as const },
-    { name: "Erbil Courtyard",  pct: 91, tone: "forest" as const },
-    { name: "Baghdad Garden",   pct: 22, tone: "rose"   as const },
+    { name: "Riverside Villa", pct: 72, tone: "forest" as const },
+    { name: "Karrada Rooftop", pct: 48, tone: "sand"   as const },
+    { name: "Erbil Courtyard", pct: 91, tone: "forest" as const },
+    { name: "Baghdad Garden",  pct: 22, tone: "rose"   as const },
   ];
   return (
     <Card title="Projects Overview" action="12 active">
@@ -594,7 +566,7 @@ function ProjectsOverviewCard() {
         {rows.map((r) => (
           <li key={r.name}>
             <div className="flex items-center justify-between text-[12px]">
-              <span className="text-white/85">{r.name}</span>
+              <span className="text-white/90 truncate">{r.name}</span>
               <span className="text-white/55 text-[10.5px]">{r.pct}%</span>
             </div>
             <div className="mt-1 h-1 rounded-full bg-white/10 overflow-hidden">
@@ -603,46 +575,42 @@ function ProjectsOverviewCard() {
           </li>
         ))}
       </ul>
+      <button className="mt-3 flex items-center gap-1 text-[10px] text-white/60 hover:text-white transition">
+        View all projects <ArrowRight className="h-2.5 w-2.5" />
+      </button>
     </Card>
   );
 }
 
-function CashflowDonutCard() {
+function CashflowCard() {
   const income = 84200;
   const expense = 52100;
-  const total = income + expense;
   const net = income - expense;
-  const incomePct = (income / total) * 100;
+  const bars = [
+    { i: 12, e: 8 }, { i: 15, e: 10 }, { i: 9, e: 11 }, { i: 18, e: 9 },
+    { i: 14, e: 12 }, { i: 20, e: 7 }, { i: 11, e: 13 }, { i: 17, e: 9 },
+    { i: 13, e: 8 }, { i: 19, e: 11 }, { i: 16, e: 10 }, { i: 22, e: 9 },
+  ];
+  const max = Math.max(...bars.map((b) => Math.max(b.i, b.e)));
   const fmt = (n: number) => `$${(n / 1000).toFixed(1)}k`;
-
-  const cx = 50, cy = 50, r = 46;
-  const a = (incomePct / 100) * Math.PI * 2 - Math.PI / 2;
-  const x1 = cx + r * Math.cos(-Math.PI / 2);
-  const y1 = cy + r * Math.sin(-Math.PI / 2);
-  const x2 = cx + r * Math.cos(a);
-  const y2 = cy + r * Math.sin(a);
-  const large = incomePct > 50 ? 1 : 0;
-  const incomePath = `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2} Z`;
-  const expensePath = `M${cx},${cy} L${x2},${y2} A${r},${r} 0 ${1 - large} 1 ${x1},${y1} Z`;
-
   return (
-    <Card title="Cashflow" action="30d">
-      <div className="h-full flex flex-col items-center justify-center gap-2.5">
-        <div className="text-center leading-tight">
-          <p className="text-[9px] uppercase tracking-[0.28em] text-white/55">Net · 30d</p>
-          <p className="text-[26px] font-medium text-white mt-0.5">{fmt(net)}</p>
+    <Card title="Cashflow · 30d">
+      <div className="flex flex-col h-full">
+        <div>
+          <p className="text-[9px] uppercase tracking-[0.24em] text-white/55">Net</p>
+          <p className="text-[24px] font-medium text-white leading-none mt-1">{fmt(net)}</p>
         </div>
-        <svg viewBox="0 0 100 100" className="h-[110px] w-[110px]">
-          <path d={incomePath} fill="oklch(0.72 0.14 145)" />
-          <path d={expensePath} fill="rgb(251 113 133)" />
-        </svg>
-        <ul className="flex items-center gap-4 text-[11px]">
-          <li className="flex items-center gap-1.5 text-white/80">
-            <span className="h-2 w-2 rounded-full bg-forest" /> Income <span className="text-white/95 font-medium ml-1">{fmt(income)}</span>
-          </li>
-          <li className="flex items-center gap-1.5 text-white/80">
-            <span className="h-2 w-2 rounded-full bg-rose-400" /> Expense <span className="text-white/95 font-medium ml-1">{fmt(expense)}</span>
-          </li>
+        <div className="mt-3 flex items-end gap-[3px] h-14">
+          {bars.map((b, i) => (
+            <div key={i} className="flex-1 flex flex-col-reverse gap-[2px] h-full justify-end">
+              <div className="w-full rounded-sm bg-forest/85" style={{ height: `${(b.i / max) * 60}%` }} />
+              <div className="w-full rounded-sm bg-rose-400/80" style={{ height: `${(b.e / max) * 40}%` }} />
+            </div>
+          ))}
+        </div>
+        <ul className="mt-3 flex items-center justify-between text-[10.5px] text-white/75">
+          <li className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-forest" /> Income <span className="text-white/95 font-medium ml-1">{fmt(income)}</span></li>
+          <li className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-rose-400" /> Expenses <span className="text-white/95 font-medium ml-1">{fmt(expense)}</span></li>
         </ul>
       </div>
     </Card>
