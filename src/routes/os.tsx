@@ -181,7 +181,6 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
           <Search className="h-3.5 w-3.5 text-white/80" />
         </button>
         <WorkspacePill />
-        <AddERPButton />
         <button
           aria-label="Notifications"
           className="relative rounded-full p-2 hover:bg-white/15 bg-black/38 backdrop-blur-xl border border-white/10 transition"
