@@ -101,11 +101,14 @@ function CommandCenter() {
             <RecentActivityCard />
           </aside>
 
-          {/* Center: hotspots layer */}
-          <section className="hidden md:block col-span-12 md:col-span-6 relative min-h-0">
-            {HOTSPOTS.map((s) => (
-              <HotspotPill key={s.id} spot={s} onClick={() => flyTo(s)} />
-            ))}
+          {/* Center: hotspots layer + Ask OS aligned with lower cards */}
+          <section className="hidden md:flex md:col-span-6 col-span-12 flex-col min-h-0">
+            <div className="relative flex-1 min-h-0">
+              {HOTSPOTS.map((s) => (
+                <HotspotPill key={s.id} spot={s} onClick={() => flyTo(s)} />
+              ))}
+            </div>
+            <CommandBar embedded />
           </section>
 
           {/* Mobile hotspots: only the essentials, on the photo */}
@@ -181,7 +184,6 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
           <Search className="h-3.5 w-3.5 text-white/80" />
         </button>
         <WorkspacePill />
-        <AddERPButton />
         <button
           aria-label="Notifications"
           className="relative rounded-full p-2 hover:bg-white/15 bg-black/38 backdrop-blur-xl border border-white/10 transition"
@@ -212,27 +214,25 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
 }
 
 function WorkspacePill() {
-  return (
-    <button className="hidden sm:flex items-center gap-1.5 rounded-full bg-black/38 backdrop-blur-xl border border-white/10 px-2.5 py-1.5 text-[11px] text-white/85 hover:bg-white/15 transition">
-      <span className="h-1.5 w-1.5 rounded-full bg-forest shadow-[0_0_6px_rgba(120,220,150,0.7)]" />
-      <span className="font-medium">GreenArea ERP</span>
-      <span className="text-white/45">· Latest</span>
-      <ChevronDown className="h-3 w-3 text-white/70 ml-0.5" />
-    </button>
-  );
-}
-
-function AddERPButton() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   return (
     <>
       <button
         onClick={() => inputRef.current?.click()}
-        className="flex items-center gap-1.5 rounded-full border border-forest/40 bg-forest/15 backdrop-blur-xl px-2.5 py-1.5 text-[11px] text-forest hover:bg-forest/25 transition"
+        className="hidden sm:flex items-center gap-1.5 rounded-full bg-black/38 backdrop-blur-xl border border-white/10 px-2.5 py-1.5 text-[11px] text-white/85 hover:bg-white/15 transition max-w-[230px]"
       >
-        {file ? <CheckCircle2 className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-        <span className="font-medium">{file ? "Uploaded" : "Add ERP"}</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-forest shadow-[0_0_6px_rgba(120,220,150,0.7)]" />
+        <span className="font-medium shrink-0">GreenArea ERP</span>
+        {file ? (
+          <span className="flex items-center gap-1 text-forest min-w-0">
+            <CheckCircle2 className="h-3 w-3 shrink-0" />
+            <span className="truncate">{file.name}</span>
+          </span>
+        ) : (
+          <span className="text-white/45">· Latest</span>
+        )}
+        <ChevronDown className="h-3 w-3 text-white/70 ml-0.5 shrink-0" />
       </button>
       <input
         ref={inputRef}
@@ -292,7 +292,7 @@ function HotspotPill({ spot, onClick, compact }: { spot: Hotspot; onClick: () =>
 /* ─────────────── Bottom Command Bar ─────────────── */
 const QUICK_SUGGESTIONS = ["Fuel expenses", "Project status", "Missing receipts", "Today's summary"];
 
-function CommandBar() {
+function CommandBar({ embedded = false }: { embedded?: boolean }) {
   const [q, setQ] = useState("");
   function submit(text?: string) {
     const value = (text ?? q).trim();
@@ -301,7 +301,7 @@ function CommandBar() {
     setQ("");
   }
   return (
-    <div className="shrink-0 px-4 lg:px-5 pt-2 pb-3 md:pb-4">
+    <div className={embedded ? "shrink-0 pt-2" : "md:hidden shrink-0 px-4 pt-2 pb-3"}>
       <div className="mx-auto w-full max-w-3xl">
         <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/45 backdrop-blur-xl px-2 py-1.5 text-white">
           <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
@@ -323,7 +323,7 @@ function CommandBar() {
           </button>
         </div>
         {/* Chips */}
-        <div className="mt-2 flex gap-1.5 overflow-x-auto md:flex-wrap md:justify-center md:overflow-visible no-scrollbar">
+        <div className="mt-2 flex gap-1.5 overflow-x-auto md:flex-wrap md:justify-center md:overflow-visible no-scrollbar pb-0.5">
           {QUICK_SUGGESTIONS.map((c) => (
             <button
               key={c}
@@ -477,9 +477,9 @@ function FogLayer() {
 }
 
 /* ─────────────── Cards ─────────────── */
-function Card({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+function Card({ title, action, children, fit }: { title: string; action?: React.ReactNode; children: React.ReactNode; fit?: boolean }) {
   return (
-    <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-4 text-white min-h-0 flex flex-col md:flex-1">
+    <div className={`rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-4 text-white min-h-0 flex flex-col ${fit ? "md:flex-none md:shrink-0" : "md:flex-1"}`}>
       <div className="flex items-center justify-between mb-3">
         <p className="text-[9px] uppercase tracking-[0.28em] text-white/60">{title}</p>
         {action && <span className="text-[10px] text-white/60">{action}</span>}
@@ -510,7 +510,7 @@ function FinancialCard() {
     { code: "IQD", val: "د.ع 184.9m", pct: "+0.6%",  up: true,  data: [30,31,30,32,31,33,32,34,33,34,35,36] },
   ];
   return (
-    <Card title="Financial Overview · 30d">
+    <Card title="Financial Overview · 30d" fit>
       <ul className="divide-y divide-white/5">
         {rows.map((r) => (
           <li key={r.code} className="py-1.5 flex items-center justify-between gap-2">
@@ -600,11 +600,18 @@ function CashflowCard() {
           <p className="text-[9px] uppercase tracking-[0.24em] text-white/55">Net</p>
           <p className="text-[24px] font-medium text-white leading-none mt-1">{fmt(net)}</p>
         </div>
-        <div className="mt-3 flex items-end gap-[3px] h-14">
+        <div className="mt-3 h-14 flex items-stretch justify-between gap-[5px]">
           {bars.map((b, i) => (
-            <div key={i} className="flex-1 flex flex-col-reverse gap-[2px] h-full justify-end">
-              <div className="w-full rounded-sm bg-forest/85" style={{ height: `${(b.i / max) * 60}%` }} />
-              <div className="w-full rounded-sm bg-rose-400/80" style={{ height: `${(b.e / max) * 40}%` }} />
+            <div key={i} className="flex flex-col items-center justify-center h-full">
+              {/* income above midline */}
+              <div className="h-1/2 w-[3.5px] flex items-end">
+                <div className="w-full rounded-t-[2px] bg-forest/90" style={{ height: `${(b.i / max) * 100}%` }} />
+              </div>
+              <div className="h-px w-full bg-white/12" />
+              {/* expense below midline */}
+              <div className="h-1/2 w-[3.5px] flex items-start">
+                <div className="w-full rounded-b-[2px] bg-rose-400/85" style={{ height: `${(b.e / max) * 100}%` }} />
+              </div>
             </div>
           ))}
         </div>
@@ -616,3 +623,4 @@ function CashflowCard() {
     </Card>
   );
 }
+
