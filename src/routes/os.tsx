@@ -323,7 +323,7 @@ function CommandBar({ embedded = false }: { embedded?: boolean }) {
           </button>
         </div>
         {/* Chips */}
-        <div className="mt-2 flex gap-1.5 overflow-x-auto md:flex-wrap md:justify-center md:overflow-visible no-scrollbar">
+        <div className="mt-2 flex gap-1.5 overflow-x-auto md:flex-wrap md:justify-center md:overflow-visible no-scrollbar pb-0.5">
           {QUICK_SUGGESTIONS.map((c) => (
             <button
               key={c}
