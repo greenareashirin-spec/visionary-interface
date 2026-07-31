@@ -477,9 +477,9 @@ function FogLayer() {
 }
 
 /* ─────────────── Cards ─────────────── */
-function Card({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+function Card({ title, action, children, fit }: { title: string; action?: React.ReactNode; children: React.ReactNode; fit?: boolean }) {
   return (
-    <div className="rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-4 text-white min-h-0 flex flex-col md:flex-1">
+    <div className={`rounded-2xl bg-black/40 backdrop-blur-xl border border-white/10 p-4 text-white min-h-0 flex flex-col ${fit ? "md:flex-none md:shrink-0" : "md:flex-1"}`}>
       <div className="flex items-center justify-between mb-3">
         <p className="text-[9px] uppercase tracking-[0.28em] text-white/60">{title}</p>
         {action && <span className="text-[10px] text-white/60">{action}</span>}
