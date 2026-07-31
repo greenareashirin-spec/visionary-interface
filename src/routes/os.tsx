@@ -212,27 +212,25 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
 }
 
 function WorkspacePill() {
-  return (
-    <button className="hidden sm:flex items-center gap-1.5 rounded-full bg-black/38 backdrop-blur-xl border border-white/10 px-2.5 py-1.5 text-[11px] text-white/85 hover:bg-white/15 transition">
-      <span className="h-1.5 w-1.5 rounded-full bg-forest shadow-[0_0_6px_rgba(120,220,150,0.7)]" />
-      <span className="font-medium">GreenArea ERP</span>
-      <span className="text-white/45">· Latest</span>
-      <ChevronDown className="h-3 w-3 text-white/70 ml-0.5" />
-    </button>
-  );
-}
-
-function AddERPButton() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
   return (
     <>
       <button
         onClick={() => inputRef.current?.click()}
-        className="flex items-center gap-1.5 rounded-full border border-forest/40 bg-forest/15 backdrop-blur-xl px-2.5 py-1.5 text-[11px] text-forest hover:bg-forest/25 transition"
+        className="hidden sm:flex items-center gap-1.5 rounded-full bg-black/38 backdrop-blur-xl border border-white/10 px-2.5 py-1.5 text-[11px] text-white/85 hover:bg-white/15 transition max-w-[230px]"
       >
-        {file ? <CheckCircle2 className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-        <span className="font-medium">{file ? "Uploaded" : "Add ERP"}</span>
+        <span className="h-1.5 w-1.5 rounded-full bg-forest shadow-[0_0_6px_rgba(120,220,150,0.7)]" />
+        <span className="font-medium shrink-0">GreenArea ERP</span>
+        {file ? (
+          <span className="flex items-center gap-1 text-forest min-w-0">
+            <CheckCircle2 className="h-3 w-3 shrink-0" />
+            <span className="truncate">{file.name}</span>
+          </span>
+        ) : (
+          <span className="text-white/45">· Latest</span>
+        )}
+        <ChevronDown className="h-3 w-3 text-white/70 ml-0.5 shrink-0" />
       </button>
       <input
         ref={inputRef}
