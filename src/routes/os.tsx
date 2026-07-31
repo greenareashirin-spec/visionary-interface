@@ -101,11 +101,14 @@ function CommandCenter() {
             <RecentActivityCard />
           </aside>
 
-          {/* Center: hotspots layer */}
-          <section className="hidden md:block col-span-12 md:col-span-6 relative min-h-0">
-            {HOTSPOTS.map((s) => (
-              <HotspotPill key={s.id} spot={s} onClick={() => flyTo(s)} />
-            ))}
+          {/* Center: hotspots layer + Ask OS aligned with lower cards */}
+          <section className="hidden md:flex md:col-span-6 col-span-12 flex-col min-h-0">
+            <div className="relative flex-1 min-h-0">
+              {HOTSPOTS.map((s) => (
+                <HotspotPill key={s.id} spot={s} onClick={() => flyTo(s)} />
+              ))}
+            </div>
+            <CommandBar embedded />
           </section>
 
           {/* Mobile hotspots: only the essentials, on the photo */}
