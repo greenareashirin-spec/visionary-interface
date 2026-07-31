@@ -600,11 +600,18 @@ function CashflowCard() {
           <p className="text-[9px] uppercase tracking-[0.24em] text-white/55">Net</p>
           <p className="text-[24px] font-medium text-white leading-none mt-1">{fmt(net)}</p>
         </div>
-        <div className="mt-3 flex items-end gap-[3px] h-14">
+        <div className="mt-3 h-14 flex items-stretch justify-between gap-[5px]">
           {bars.map((b, i) => (
-            <div key={i} className="flex-1 flex flex-col-reverse gap-[2px] h-full justify-end">
-              <div className="w-full rounded-sm bg-forest/85" style={{ height: `${(b.i / max) * 60}%` }} />
-              <div className="w-full rounded-sm bg-rose-400/80" style={{ height: `${(b.e / max) * 40}%` }} />
+            <div key={i} className="flex flex-col items-center justify-center h-full">
+              {/* income above midline */}
+              <div className="h-1/2 w-[3.5px] flex items-end">
+                <div className="w-full rounded-t-[2px] bg-forest/90" style={{ height: `${(b.i / max) * 100}%` }} />
+              </div>
+              <div className="h-px w-full bg-white/12" />
+              {/* expense below midline */}
+              <div className="h-1/2 w-[3.5px] flex items-start">
+                <div className="w-full rounded-b-[2px] bg-rose-400/85" style={{ height: `${(b.e / max) * 100}%` }} />
+              </div>
             </div>
           ))}
         </div>
@@ -616,3 +623,4 @@ function CashflowCard() {
     </Card>
   );
 }
+
