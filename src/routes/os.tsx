@@ -510,7 +510,7 @@ function FinancialCard() {
     { code: "IQD", val: "د.ع 184.9m", pct: "+0.6%",  up: true,  data: [30,31,30,32,31,33,32,34,33,34,35,36] },
   ];
   return (
-    <Card title="Financial Overview · 30d">
+    <Card title="Financial Overview · 30d" fit>
       <ul className="divide-y divide-white/5">
         {rows.map((r) => (
           <li key={r.code} className="py-1.5 flex items-center justify-between gap-2">
