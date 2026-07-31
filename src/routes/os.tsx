@@ -292,7 +292,7 @@ function HotspotPill({ spot, onClick, compact }: { spot: Hotspot; onClick: () =>
 /* ─────────────── Bottom Command Bar ─────────────── */
 const QUICK_SUGGESTIONS = ["Fuel expenses", "Project status", "Missing receipts", "Today's summary"];
 
-function CommandBar() {
+function CommandBar({ embedded = false }: { embedded?: boolean }) {
   const [q, setQ] = useState("");
   function submit(text?: string) {
     const value = (text ?? q).trim();
@@ -301,7 +301,7 @@ function CommandBar() {
     setQ("");
   }
   return (
-    <div className="shrink-0 px-4 lg:px-5 pt-2 pb-3 md:pb-4">
+    <div className={embedded ? "shrink-0 pt-2" : "md:hidden shrink-0 px-4 pt-2 pb-3"}>
       <div className="mx-auto w-full max-w-3xl">
         <div className="flex items-center gap-2 rounded-full border border-white/10 bg-black/45 backdrop-blur-xl px-2 py-1.5 text-white">
           <span className="h-8 w-8 rounded-full bg-forest text-forest-deep grid place-items-center shrink-0">
