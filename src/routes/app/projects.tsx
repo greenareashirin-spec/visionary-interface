@@ -69,7 +69,7 @@ function Projects() {
         ))}
       </section>
 
-      <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
+      <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 md:flex-1 md:min-h-0 flex flex-col md:overflow-hidden overflow-x-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
           <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
             <Search className="h-3.5 w-3.5 text-white/55" />
