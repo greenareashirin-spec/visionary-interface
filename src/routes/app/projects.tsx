@@ -88,7 +88,7 @@ function Projects() {
             </button>
           ))}
         </div>
-        <div className="flex-1 min-h-0 overflow-auto hidden md:block">
+        <div className="hidden md:block flex-1 min-h-0 overflow-auto">
           <table className="w-full text-[12px]">
             <thead className="sticky top-0 bg-[oklch(0.22_0.02_165)]/95 backdrop-blur">
               <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
@@ -139,7 +139,7 @@ function Projects() {
             </tbody>
           </table>
         </div>
-        <div className="flex-1 min-h-0 overflow-auto md:hidden p-3 space-y-2">
+        <div className="md:hidden flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 space-y-3">
           {projects.map((p) => (
             <ProjectCard key={p.code} p={p} />
           ))}
