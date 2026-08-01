@@ -37,7 +37,7 @@ const statusTone: Record<string, string> = {
 function Projects() {
   const [chartOpen, setChartOpen] = useState(false);
   return (
-    <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
+    <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5 overflow-x-hidden">
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Portfolio</p>
@@ -69,7 +69,7 @@ function Projects() {
         ))}
       </section>
 
-      <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
+      <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden overflow-x-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
           <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
             <Search className="h-3.5 w-3.5 text-white/55" />
@@ -88,7 +88,7 @@ function Projects() {
             </button>
           ))}
         </div>
-        <div className="flex-1 min-h-0 overflow-auto hidden md:block">
+        <div className="hidden md:block flex-1 min-h-0 overflow-auto">
           <table className="w-full text-[12px]">
             <thead className="sticky top-0 bg-[oklch(0.22_0.02_165)]/95 backdrop-blur">
               <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
@@ -139,7 +139,7 @@ function Projects() {
             </tbody>
           </table>
         </div>
-        <div className="flex-1 min-h-0 overflow-auto md:hidden p-3 space-y-2">
+        <div className="md:hidden flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 space-y-3">
           {projects.map((p) => (
             <ProjectCard key={p.code} p={p} />
           ))}
@@ -154,42 +154,47 @@ function Projects() {
 }
 
 function ProjectCard({ p }: { p: typeof projects[0] }) {
+  const barColor = p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest";
   return (
-    <div className="rounded-xl bg-black/30 border border-white/10 p-3">
-      <div className="flex gap-3">
-        <img src={p.img} alt="" width={56} height={40} loading="lazy" className="h-10 w-14 rounded-md object-cover shrink-0" />
+    <div className="rounded-xl bg-black/30 border border-white/10 p-3.5">
+      <div className="flex items-start gap-3">
+        <img src={p.img} alt="" width={56} height={40} loading="lazy" className="h-11 w-16 rounded-md object-cover shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-[13px] truncate">{p.name}</p>
-          <p className="text-[10.5px] text-white/50 truncate">{p.code}</p>
-          <p className="text-[10px] text-white/40 truncate mt-0.5">{p.manager} · {p.location}</p>
+          <p className="font-medium text-sm leading-tight">{p.name}</p>
+          <p className="text-xs text-white/50 mt-0.5">{p.code}</p>
+          <p className="text-xs text-white/40 mt-1">{p.manager} · {p.location}</p>
         </div>
         <div className="flex flex-col items-end gap-1.5 shrink-0">
-          <button className="text-white/50 hover:text-white"><MoreHorizontal className="h-3.5 w-3.5" /></button>
-          <span className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${statusTone[p.status]}`}>{p.status}</span>
+          <button className="text-white/50 hover:text-white">
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+          <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${statusTone[p.status]}`}>
+            {p.status}
+          </span>
         </div>
       </div>
 
-      <div className="mt-3">
+      <div className="mt-3.5">
         <div className="flex items-center gap-2">
-          <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden">
-            <div className={`h-full rounded-full ${p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest"}`} style={{ width: `${p.pct}%` }} />
+          <div className="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">
+            <div className={`h-full rounded-full ${barColor}`} style={{ width: `${p.pct}%` }} />
           </div>
-          <span className="text-[11px] text-white/55 w-8 text-right">{p.pct}%</span>
+          <span className="text-xs text-white/60 w-9 text-right">{p.pct}%</span>
         </div>
       </div>
 
-      <div className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-[11px]">
+      <div className="mt-3.5 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
         <div>
-          <p className="text-[10px] text-white/40">Budget</p>
+          <p className="text-xs text-white/45 mb-0.5">Budget</p>
           <p className="font-medium">{p.budget}</p>
         </div>
         <div>
-          <p className="text-[10px] text-white/40">Spent</p>
-          <p className="text-white/70">{p.spent}</p>
+          <p className="text-xs text-white/45 mb-0.5">Spent</p>
+          <p className="text-white/80">{p.spent}</p>
         </div>
         <div className="col-span-2">
-          <p className="text-[10px] text-white/40">Remaining</p>
-          <p className="text-white/70">{p.remaining}</p>
+          <p className="text-xs text-white/45 mb-0.5">Remaining</p>
+          <p className="text-white/80">{p.remaining}</p>
         </div>
       </div>
     </div>
