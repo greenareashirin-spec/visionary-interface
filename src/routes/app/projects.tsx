@@ -37,7 +37,7 @@ const statusTone: Record<string, string> = {
 function Projects() {
   const [chartOpen, setChartOpen] = useState(false);
   return (
-    <div className="flex flex-col md:h-full md:min-h-0 px-5 lg:px-6 py-4 gap-3.5 overflow-x-hidden">
+    <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5 overflow-x-hidden">
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Portfolio</p>
