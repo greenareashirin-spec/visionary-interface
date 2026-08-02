@@ -128,7 +128,7 @@ function Projects() {
             </tbody>
           </table>
         </div>
-        <div className="md:hidden flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 space-y-3">
+        <div className="md:hidden flex-1 min-h-0 overflow-y-auto overflow-x-hidden divide-y divide-white/10">
           {projects.map((p) => (
             <ProjectCard key={p.code} p={p} />
           ))}
@@ -145,46 +145,42 @@ function Projects() {
 function ProjectCard({ p }: { p: typeof projects[0] }) {
   const barColor = p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest";
   return (
-    <div className="rounded-xl bg-black/30 border border-white/10 p-3.5">
-      <div className="flex items-start gap-3">
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm leading-tight truncate">{p.name}</p>
-          <p className="text-xs text-white/50 mt-0.5">{p.code}</p>
-          <p className="text-xs text-white/40 mt-1 truncate">{p.manager} · {p.location}</p>
+    <div className="py-3 px-2.5">
+      {/* Line 1: name + code, status + menu */}
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0 flex items-baseline gap-1">
+          <p className="text-sm font-medium leading-tight truncate min-w-0">{p.name}</p>
+          <span className="text-[11px] font-normal text-white/45 shrink-0">· {p.code}</span>
         </div>
-        <div className="flex flex-col items-end gap-1.5 shrink-0">
-          <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${statusTone[p.status]}`}>
+        <div className="flex items-center gap-1 shrink-0">
+          <span className={`text-[8px] uppercase tracking-wider px-1 py-0.5 rounded-full ${statusTone[p.status]}`}>
             {p.status}
           </span>
-          <button className="text-white/50 hover:text-white">
-            <MoreHorizontal className="h-4 w-4" />
+          <button className="text-white/45 hover:text-white -mr-1">
+            <MoreHorizontal className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
 
-      <div className="mt-3.5">
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-2 rounded-full bg-white/10 overflow-hidden">
-            <div className={`h-full rounded-full ${barColor}`} style={{ width: `${p.pct}%` }} />
-          </div>
-          <span className="text-xs text-white/60 w-9 text-right">{p.pct}%</span>
+      {/* Line 2: progress bar + % */}
+      <div className="mt-2 flex items-center gap-2">
+        <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden min-w-0">
+          <div className={`h-full rounded-full ${barColor}`} style={{ width: `${p.pct}%` }} />
         </div>
+        <span className="text-[11px] text-white/60 w-8 text-right shrink-0">{p.pct}%</span>
       </div>
 
-      <div className="mt-3.5 grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-        <div>
-          <p className="text-xs text-white/45 mb-0.5">Budget</p>
-          <p className="font-medium">{p.budget}</p>
-        </div>
-        <div>
-          <p className="text-xs text-white/45 mb-0.5">Spent</p>
-          <p className="text-white/80">{p.spent}</p>
-        </div>
-        <div className="col-span-2">
-          <p className="text-xs text-white/45 mb-0.5">Remaining</p>
-          <p className="text-white/80">{p.remaining}</p>
-        </div>
+      {/* Line 3: Budget · Spent · Remaining */}
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px]">
+        <span className="text-white/80"><span className="text-white/45 text-[11px]">Budget</span> {p.budget}</span>
+        <span className="text-white/45 text-[10px]">·</span>
+        <span className="text-white/80"><span className="text-white/45 text-[11px]">Spent</span> {p.spent}</span>
+        <span className="text-white/45 text-[10px]">·</span>
+        <span className="text-white/80"><span className="text-white/45 text-[11px]">Remaining</span> {p.remaining}</span>
       </div>
+
+      {/* Line 4: Manager · Location */}
+      <p className="mt-1.5 text-[11px] text-white/40 truncate">{p.manager} · {p.location}</p>
     </div>
   );
 }
