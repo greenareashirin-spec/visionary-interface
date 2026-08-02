@@ -128,7 +128,7 @@ function Projects() {
             </tbody>
           </table>
         </div>
-        <div className="md:hidden flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-3 space-y-3">
+        <div className="md:hidden flex-1 min-h-0 overflow-y-auto overflow-x-hidden divide-y divide-white/10">
           {projects.map((p) => (
             <ProjectCard key={p.code} p={p} />
           ))}
