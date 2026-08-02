@@ -145,19 +145,19 @@ function Projects() {
 function ProjectCard({ p }: { p: typeof projects[0] }) {
   const barColor = p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest";
   return (
-    <div className="py-3 px-3.5">
+    <div className="py-3 px-2.5">
       {/* Line 1: name + code, status + menu */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0 flex items-baseline gap-1.5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0 flex items-baseline gap-1">
           <p className="text-sm font-medium leading-tight truncate min-w-0">{p.name}</p>
           <span className="text-[11px] font-normal text-white/45 shrink-0">· {p.code}</span>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          <span className={`text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full ${statusTone[p.status]}`}>
+        <div className="flex items-center gap-1 shrink-0">
+          <span className={`text-[8px] uppercase tracking-wider px-1 py-0.5 rounded-full ${statusTone[p.status]}`}>
             {p.status}
           </span>
           <button className="text-white/45 hover:text-white -mr-1">
-            <MoreHorizontal className="h-4 w-4" />
+            <MoreHorizontal className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
