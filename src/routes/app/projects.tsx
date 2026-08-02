@@ -70,17 +70,6 @@ function Projects() {
       </section>
 
       <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden overflow-x-hidden">
-        <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
-          <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
-            <Search className="h-3.5 w-3.5 text-white/55" />
-            <input placeholder="Search projects…" className="bg-transparent text-xs outline-none flex-1 placeholder:text-white/45" />
-          </div>
-          <Select label="All Status" />
-          <Select label="All Managers" />
-          <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 transition">
-            <Filter className="h-3 w-3" /> More Filters
-          </button>
-        </div>
         <div className="flex gap-5 px-4 pt-2.5 text-xs border-b border-white/10">
           {["All Projects", "On Track", "At Risk", "Delayed", "Completed"].map((t, i) => (
             <button key={t} className={`pb-2 border-b-2 transition ${i === 0 ? "border-forest text-white" : "border-transparent text-white/55 hover:text-white"}`}>
