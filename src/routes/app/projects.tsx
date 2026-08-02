@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Building2, CheckCircle2, AlertTriangle, Wallet, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
+import { Building2, CheckCircle2, AlertTriangle, Wallet, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
 import riverside from "@/assets/proj-riverside.jpg";
 import karrada from "@/assets/proj-karrada.jpg";
 import erbil from "@/assets/proj-erbil.jpg";
@@ -190,13 +190,6 @@ function ProjectCard({ p }: { p: typeof projects[0] }) {
   );
 }
 
-function Select({ label }: { label: string }) {
-  return (
-    <button className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 transition flex items-center gap-1.5">
-      {label} <span className="text-white/50 text-[10px]">▾</span>
-    </button>
-  );
-}
 
 /* ─────────────── Spend chart (solid "cake bites") ─────────────── */
 function SpendChartModal({ onClose }: { onClose: () => void }) {
