@@ -147,19 +147,18 @@ function ProjectCard({ p }: { p: typeof projects[0] }) {
   return (
     <div className="rounded-xl bg-black/30 border border-white/10 p-3.5">
       <div className="flex items-start gap-3">
-        <img src={p.img} alt="" width={56} height={40} loading="lazy" className="h-11 w-16 rounded-md object-cover shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="font-medium text-sm leading-tight">{p.name}</p>
+          <p className="font-medium text-sm leading-tight truncate">{p.name}</p>
           <p className="text-xs text-white/50 mt-0.5">{p.code}</p>
-          <p className="text-xs text-white/40 mt-1">{p.manager} · {p.location}</p>
+          <p className="text-xs text-white/40 mt-1 truncate">{p.manager} · {p.location}</p>
         </div>
         <div className="flex flex-col items-end gap-1.5 shrink-0">
-          <button className="text-white/50 hover:text-white">
-            <MoreHorizontal className="h-4 w-4" />
-          </button>
           <span className={`text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full ${statusTone[p.status]}`}>
             {p.status}
           </span>
+          <button className="text-white/50 hover:text-white">
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
