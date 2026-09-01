@@ -31,32 +31,58 @@ const team = [
 
 function Employees() {
   const { data } = useErpData();
-  const live = !!data;
+  const localEmployees = useLocalEmployees();
+  const [addOpen, setAddOpen] = useState(false);
+  const [confirmation, setConfirmation] = useState<string | null>(null);
+  const live = !!data || localEmployees.length > 0;
+
+  const merged = useMemo(() => {
+    const erp = data?.employees ?? [];
+    const erpNames = new Set(erp.map((e) => e.name.trim().toLowerCase()));
+    const localOnly = localEmployees.filter((e) => !erpNames.has(e.name.trim().toLowerCase()));
+    return [
+      ...erp.map((e) => ({
+        id: e.id,
+        name: e.name,
+        role: e.position || "—",
+        dept: "",
+        phone: e.phone || "—",
+        salary: "",
+        hire: "",
+        status: e.status || "Unspecified",
+        source: "erp" as const,
+      })),
+      ...localOnly.map((e) => ({
+        id: e.id,
+        name: e.name,
+        role: e.position || "—",
+        dept: "",
+        phone: e.phone || e.email || "—",
+        salary: "",
+        hire: "",
+        status: e.status || "Unspecified",
+        source: "local" as const,
+      })),
+    ];
+  }, [data, localEmployees]);
 
   const statList = useMemo(() => {
-    if (!data) return stats;
-    const active = data.employees.filter((e) => e.status.toLowerCase() === "active").length;
-    const positions = new Set(data.employees.map((e) => e.position).filter(Boolean)).size;
+    if (!live) return stats;
+    const active = merged.filter((e) => e.status.toLowerCase() === "active").length;
+    const positions = new Set(merged.map((e) => e.role).filter((r) => r && r !== "—")).size;
     return [
-      { label: "Total Employees", value: String(data.employees.length), sub: "On file", Icon: Users },
+      { label: "Total Employees", value: String(merged.length), sub: "On file", Icon: Users },
       { label: "Active", value: String(active), sub: "Status active", Icon: Calendar },
       { label: "Positions", value: String(positions), sub: "Distinct roles", Icon: Building2 },
     ] as typeof stats;
-  }, [data]);
+  }, [live, merged]);
 
-  const teamList = useMemo(() => {
-    if (!data) return team;
-    return data.employees.map((e) => ({
-      id: e.id,
-      name: e.name,
-      role: e.position || "—",
-      dept: "",
-      phone: e.phone || "—",
-      salary: "",
-      hire: "",
-      status: e.status || "Unspecified",
-    }));
-  }, [data]);
+  const teamList = live ? merged : team.map((m) => ({ ...m, source: "erp" as const }));
+
+  function notify(name: string) {
+    setConfirmation(`${name} added — remember to add them to your ERP spreadsheet next time you update it.`);
+    window.setTimeout(() => setConfirmation(null), 5000);
+  }
 
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
@@ -70,11 +96,26 @@ function Employees() {
         </div>
         <div className="flex gap-2">
           <button className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition">Export</button>
-          <button className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium flex items-center gap-1.5 hover:brightness-110 transition">
+          <button
+            onClick={() => setAddOpen(true)}
+            className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium flex items-center gap-1.5 hover:brightness-110 transition"
+          >
             <Plus className="h-3.5 w-3.5" /> Add Employee
           </button>
         </div>
       </header>
+
+      {confirmation && (
+        <div className="flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-400/20 px-3 py-1.5 text-[11px] text-amber-200/90">
+          <span className="min-w-0 flex-1">{confirmation}</span>
+          <button onClick={() => setConfirmation(null)} className="text-amber-200/70 hover:text-amber-100">
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
+      {addOpen && <AddEmployeeModal onClose={() => setAddOpen(false)} onAdded={notify} />}
+
 
       <section className={`grid grid-cols-2 gap-2.5 ${live ? "md:grid-cols-3" : "md:grid-cols-5"}`}>
         {statList.map((s) => (
