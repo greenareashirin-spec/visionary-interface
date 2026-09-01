@@ -16,6 +16,11 @@ import {
 } from "@/lib/weather";
 
 export const Route = createFileRoute("/os")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) throw redirect({ to: "/" });
+  },
   component: CommandCenter,
   head: () => ({
     meta: [
