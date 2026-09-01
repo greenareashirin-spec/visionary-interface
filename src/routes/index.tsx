@@ -28,6 +28,7 @@ function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
+  const [socialPending, setSocialPending] = useState<"google" | "apple" | null>(null);
   const [entering, setEntering] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,6 +48,23 @@ function Login() {
     }
     setEntering(true);
     setTimeout(() => navigate({ to: "/os" }), 650);
+  }
+
+  async function signInWithSocial(provider: "google" | "apple") {
+    setError(null);
+    setSocialPending(provider);
+    const result = await lovable.auth.signInWithOAuth(provider, {
+      redirect_uri: window.location.origin,
+    });
+    setSocialPending(null);
+    if (result.error) {
+      setError("Could not start sign-in. Please try again.");
+      return;
+    }
+    if (!result.redirected) {
+      setEntering(true);
+      setTimeout(() => navigate({ to: "/os" }), 650);
+    }
   }
 
   return (
