@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { BookOpen, CheckCircle2, Clock, Wallet, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useErpData } from "@/lib/erp-store";
+import { ErpEmptyBanner } from "@/components/erp-empty-banner";
+import { dateRange, dayMon, fmtNumber, statusCards } from "@/lib/erp-format";
+
 
 export const Route = createFileRoute("/app/daily-log")({
   component: DailyLog,
