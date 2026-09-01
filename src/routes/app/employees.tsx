@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo } from "react";
-import { Users, Calendar, UserMinus, Building2, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Users, Calendar, UserMinus, Building2, Search, Filter, Plus, MoreHorizontal, Trash2, X } from "lucide-react";
 import { useErpData } from "@/lib/erp-store";
 import { ErpEmptyBanner } from "@/components/erp-empty-banner";
+import { AddEmployeeModal } from "@/components/add-employee-modal";
+import { useLocalEmployees, removeLocalEmployee } from "@/lib/local-employees-store";
 
 
 export const Route = createFileRoute("/app/employees")({
