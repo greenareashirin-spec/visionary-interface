@@ -120,17 +120,18 @@ function Employees() {
               <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
                 <th className="py-2.5 px-4 font-normal">Employee</th>
                 <th className="py-2.5 px-3 font-normal">ID</th>
-                <th className="py-2.5 px-3 font-normal">Department</th>
+                {!live && <th className="py-2.5 px-3 font-normal">Department</th>}
                 <th className="py-2.5 px-3 font-normal">Role</th>
                 <th className="py-2.5 px-3 font-normal">Status</th>
                 <th className="py-2.5 px-3 font-normal">Phone</th>
-                <th className="py-2.5 px-3 font-normal">Hire Date</th>
-                <th className="py-2.5 px-3 font-normal text-right">Salary</th>
+                {!live && <th className="py-2.5 px-3 font-normal">Hire Date</th>}
+                {!live && <th className="py-2.5 px-3 font-normal text-right">Salary</th>}
                 <th className="py-2.5 px-4 font-normal text-right"> </th>
               </tr>
             </thead>
             <tbody>
-              {team.map((m) => (
+              {teamList.map((m) => (
+
                 <tr key={m.id} className="border-t border-white/5 hover:bg-black/30 transition">
                   <td className="py-2.5 px-4">
                     <div className="flex items-center gap-2.5">
