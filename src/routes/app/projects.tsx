@@ -1,10 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Building2, CheckCircle2, AlertTriangle, Wallet, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
+import { useErpData } from "@/lib/erp-store";
+import { ErpEmptyBanner } from "@/components/erp-empty-banner";
+import { fmtMoney, fmtNumber } from "@/lib/erp-format";
 import riverside from "@/assets/proj-riverside.jpg";
 import karrada from "@/assets/proj-karrada.jpg";
 import erbil from "@/assets/proj-erbil.jpg";
 import mountain from "@/assets/proj-mountain.jpg";
+
 
 export const Route = createFileRoute("/app/projects")({
   component: Projects,
