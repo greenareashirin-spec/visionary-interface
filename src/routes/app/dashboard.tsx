@@ -108,7 +108,7 @@ function Dashboard() {
       {chartOpen && <CostsChartModal onClose={() => setChartOpen(false)} />}
 
       <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
-        {stats.map((s) => (
+        {statList.map((s) => (
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
@@ -137,7 +137,7 @@ function Dashboard() {
         <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
           <ul className="divide-y divide-white/5">
-            {balances.map((b) => (
+            {balanceList.map((b) => (
               <li key={b.code} className="py-2 flex items-center justify-between">
                 <div>
                   <p className="text-[11px] text-white/60">{b.code}</p>
@@ -183,7 +183,7 @@ function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {tx.map((r, i) => (
+              {txList.map((r, i) => (
                 <tr key={i} className="border-t border-white/5 hover:bg-black/30 transition">
                   <td className="py-2.5 px-4 text-white/60">{r.d}</td>
                   <td className="py-2.5 px-3">{r.p}</td>
