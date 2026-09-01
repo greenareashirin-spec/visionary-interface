@@ -61,7 +61,7 @@ export function AddEmployeeModal({
         <div className="mb-4">
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Team</p>
           <h2 className="mt-1 font-display text-[22px] leading-none">Add Employee</h2>
-          <p className="mt-1 text-[12px] text-white/60">Saved on this device until your next ERP upload.</p>
+          <p className="mt-1 text-[12px] text-white/60">Shared with everyone on your team instantly.</p>
         </div>
 
         <form onSubmit={submit} className="space-y-3">
@@ -106,9 +106,10 @@ export function AddEmployeeModal({
             </button>
             <button
               type="submit"
-              className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium hover:brightness-110 transition"
+              disabled={saving}
+              className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium hover:brightness-110 transition disabled:opacity-50"
             >
-              Save Employee
+              {saving ? "Saving…" : "Save Employee"}
             </button>
           </div>
         </form>
