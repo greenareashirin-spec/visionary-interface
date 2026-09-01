@@ -287,10 +287,11 @@ function ProjectCard({ p }: { p: ViewRow }) {
 
 
 /* ─────────────── Spend chart (solid "cake bites") ─────────────── */
-function SpendChartModal({ onClose }: { onClose: () => void }) {
+function SpendChartModal({ onClose, rows }: { onClose: () => void; rows?: { name: string; code: string; value: number }[] }) {
   const parseAmt = (s: string) => Number(s.replace(/[^0-9.]/g, ""));
-  const slices = projects.map((p) => ({ name: p.name, code: p.code, value: parseAmt(p.spent) }));
-  const total = slices.reduce((s, x) => s + x.value, 0);
+  const slices = (rows ?? projects.map((p) => ({ name: p.name, code: p.code, value: parseAmt(p.spent) }))).filter((s) => s.value > 0);
+  const total = slices.reduce((s, x) => s + x.value, 0) || 1;
+
   const palette = ["#7CB342", "#F59E0B", "#F43F5E", "#38BDF8", "#A78BFA", "#F97316"];
 
   const R = 120;
