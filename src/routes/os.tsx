@@ -210,10 +210,7 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
           <Bell className="h-3.5 w-3.5 text-white/80" />
           <span className="absolute -top-0.5 -right-0.5 h-4 min-w-4 px-1 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
         </button>
-        <button className="flex items-center gap-1.5 rounded-full pl-1 pr-2 py-1 bg-black/38 backdrop-blur-xl border border-white/10 hover:bg-white/15 transition">
-          <span className="h-7 w-7 rounded-full bg-forest/25 border border-forest/30 grid place-items-center text-forest font-medium text-[11px]">GA</span>
-          <ChevronDown className="h-3 w-3 text-white/70" />
-        </button>
+        <UserMenu solid />
       </div>
 
       {searchOpen && (
