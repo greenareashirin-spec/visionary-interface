@@ -1,5 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { BookOpen, CheckCircle2, Clock, Wallet, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useErpData } from "@/lib/erp-store";
+import { ErpEmptyBanner } from "@/components/erp-empty-banner";
+import { dateRange, dayMon, fmtNumber, statusCards } from "@/lib/erp-format";
+
 
 export const Route = createFileRoute("/app/daily-log")({
   component: DailyLog,
@@ -26,8 +31,50 @@ const rows = [
 ];
 
 function DailyLog() {
+  const { data } = useErpData();
+
+  const statList = useMemo(() => {
+    if (!data) return stats;
+    const base = [
+      {
+        label: "Total Entries",
+        value: fmtNumber(data.totalEntries),
+        sub: dateRange(data.log.map((r) => r.rawDate)),
+        Icon: BookOpen,
+      },
+    ];
+    const extra = statusCards(data.statusCounts, data.totalEntries).map((s, i) => ({
+      label: s.label,
+      value: s.value,
+      sub: s.sub,
+      Icon: i === 0 ? CheckCircle2 : Clock,
+      tone: (i === 0 ? "forest" : "amber") as "forest" | "amber",
+    }));
+    return [...base, ...extra] as typeof stats;
+  }, [data]);
+
+  const rowList = useMemo(() => {
+    if (!data) return rows;
+    return data.log.slice(0, 30).map((r) => ({
+      d: dayMon(r.rawDate),
+      p: r.projectCode,
+      proj: r.project || "Unassigned",
+      t: r.type,
+      c: r.category,
+      desc: r.description,
+      who: r.who || "—",
+      doc: r.doc,
+      pm: r.payMethod,
+      cur: r.currency,
+      a: `${r.type.toLowerCase() === "expense" ? "-" : "+"}${fmtNumber(r.amount)}`,
+      s: r.status,
+    }));
+  }, [data]);
+
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
+      <ErpEmptyBanner />
+
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Ledger</p>
@@ -43,7 +90,7 @@ function DailyLog() {
       </header>
 
       <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
-        {stats.map((s) => (
+        {statList.map((s) => (
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] uppercase tracking-[0.2em] text-white/55 min-w-0 leading-tight break-words">{s.label}</p>
@@ -92,7 +139,7 @@ function DailyLog() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r, i) => (
+              {rowList.map((r, i) => (
                 <tr key={i} className="border-t border-white/5 hover:bg-black/30 transition">
                   <td className="py-2.5 px-4 text-white/60 whitespace-nowrap">{r.d}</td>
                   <td className="py-2.5 px-3 whitespace-nowrap">
@@ -118,7 +165,12 @@ function DailyLog() {
           </table>
         </div>
         <div className="px-4 py-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/55">
-          <span>Showing {rows.length} of {rows.length} entries</span>
+          <span>
+            {data
+              ? `Showing 30 most recent of ${fmtNumber(data.totalEntries)}`
+              : `Showing ${rowList.length} of ${rowList.length} entries`}
+          </span>
+
           <span>Data Engine v9.2</span>
         </div>
       </section>

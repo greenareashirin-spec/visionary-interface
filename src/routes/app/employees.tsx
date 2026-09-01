@@ -1,5 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { Users, Calendar, UserMinus, Building2, Search, Filter, Plus, MoreHorizontal } from "lucide-react";
+import { useErpData } from "@/lib/erp-store";
+import { ErpEmptyBanner } from "@/components/erp-empty-banner";
+
 
 export const Route = createFileRoute("/app/employees")({
   component: Employees,
@@ -24,8 +28,38 @@ const team = [
 ];
 
 function Employees() {
+  const { data } = useErpData();
+  const live = !!data;
+
+  const statList = useMemo(() => {
+    if (!data) return stats;
+    const active = data.employees.filter((e) => e.status.toLowerCase() === "active").length;
+    const positions = new Set(data.employees.map((e) => e.position).filter(Boolean)).size;
+    return [
+      { label: "Total Employees", value: String(data.employees.length), sub: "On file", Icon: Users },
+      { label: "Active", value: String(active), sub: "Status active", Icon: Calendar },
+      { label: "Positions", value: String(positions), sub: "Distinct roles", Icon: Building2 },
+    ] as typeof stats;
+  }, [data]);
+
+  const teamList = useMemo(() => {
+    if (!data) return team;
+    return data.employees.map((e) => ({
+      id: e.id,
+      name: e.name,
+      role: e.position || "—",
+      dept: "",
+      phone: e.phone || "—",
+      salary: "",
+      hire: "",
+      status: e.status || "Unspecified",
+    }));
+  }, [data]);
+
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
+      <ErpEmptyBanner />
+
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Team</p>
@@ -40,8 +74,9 @@ function Employees() {
         </div>
       </header>
 
-      <section className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
-        {stats.map((s) => (
+      <section className={`grid grid-cols-2 gap-2.5 ${live ? "md:grid-cols-3" : "md:grid-cols-5"}`}>
+        {statList.map((s) => (
+
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3.5">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
@@ -85,17 +120,18 @@ function Employees() {
               <tr className="text-left text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
                 <th className="py-2.5 px-4 font-normal">Employee</th>
                 <th className="py-2.5 px-3 font-normal">ID</th>
-                <th className="py-2.5 px-3 font-normal">Department</th>
+                {!live && <th className="py-2.5 px-3 font-normal">Department</th>}
                 <th className="py-2.5 px-3 font-normal">Role</th>
                 <th className="py-2.5 px-3 font-normal">Status</th>
                 <th className="py-2.5 px-3 font-normal">Phone</th>
-                <th className="py-2.5 px-3 font-normal">Hire Date</th>
-                <th className="py-2.5 px-3 font-normal text-right">Salary</th>
+                {!live && <th className="py-2.5 px-3 font-normal">Hire Date</th>}
+                {!live && <th className="py-2.5 px-3 font-normal text-right">Salary</th>}
                 <th className="py-2.5 px-4 font-normal text-right"> </th>
               </tr>
             </thead>
             <tbody>
-              {team.map((m) => (
+              {teamList.map((m) => (
+
                 <tr key={m.id} className="border-t border-white/5 hover:bg-black/30 transition">
                   <td className="py-2.5 px-4">
                     <div className="flex items-center gap-2.5">
@@ -109,7 +145,7 @@ function Employees() {
                     </div>
                   </td>
                   <td className="py-2.5 px-3 text-white/55 text-[11px]">{m.id}</td>
-                  <td className="py-2.5 px-3">{m.dept}</td>
+                  {!live && <td className="py-2.5 px-3">{m.dept}</td>}
                   <td className="py-2.5 px-3">{m.role}</td>
                   <td className="py-2.5 px-3">
                     <span className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${m.status === "Active" ? "bg-forest/15 text-forest" : "bg-amber-500/15 text-amber-300"}`}>
@@ -117,8 +153,9 @@ function Employees() {
                     </span>
                   </td>
                   <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.phone}</td>
-                  <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.hire}</td>
-                  <td className="py-2.5 px-3 text-right font-medium">{m.salary}</td>
+                  {!live && <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.hire}</td>}
+                  {!live && <td className="py-2.5 px-3 text-right font-medium">{m.salary}</td>}
+
                   <td className="py-2.5 px-4 text-right">
                     <button className="text-white/50 hover:text-white"><MoreHorizontal className="h-3.5 w-3.5 inline" /></button>
                   </td>

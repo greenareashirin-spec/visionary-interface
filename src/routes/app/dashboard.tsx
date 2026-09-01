@@ -1,6 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Wallet, TrendingUp, TrendingDown, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
+import { useErpData } from "@/lib/erp-store";
+import { ErpEmptyBanner } from "@/components/erp-empty-banner";
+import { fmtMoney, fmtNumber, symbolFor, statusCards, dayMon } from "@/lib/erp-format";
+
 
 export const Route = createFileRoute("/app/dashboard")({
   component: Dashboard,
@@ -35,8 +39,53 @@ const tx = [
 
 function Dashboard() {
   const [chartOpen, setChartOpen] = useState(false);
+  const { data } = useErpData();
+
+  const view = useMemo(() => {
+    if (!data) return { stats, balances, tx };
+    const counts: Record<string, number> = {};
+    for (const r of data.log) counts[r.currency] = (counts[r.currency] ?? 0) + 1;
+
+    const sorted = [...data.balances].sort((a, b) => Math.abs(b.net) - Math.abs(a.net)).slice(0, 4);
+    const balanceStats = sorted.map((b) => ({
+      label: `${b.currency} Balance`,
+      value: fmtMoney(b.net, b.currency),
+      sub: `${counts[b.currency] ?? 0} entries`,
+      Icon: Wallet,
+      tone: (b.net < 0 ? "rose" : "forest") as "rose" | "forest",
+    }));
+    const extra = statusCards(data.statusCounts, data.totalEntries).map((s) => ({
+      ...s,
+      Icon: TrendingUp,
+      tone: undefined as undefined,
+    }));
+
+    return {
+      stats: [...balanceStats, ...extra] as typeof stats,
+      balances: data.balances.map((b) => ({
+        code: b.currency,
+        value: fmtNumber(b.net),
+        symbol: symbolFor(b.currency),
+        pct: "",
+      })),
+      tx: data.log.slice(0, 8).map((r) => ({
+        d: dayMon(r.rawDate),
+        p: `${r.projectCode ? r.projectCode + " · " : ""}${r.project || "Unassigned"}`,
+        t: r.type,
+        c: r.category,
+        a: `${r.type.toLowerCase() === "expense" ? "-" : "+"}${fmtNumber(r.amount)}`,
+        cur: r.currency,
+        s: r.status,
+      })),
+    };
+  }, [data]);
+
+  const { stats: statList, balances: balanceList, tx: txList } = view;
+
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
+      <ErpEmptyBanner />
+
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Finance</p>
@@ -59,7 +108,7 @@ function Dashboard() {
       {chartOpen && <CostsChartModal onClose={() => setChartOpen(false)} />}
 
       <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
-        {stats.map((s) => (
+        {statList.map((s) => (
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
@@ -88,13 +137,13 @@ function Dashboard() {
         <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
           <ul className="divide-y divide-white/5">
-            {balances.map((b) => (
+            {balanceList.map((b) => (
               <li key={b.code} className="py-2 flex items-center justify-between">
                 <div>
                   <p className="text-[11px] text-white/60">{b.code}</p>
                   <p className="text-[13px] font-medium"><span className="text-white/50 mr-0.5">{b.symbol}</span>{b.value}</p>
                 </div>
-                <span className={`text-[10.5px] ${b.pct.startsWith("+") ? "text-forest" : "text-rose-300"}`}>{b.pct}</span>
+                {b.pct && <span className={`text-[10.5px] ${b.pct.startsWith("+") ? "text-forest" : "text-rose-300"}`}>{b.pct}</span>}
               </li>
             ))}
           </ul>
@@ -134,7 +183,7 @@ function Dashboard() {
               </tr>
             </thead>
             <tbody>
-              {tx.map((r, i) => (
+              {txList.map((r, i) => (
                 <tr key={i} className="border-t border-white/5 hover:bg-black/30 transition">
                   <td className="py-2.5 px-4 text-white/60">{r.d}</td>
                   <td className="py-2.5 px-3">{r.p}</td>

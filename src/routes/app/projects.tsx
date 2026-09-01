@@ -1,10 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Building2, CheckCircle2, AlertTriangle, Wallet, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
+import { useErpData } from "@/lib/erp-store";
+import { ErpEmptyBanner } from "@/components/erp-empty-banner";
+import { fmtMoney, fmtNumber } from "@/lib/erp-format";
 import riverside from "@/assets/proj-riverside.jpg";
 import karrada from "@/assets/proj-karrada.jpg";
 import erbil from "@/assets/proj-erbil.jpg";
 import mountain from "@/assets/proj-mountain.jpg";
+
 
 export const Route = createFileRoute("/app/projects")({
   component: Projects,
@@ -34,10 +38,87 @@ const statusTone: Record<string, string> = {
   "Completed": "bg-water/20 text-water",
 };
 
+const toneFor = (s: string) => statusTone[s] ?? "bg-white/10 text-white/70";
+
+type ViewRow = {
+  code: string;
+  name: string;
+  img?: string;
+  location: string;
+  manager: string;
+  pct: number | null;
+  pctNote?: string;
+  budget: string;
+  spendLines: string[];
+  remaining: string;
+  status: string;
+};
+
+const demoRows: ViewRow[] = projects.map((p) => ({
+  ...p,
+  spendLines: [p.spent],
+}));
+
 function Projects() {
   const [chartOpen, setChartOpen] = useState(false);
+  const { data } = useErpData();
+
+  const statList = useMemo(() => {
+    if (!data) return stats;
+    const ps = data.projects;
+    const active = ps.filter((p) => p.status.toLowerCase() === "active").length;
+    const unspecified = ps.filter((p) => !p.status).length;
+    const budgeted = ps.filter((p) => p.budgetAmount != null).length;
+    const totalBudget = ps
+      .filter((p) => p.budgetCurrency === "USD" && p.budgetAmount != null)
+      .reduce((s, p) => s + (p.budgetAmount ?? 0), 0);
+    return [
+      { label: "Total Projects", value: String(ps.length), sub: "On file", Icon: Building2 },
+      { label: "Active", value: String(active), sub: "Status active", Icon: CheckCircle2, tone: "forest" as const },
+      { label: "Unspecified", value: String(unspecified), sub: "No status", Icon: AlertTriangle, tone: "amber" as const },
+      { label: "Budget Set", value: `${budgeted} of ${ps.length}`, sub: "Have a budget", Icon: Wallet },
+      { label: "Total Budget", value: `$${fmtNumber(totalBudget)}`, sub: "USD-budgeted projects only", Icon: Wallet },
+    ] as typeof stats;
+  }, [data]);
+
+  const rowList: ViewRow[] = useMemo(() => {
+    if (!data) return demoRows;
+    return data.projects.map((p) => {
+      const spendEntries = Object.entries(p.spentByCurrency);
+      const matched = p.budgetCurrency ? p.spentByCurrency[p.budgetCurrency] : undefined;
+      return {
+        code: p.code,
+        name: p.name,
+        location: p.location || "—",
+        manager: p.manager || "—",
+        pct: p.pct,
+        pctNote: p.pct == null ? (p.budgetAmount == null ? "No budget" : "Currency mismatch") : undefined,
+        budget: p.budgetAmount != null ? fmtMoney(p.budgetAmount, p.budgetCurrency ?? "") : "Not set",
+        spendLines: spendEntries.length
+          ? spendEntries.map(([cur, amt]) => fmtMoney(amt, cur))
+          : ["—"],
+        remaining:
+          p.budgetCurrency && p.budgetAmount != null && matched !== undefined
+            ? fmtMoney(p.budgetAmount - matched, p.budgetCurrency)
+            : "—",
+        status: p.status || "Unspecified",
+      };
+    });
+  }, [data]);
+
+  const unassigned = data ? Object.entries(data.unassignedByCurrency) : [];
+
+  const chartRows = data
+    ? data.projects
+        .map((p) => ({ name: p.name, code: p.code, value: p.spentByCurrency["USD"] ?? 0 }))
+        .filter((r) => r.value > 0)
+    : undefined;
+
+
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5 overflow-x-hidden">
+      <ErpEmptyBanner />
+
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Portfolio</p>
@@ -57,10 +138,11 @@ function Projects() {
           </button>
         </div>
       </header>
-      {chartOpen && <SpendChartModal onClose={() => setChartOpen(false)} />}
+      {chartOpen && <SpendChartModal onClose={() => setChartOpen(false)} rows={chartRows} />}
 
       <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
-        {stats.map((s) => (
+        {statList.map((s) => (
+
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
             <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
             <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
@@ -93,11 +175,11 @@ function Projects() {
               </tr>
             </thead>
             <tbody>
-              {projects.map((p) => (
-                <tr key={p.code} className="border-t border-white/5 hover:bg-black/30 transition">
+              {rowList.map((p) => (
+                <tr key={p.code || p.name} className="border-t border-white/5 hover:bg-black/30 transition">
                   <td className="py-2.5 px-4">
                     <div className="flex items-center gap-2.5">
-                      <img src={p.img} alt="" width={48} height={32} loading="lazy" className="h-8 w-12 rounded-md object-cover" />
+                      {p.img && <img src={p.img} alt="" width={48} height={32} loading="lazy" className="h-8 w-12 rounded-md object-cover" />}
                       <div className="leading-tight">
                         <p className="font-medium">{p.name}</p>
                         <p className="text-[10.5px] text-white/50">{p.code}</p>
@@ -107,18 +189,26 @@ function Projects() {
                   <td className="py-2.5 px-3 text-white/60">{p.location}</td>
                   <td className="py-2.5 px-3">{p.manager}</td>
                   <td className="py-2.5 px-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden min-w-[80px]">
-                        <div className={`h-full rounded-full ${p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest"}`} style={{ width: `${p.pct}%` }} />
+                    {p.pct == null ? (
+                      <span className="text-[11px] text-white/45">{p.pctNote}</span>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden min-w-[80px]">
+                          <div className={`h-full rounded-full ${p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest"}`} style={{ width: `${Math.min(p.pct, 100)}%` }} />
+                        </div>
+                        <span className="text-[11px] text-white/55 w-10 text-right">{p.pct}%</span>
                       </div>
-                      <span className="text-[11px] text-white/55 w-8 text-right">{p.pct}%</span>
-                    </div>
+                    )}
                   </td>
                   <td className="py-2.5 px-3 text-right font-medium">{p.budget}</td>
-                  <td className="py-2.5 px-3 text-right text-white/60">{p.spent}</td>
+                  <td className="py-2.5 px-3 text-right text-white/60">
+                    {p.spendLines.map((l) => (
+                      <p key={l}>{l}</p>
+                    ))}
+                  </td>
                   <td className="py-2.5 px-3 text-right text-white/60">{p.remaining}</td>
                   <td className="py-2.5 px-3">
-                    <span className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${statusTone[p.status]}`}>{p.status}</span>
+                    <span className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${toneFor(p.status)}`}>{p.status}</span>
                   </td>
                   <td className="py-2.5 px-4 text-right">
                     <button className="text-white/50 hover:text-white"><MoreHorizontal className="h-3.5 w-3.5 inline" /></button>
@@ -129,20 +219,32 @@ function Projects() {
           </table>
         </div>
         <div className="md:hidden flex-1 min-h-0 overflow-y-auto overflow-x-hidden divide-y divide-white/10">
-          {projects.map((p) => (
-            <ProjectCard key={p.code} p={p} />
+          {rowList.map((p) => (
+            <ProjectCard key={p.code || p.name} p={p} />
           ))}
         </div>
+        {unassigned.length > 0 && (
+          <div className="px-4 py-2 border-t border-white/10 text-[11px] text-white/55">
+            Unassigned spend (not linked to a project):{" "}
+            {unassigned.map(([cur, amt], i) => (
+              <span key={cur} className="text-white/80">
+                {i > 0 && " · "}
+                {fmtMoney(amt, cur)}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="px-4 py-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/55">
-          <span>Showing 1 to 4 of 12 projects</span>
+          <span>{data ? `Showing ${rowList.length} of ${rowList.length} projects` : "Showing 1 to 4 of 12 projects"}</span>
           <span>Rows per page: 10</span>
         </div>
+
       </section>
     </div>
   );
 }
 
-function ProjectCard({ p }: { p: typeof projects[0] }) {
+function ProjectCard({ p }: { p: ViewRow }) {
   const barColor = p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest";
   return (
     <div className="py-3 px-2.5">
@@ -150,10 +252,10 @@ function ProjectCard({ p }: { p: typeof projects[0] }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0 flex items-baseline gap-1">
           <p className="text-sm font-medium leading-tight truncate min-w-0">{p.name}</p>
-          <span className="text-[11px] font-normal text-white/45 shrink-0">· {p.code}</span>
+          {p.code && <span className="text-[11px] font-normal text-white/45 shrink-0">· {p.code}</span>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <span className={`text-[8px] uppercase tracking-wider px-1 py-0.5 rounded-full ${statusTone[p.status]}`}>
+          <span className={`text-[8px] uppercase tracking-wider px-1 py-0.5 rounded-full ${toneFor(p.status)}`}>
             {p.status}
           </span>
           <button className="text-white/45 hover:text-white -mr-1">
@@ -163,21 +265,26 @@ function ProjectCard({ p }: { p: typeof projects[0] }) {
       </div>
 
       {/* Line 2: progress bar + % */}
-      <div className="mt-2 flex items-center gap-2">
-        <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden min-w-0">
-          <div className={`h-full rounded-full ${barColor}`} style={{ width: `${p.pct}%` }} />
+      {p.pct == null ? (
+        <p className="mt-2 text-[11px] text-white/40">{p.pctNote}</p>
+      ) : (
+        <div className="mt-2 flex items-center gap-2">
+          <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden min-w-0">
+            <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.min(p.pct, 100)}%` }} />
+          </div>
+          <span className="text-[11px] text-white/60 w-10 text-right shrink-0">{p.pct}%</span>
         </div>
-        <span className="text-[11px] text-white/60 w-8 text-right shrink-0">{p.pct}%</span>
-      </div>
+      )}
 
       {/* Line 3: Budget · Spent · Remaining */}
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px]">
         <span className="text-white/80"><span className="text-white/45 text-[11px]">Budget</span> {p.budget}</span>
         <span className="text-white/45 text-[10px]">·</span>
-        <span className="text-white/80"><span className="text-white/45 text-[11px]">Spent</span> {p.spent}</span>
+        <span className="text-white/80"><span className="text-white/45 text-[11px]">Spent</span> {p.spendLines.join(" / ")}</span>
         <span className="text-white/45 text-[10px]">·</span>
         <span className="text-white/80"><span className="text-white/45 text-[11px]">Remaining</span> {p.remaining}</span>
       </div>
+
 
       {/* Line 4: Manager · Location */}
       <p className="mt-1.5 text-[11px] text-white/40 truncate">{p.manager} · {p.location}</p>
@@ -187,10 +294,11 @@ function ProjectCard({ p }: { p: typeof projects[0] }) {
 
 
 /* ─────────────── Spend chart (solid "cake bites") ─────────────── */
-function SpendChartModal({ onClose }: { onClose: () => void }) {
+function SpendChartModal({ onClose, rows }: { onClose: () => void; rows?: { name: string; code: string; value: number }[] }) {
   const parseAmt = (s: string) => Number(s.replace(/[^0-9.]/g, ""));
-  const slices = projects.map((p) => ({ name: p.name, code: p.code, value: parseAmt(p.spent) }));
-  const total = slices.reduce((s, x) => s + x.value, 0);
+  const slices = (rows ?? projects.map((p) => ({ name: p.name, code: p.code, value: parseAmt(p.spent) }))).filter((s) => s.value > 0);
+  const total = slices.reduce((s, x) => s + x.value, 0) || 1;
+
   const palette = ["#7CB342", "#F59E0B", "#F43F5E", "#38BDF8", "#A78BFA", "#F97316"];
 
   const R = 120;
