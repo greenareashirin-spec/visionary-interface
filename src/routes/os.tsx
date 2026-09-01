@@ -123,7 +123,7 @@ function CommandCenter() {
           {/* Center: hotspots layer + Ask OS aligned with lower cards */}
           <section className="hidden md:flex md:col-span-6 col-span-12 flex-col min-h-0">
             <div className="relative flex-1 min-h-0">
-              {HOTSPOTS.map((s) => (
+              {hotspots.map((s) => (
                 <HotspotPill key={s.id} spot={s} onClick={() => flyTo(s)} />
               ))}
             </div>
@@ -132,7 +132,7 @@ function CommandCenter() {
 
           {/* Mobile hotspots: only the essentials, on the photo */}
           <section className="md:hidden col-span-12 relative h-[38vh]">
-            {HOTSPOTS.filter((s) => s.essential).map((s, i) => (
+            {hotspots.filter((s) => s.essential).map((s, i) => (
               <div
                 key={s.id}
                 className="absolute -translate-x-1/2 -translate-y-1/2"
