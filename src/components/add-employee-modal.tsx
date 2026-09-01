@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Paperclip } from "lucide-react";
-import { addLocalEmployee } from "@/lib/local-employees-store";
+import { addEmployee } from "@/lib/employees-store";
 
 const STATUSES = ["Active", "On Leave", "Inactive"];
 
@@ -17,8 +17,9 @@ export function AddEmployeeModal({
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("Active");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     const next: Record<string, string> = {};
     if (!name.trim()) next.name = "Name is required.";
@@ -33,12 +34,15 @@ export function AddEmployeeModal({
     setErrors(next);
     if (Object.keys(next).length) return;
 
+    setSaving(true);
     try {
-      const rec = addLocalEmployee({ name, position, phone, email, status });
+      const rec = await addEmployee({ name, position, phone, email, status });
       onAdded(rec.name);
       onClose();
     } catch (err) {
       setErrors({ form: err instanceof Error ? err.message : "Could not save this employee." });
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -57,7 +61,7 @@ export function AddEmployeeModal({
         <div className="mb-4">
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Team</p>
           <h2 className="mt-1 font-display text-[22px] leading-none">Add Employee</h2>
-          <p className="mt-1 text-[12px] text-white/60">Saved on this device until your next ERP upload.</p>
+          <p className="mt-1 text-[12px] text-white/60">Shared with everyone on your team instantly.</p>
         </div>
 
         <form onSubmit={submit} className="space-y-3">
@@ -102,9 +106,10 @@ export function AddEmployeeModal({
             </button>
             <button
               type="submit"
-              className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium hover:brightness-110 transition"
+              disabled={saving}
+              className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium hover:brightness-110 transition disabled:opacity-50"
             >
-              Save Employee
+              {saving ? "Saving…" : "Save Employee"}
             </button>
           </div>
         </form>

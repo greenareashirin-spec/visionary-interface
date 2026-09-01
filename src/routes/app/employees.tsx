@@ -4,7 +4,7 @@ import { Users, Calendar, UserMinus, Building2, Search, Filter, Plus, MoreHorizo
 import { useErpData } from "@/lib/erp-store";
 import { ErpEmptyBanner } from "@/components/erp-empty-banner";
 import { AddEmployeeModal } from "@/components/add-employee-modal";
-import { useLocalEmployees, removeLocalEmployee } from "@/lib/local-employees-store";
+import { useEmployees, removeEmployee } from "@/lib/employees-store";
 
 
 export const Route = createFileRoute("/app/employees")({
@@ -31,7 +31,7 @@ const team = [
 
 function Employees() {
   const { data } = useErpData();
-  const localEmployees = useLocalEmployees();
+  const localEmployees = useEmployees();
   const [addOpen, setAddOpen] = useState(false);
   const [confirmation, setConfirmation] = useState<string | null>(null);
   const live = !!data || localEmployees.length > 0;
@@ -211,7 +211,7 @@ function Employees() {
                       <button
                         aria-label={`Remove ${m.name}`}
                         onClick={() => {
-                          if (window.confirm(`Remove ${m.name}?`)) removeLocalEmployee(m.id);
+                          if (window.confirm(`Remove ${m.name}?`)) void removeEmployee(m.id);
                         }}
                         className="text-white/50 hover:text-rose-300"
                       >
