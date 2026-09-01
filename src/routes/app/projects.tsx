@@ -237,7 +237,7 @@ function Projects() {
   );
 }
 
-function ProjectCard({ p }: { p: typeof projects[0] }) {
+function ProjectCard({ p }: { p: ViewRow }) {
   const barColor = p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest";
   return (
     <div className="py-3 px-2.5">
@@ -245,10 +245,10 @@ function ProjectCard({ p }: { p: typeof projects[0] }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0 flex items-baseline gap-1">
           <p className="text-sm font-medium leading-tight truncate min-w-0">{p.name}</p>
-          <span className="text-[11px] font-normal text-white/45 shrink-0">· {p.code}</span>
+          {p.code && <span className="text-[11px] font-normal text-white/45 shrink-0">· {p.code}</span>}
         </div>
         <div className="flex items-center gap-1 shrink-0">
-          <span className={`text-[8px] uppercase tracking-wider px-1 py-0.5 rounded-full ${statusTone[p.status]}`}>
+          <span className={`text-[8px] uppercase tracking-wider px-1 py-0.5 rounded-full ${toneFor(p.status)}`}>
             {p.status}
           </span>
           <button className="text-white/45 hover:text-white -mr-1">
@@ -258,21 +258,26 @@ function ProjectCard({ p }: { p: typeof projects[0] }) {
       </div>
 
       {/* Line 2: progress bar + % */}
-      <div className="mt-2 flex items-center gap-2">
-        <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden min-w-0">
-          <div className={`h-full rounded-full ${barColor}`} style={{ width: `${p.pct}%` }} />
+      {p.pct == null ? (
+        <p className="mt-2 text-[11px] text-white/40">{p.pctNote}</p>
+      ) : (
+        <div className="mt-2 flex items-center gap-2">
+          <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden min-w-0">
+            <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.min(p.pct, 100)}%` }} />
+          </div>
+          <span className="text-[11px] text-white/60 w-10 text-right shrink-0">{p.pct}%</span>
         </div>
-        <span className="text-[11px] text-white/60 w-8 text-right shrink-0">{p.pct}%</span>
-      </div>
+      )}
 
       {/* Line 3: Budget · Spent · Remaining */}
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px]">
         <span className="text-white/80"><span className="text-white/45 text-[11px]">Budget</span> {p.budget}</span>
         <span className="text-white/45 text-[10px]">·</span>
-        <span className="text-white/80"><span className="text-white/45 text-[11px]">Spent</span> {p.spent}</span>
+        <span className="text-white/80"><span className="text-white/45 text-[11px]">Spent</span> {p.spendLines.join(" / ")}</span>
         <span className="text-white/45 text-[10px]">·</span>
         <span className="text-white/80"><span className="text-white/45 text-[11px]">Remaining</span> {p.remaining}</span>
       </div>
+
 
       {/* Line 4: Manager · Location */}
       <p className="mt-1.5 text-[11px] text-white/40 truncate">{p.manager} · {p.location}</p>
