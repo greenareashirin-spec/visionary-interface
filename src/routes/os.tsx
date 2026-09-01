@@ -55,10 +55,28 @@ function CommandCenter() {
   const weather: Weather = live.weather;
   const overlay = useMemo(() => periodOverlay(period), [period]);
 
+  const { data: erp } = useErpData();
+  const hotspots = useMemo<Hotspot[]>(() => {
+    if (!erp) return HOTSPOTS;
+    const headline =
+      erp.balances.find((b) => b.currency.toUpperCase() === "USD") ??
+      [...erp.balances].sort((a, b) => Math.abs(b.net) - Math.abs(a.net))[0];
+    const overrides: Record<string, string> = {
+      projects: `${erp.projects.length} Projects`,
+      employees: `${erp.employees.length} Team`,
+      documents: `${erp.totalEntries} Logged`,
+    };
+    if (headline) {
+      overrides.finance = `${headline.net < 0 ? "-" : "+"}$${(Math.abs(headline.net) / 1000).toFixed(1)}K ${headline.currency}`;
+    }
+    return HOTSPOTS.map((s) => (overrides[s.id] ? { ...s, kpi: overrides[s.id] } : s));
+  }, [erp]);
+
   function flyTo(spot: Hotspot) {
     setZooming(spot);
     setTimeout(() => navigate({ to: spot.to }), 700);
   }
+
 
   return (
     <div className="app-dark relative min-h-screen md:h-screen w-screen md:overflow-hidden text-foreground">
