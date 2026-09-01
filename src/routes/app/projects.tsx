@@ -168,11 +168,11 @@ function Projects() {
               </tr>
             </thead>
             <tbody>
-              {projects.map((p) => (
-                <tr key={p.code} className="border-t border-white/5 hover:bg-black/30 transition">
+              {rowList.map((p) => (
+                <tr key={p.code || p.name} className="border-t border-white/5 hover:bg-black/30 transition">
                   <td className="py-2.5 px-4">
                     <div className="flex items-center gap-2.5">
-                      <img src={p.img} alt="" width={48} height={32} loading="lazy" className="h-8 w-12 rounded-md object-cover" />
+                      {p.img && <img src={p.img} alt="" width={48} height={32} loading="lazy" className="h-8 w-12 rounded-md object-cover" />}
                       <div className="leading-tight">
                         <p className="font-medium">{p.name}</p>
                         <p className="text-[10.5px] text-white/50">{p.code}</p>
@@ -182,18 +182,26 @@ function Projects() {
                   <td className="py-2.5 px-3 text-white/60">{p.location}</td>
                   <td className="py-2.5 px-3">{p.manager}</td>
                   <td className="py-2.5 px-3">
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden min-w-[80px]">
-                        <div className={`h-full rounded-full ${p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest"}`} style={{ width: `${p.pct}%` }} />
+                    {p.pct == null ? (
+                      <span className="text-[11px] text-white/45">{p.pctNote}</span>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-1.5 rounded-full bg-white/10 overflow-hidden min-w-[80px]">
+                          <div className={`h-full rounded-full ${p.status === "Delayed" ? "bg-rose-400" : p.status === "At Risk" ? "bg-amber-400" : "bg-forest"}`} style={{ width: `${Math.min(p.pct, 100)}%` }} />
+                        </div>
+                        <span className="text-[11px] text-white/55 w-10 text-right">{p.pct}%</span>
                       </div>
-                      <span className="text-[11px] text-white/55 w-8 text-right">{p.pct}%</span>
-                    </div>
+                    )}
                   </td>
                   <td className="py-2.5 px-3 text-right font-medium">{p.budget}</td>
-                  <td className="py-2.5 px-3 text-right text-white/60">{p.spent}</td>
+                  <td className="py-2.5 px-3 text-right text-white/60">
+                    {p.spendLines.map((l) => (
+                      <p key={l}>{l}</p>
+                    ))}
+                  </td>
                   <td className="py-2.5 px-3 text-right text-white/60">{p.remaining}</td>
                   <td className="py-2.5 px-3">
-                    <span className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${statusTone[p.status]}`}>{p.status}</span>
+                    <span className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${toneFor(p.status)}`}>{p.status}</span>
                   </td>
                   <td className="py-2.5 px-4 text-right">
                     <button className="text-white/50 hover:text-white"><MoreHorizontal className="h-3.5 w-3.5 inline" /></button>
@@ -204,14 +212,26 @@ function Projects() {
           </table>
         </div>
         <div className="md:hidden flex-1 min-h-0 overflow-y-auto overflow-x-hidden divide-y divide-white/10">
-          {projects.map((p) => (
-            <ProjectCard key={p.code} p={p} />
+          {rowList.map((p) => (
+            <ProjectCard key={p.code || p.name} p={p} />
           ))}
         </div>
+        {unassigned.length > 0 && (
+          <div className="px-4 py-2 border-t border-white/10 text-[11px] text-white/55">
+            Unassigned spend (not linked to a project):{" "}
+            {unassigned.map(([cur, amt], i) => (
+              <span key={cur} className="text-white/80">
+                {i > 0 && " · "}
+                {fmtMoney(amt, cur)}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="px-4 py-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/55">
-          <span>Showing 1 to 4 of 12 projects</span>
+          <span>{data ? `Showing ${rowList.length} of ${rowList.length} projects` : "Showing 1 to 4 of 12 projects"}</span>
           <span>Rows per page: 10</span>
         </div>
+
       </section>
     </div>
   );
