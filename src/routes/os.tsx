@@ -3,12 +3,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   HardHat, UsersRound, Truck, Coins, FileText, Package, ArrowRight, ArrowUp,
   CloudRain, Cloud, Sun, Moon, CloudSnow, CloudLightning, Wind, CloudFog,
-  Search, Bell, ChevronDown, Plus, Sparkles, CheckCircle2,
+  Search, Bell, ChevronDown, Plus, Sparkles, CheckCircle2, Loader2,
 } from "lucide-react";
 import landscape from "@/assets/command-landscape.jpg";
 import moonPhoto from "@/assets/moon-full.png";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import { askOS } from "@/lib/ask-os-store";
+import { useErpData, uploadErpFile } from "@/lib/erp-store";
 import {
   currentPeriod, greeting, periodOverlay, useLiveWeather,
   type Period, type Weather,
