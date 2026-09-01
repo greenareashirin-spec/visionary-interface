@@ -28,8 +28,38 @@ const team = [
 ];
 
 function Employees() {
+  const { data } = useErpData();
+  const live = !!data;
+
+  const statList = useMemo(() => {
+    if (!data) return stats;
+    const active = data.employees.filter((e) => e.status.toLowerCase() === "active").length;
+    const positions = new Set(data.employees.map((e) => e.position).filter(Boolean)).size;
+    return [
+      { label: "Total Employees", value: String(data.employees.length), sub: "On file", Icon: Users },
+      { label: "Active", value: String(active), sub: "Status active", Icon: Calendar },
+      { label: "Positions", value: String(positions), sub: "Distinct roles", Icon: Building2 },
+    ] as typeof stats;
+  }, [data]);
+
+  const teamList = useMemo(() => {
+    if (!data) return team;
+    return data.employees.map((e) => ({
+      id: e.id,
+      name: e.name,
+      role: e.position || "—",
+      dept: "",
+      phone: e.phone || "—",
+      salary: "",
+      hire: "",
+      status: e.status || "Unspecified",
+    }));
+  }, [data]);
+
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
+      <ErpEmptyBanner />
+
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Team</p>
