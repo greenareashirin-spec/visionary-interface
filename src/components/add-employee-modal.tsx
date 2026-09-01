@@ -34,12 +34,15 @@ export function AddEmployeeModal({
     setErrors(next);
     if (Object.keys(next).length) return;
 
+    setSaving(true);
     try {
-      const rec = addLocalEmployee({ name, position, phone, email, status });
+      const rec = await addEmployee({ name, position, phone, email, status });
       onAdded(rec.name);
       onClose();
     } catch (err) {
       setErrors({ form: err instanceof Error ? err.message : "Could not save this employee." });
+    } finally {
+      setSaving(false);
     }
   }
 
