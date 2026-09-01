@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Paperclip } from "lucide-react";
-import { addLocalEmployee } from "@/lib/local-employees-store";
+import { addEmployee } from "@/lib/employees-store";
 
 const STATUSES = ["Active", "On Leave", "Inactive"];
 
@@ -17,8 +17,9 @@ export function AddEmployeeModal({
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("Active");
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
 
-  function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     const next: Record<string, string> = {};
     if (!name.trim()) next.name = "Name is required.";
