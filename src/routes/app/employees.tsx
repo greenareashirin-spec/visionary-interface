@@ -145,7 +145,7 @@ function Employees() {
                     </div>
                   </td>
                   <td className="py-2.5 px-3 text-white/55 text-[11px]">{m.id}</td>
-                  <td className="py-2.5 px-3">{m.dept}</td>
+                  {!live && <td className="py-2.5 px-3">{m.dept}</td>}
                   <td className="py-2.5 px-3">{m.role}</td>
                   <td className="py-2.5 px-3">
                     <span className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${m.status === "Active" ? "bg-forest/15 text-forest" : "bg-amber-500/15 text-amber-300"}`}>
@@ -153,8 +153,9 @@ function Employees() {
                     </span>
                   </td>
                   <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.phone}</td>
-                  <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.hire}</td>
-                  <td className="py-2.5 px-3 text-right font-medium">{m.salary}</td>
+                  {!live && <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.hire}</td>}
+                  {!live && <td className="py-2.5 px-3 text-right font-medium">{m.salary}</td>}
+
                   <td className="py-2.5 px-4 text-right">
                     <button className="text-white/50 hover:text-white"><MoreHorizontal className="h-3.5 w-3.5 inline" /></button>
                   </td>
