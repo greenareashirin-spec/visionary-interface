@@ -131,7 +131,7 @@ function Projects() {
           </button>
         </div>
       </header>
-      {chartOpen && <SpendChartModal onClose={() => setChartOpen(false)} />}
+      {chartOpen && <SpendChartModal onClose={() => setChartOpen(false)} rows={chartRows} />}
 
       <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
         {statList.map((s) => (
