@@ -1,11 +1,18 @@
-import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Search, Bell, ChevronDown, X, Sparkles } from "lucide-react";
+import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Search, Bell, X, Sparkles } from "lucide-react";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import landscape from "@/assets/command-landscape.jpg";
 import { AskOSInput, AskOSHistory } from "@/components/ask-os";
+import { UserMenu } from "@/components/user-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) throw redirect({ to: "/" });
+  },
   component: AppShell,
 });
 
@@ -142,10 +149,7 @@ function AppShell() {
                 <Bell className="h-3.5 w-3.5 text-white/70" />
                 <span className="absolute top-0.5 right-0.5 h-3.5 w-3.5 rounded-full bg-forest text-forest-deep text-[9px] grid place-items-center font-medium">3</span>
               </button>
-              <button className="flex items-center gap-1.5 rounded-full pl-1 pr-2 py-1 hover:bg-white/5 transition">
-                <span className="h-7 w-7 rounded-full bg-forest/20 border border-forest/30 grid place-items-center text-forest font-medium text-[11px]">GA</span>
-                <ChevronDown className="h-3 w-3 text-white/60" />
-              </button>
+              <UserMenu />
             </div>
           </header>
           <main className="flex-1 min-h-0 overflow-hidden">
