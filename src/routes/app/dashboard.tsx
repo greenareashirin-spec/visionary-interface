@@ -143,7 +143,7 @@ function Dashboard() {
                   <p className="text-[11px] text-white/60">{b.code}</p>
                   <p className="text-[13px] font-medium"><span className="text-white/50 mr-0.5">{b.symbol}</span>{b.value}</p>
                 </div>
-                <span className={`text-[10.5px] ${b.pct.startsWith("+") ? "text-forest" : "text-rose-300"}`}>{b.pct}</span>
+                {b.pct && <span className={`text-[10.5px] ${b.pct.startsWith("+") ? "text-forest" : "text-rose-300"}`}>{b.pct}</span>}
               </li>
             ))}
           </ul>
