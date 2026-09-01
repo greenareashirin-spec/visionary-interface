@@ -3,12 +3,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   HardHat, UsersRound, Truck, Coins, FileText, Package, ArrowRight, ArrowUp,
   CloudRain, Cloud, Sun, Moon, CloudSnow, CloudLightning, Wind, CloudFog,
-  Search, Bell, ChevronDown, Plus, Sparkles, CheckCircle2,
+  Search, Bell, ChevronDown, Plus, Sparkles, CheckCircle2, Loader2,
 } from "lucide-react";
 import landscape from "@/assets/command-landscape.jpg";
 import moonPhoto from "@/assets/moon-full.png";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import { askOS } from "@/lib/ask-os-store";
+import { useErpData, uploadErpFile } from "@/lib/erp-store";
 import {
   currentPeriod, greeting, periodOverlay, useLiveWeather,
   type Period, type Weather,
@@ -215,7 +216,7 @@ function TopBar({ now, weather, period, place, tempC }: { now: Date; weather: We
 
 function WorkspacePill() {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
+  const { data, status, error } = useErpData();
   return (
     <>
       <button
@@ -224,10 +225,17 @@ function WorkspacePill() {
       >
         <span className="h-1.5 w-1.5 rounded-full bg-forest shadow-[0_0_6px_rgba(120,220,150,0.7)]" />
         <span className="font-medium shrink-0">GreenArea ERP</span>
-        {file ? (
+        {status === "loading" ? (
+          <span className="flex items-center gap-1 text-white/70 min-w-0">
+            <Loader2 className="h-3 w-3 shrink-0 animate-spin" />
+            <span className="truncate">Parsing…</span>
+          </span>
+        ) : status === "error" ? (
+          <span className="truncate text-amber-300 min-w-0">{error ?? "Upload failed"}</span>
+        ) : data ? (
           <span className="flex items-center gap-1 text-forest min-w-0">
             <CheckCircle2 className="h-3 w-3 shrink-0" />
-            <span className="truncate">{file.name}</span>
+            <span className="truncate">{data.totalEntries} entries · {data.projects.length} projects</span>
           </span>
         ) : (
           <span className="text-white/45">· Latest</span>
@@ -239,7 +247,11 @@ function WorkspacePill() {
         type="file"
         accept=".xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         className="hidden"
-        onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) void uploadErpFile(f);
+          e.target.value = "";
+        }}
       />
     </>
   );
