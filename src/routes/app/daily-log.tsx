@@ -90,7 +90,7 @@ function DailyLog() {
       </header>
 
       <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
-        {stats.map((s) => (
+        {statList.map((s) => (
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3 min-w-0">
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] uppercase tracking-[0.2em] text-white/55 min-w-0 leading-tight break-words">{s.label}</p>
@@ -139,7 +139,7 @@ function DailyLog() {
               </tr>
             </thead>
             <tbody>
-              {rows.map((r, i) => (
+              {rowList.map((r, i) => (
                 <tr key={i} className="border-t border-white/5 hover:bg-black/30 transition">
                   <td className="py-2.5 px-4 text-white/60 whitespace-nowrap">{r.d}</td>
                   <td className="py-2.5 px-3 whitespace-nowrap">
