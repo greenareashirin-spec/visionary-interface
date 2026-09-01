@@ -108,6 +108,13 @@ function Projects() {
 
   const unassigned = data ? Object.entries(data.unassignedByCurrency) : [];
 
+  const chartRows = data
+    ? data.projects
+        .map((p) => ({ name: p.name, code: p.code, value: p.spentByCurrency["USD"] ?? 0 }))
+        .filter((r) => r.value > 0)
+    : undefined;
+
+
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5 overflow-x-hidden">
       <ErpEmptyBanner />
