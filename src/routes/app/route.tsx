@@ -1,11 +1,18 @@
-import { createFileRoute, Link, Outlet, useRouterState } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { useState } from "react";
-import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Search, Bell, ChevronDown, X, Sparkles } from "lucide-react";
+import { Home, LayoutDashboard, BookOpen, Building2, Users, Package, Truck, Search, Bell, X, Sparkles } from "lucide-react";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import landscape from "@/assets/command-landscape.jpg";
 import { AskOSInput, AskOSHistory } from "@/components/ask-os";
+import { UserMenu } from "@/components/user-menu";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/app")({
+  ssr: false,
+  beforeLoad: async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) throw redirect({ to: "/" });
+  },
   component: AppShell,
 });
 
