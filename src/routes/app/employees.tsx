@@ -191,17 +191,37 @@ function Employees() {
                   {!live && <td className="py-2.5 px-3">{m.dept}</td>}
                   <td className="py-2.5 px-3">{m.role}</td>
                   <td className="py-2.5 px-3">
-                    <span className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${m.status === "Active" ? "bg-forest/15 text-forest" : "bg-amber-500/15 text-amber-300"}`}>
-                      {m.status}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className={`text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full ${m.status === "Active" ? "bg-forest/15 text-forest" : "bg-amber-500/15 text-amber-300"}`}>
+                        {m.status}
+                      </span>
+                      {m.source === "local" && (
+                        <span className="text-[9px] uppercase tracking-[0.18em] px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-400/20 text-amber-200/90">
+                          Added in app
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.phone}</td>
                   {!live && <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.hire}</td>}
                   {!live && <td className="py-2.5 px-3 text-right font-medium">{m.salary}</td>}
 
                   <td className="py-2.5 px-4 text-right">
-                    <button className="text-white/50 hover:text-white"><MoreHorizontal className="h-3.5 w-3.5 inline" /></button>
+                    {m.source === "local" ? (
+                      <button
+                        aria-label={`Remove ${m.name}`}
+                        onClick={() => {
+                          if (window.confirm(`Remove ${m.name}?`)) removeLocalEmployee(m.id);
+                        }}
+                        className="text-white/50 hover:text-rose-300"
+                      >
+                        <Trash2 className="h-3.5 w-3.5 inline" />
+                      </button>
+                    ) : (
+                      <button className="text-white/50 hover:text-white"><MoreHorizontal className="h-3.5 w-3.5 inline" /></button>
+                    )}
                   </td>
+
                 </tr>
               ))}
             </tbody>
