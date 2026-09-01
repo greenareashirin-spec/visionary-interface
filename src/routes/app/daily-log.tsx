@@ -31,8 +31,50 @@ const rows = [
 ];
 
 function DailyLog() {
+  const { data } = useErpData();
+
+  const statList = useMemo(() => {
+    if (!data) return stats;
+    const base = [
+      {
+        label: "Total Entries",
+        value: fmtNumber(data.totalEntries),
+        sub: dateRange(data.log.map((r) => r.rawDate)),
+        Icon: BookOpen,
+      },
+    ];
+    const extra = statusCards(data.statusCounts, data.totalEntries).map((s, i) => ({
+      label: s.label,
+      value: s.value,
+      sub: s.sub,
+      Icon: i === 0 ? CheckCircle2 : Clock,
+      tone: (i === 0 ? "forest" : "amber") as "forest" | "amber",
+    }));
+    return [...base, ...extra] as typeof stats;
+  }, [data]);
+
+  const rowList = useMemo(() => {
+    if (!data) return rows;
+    return data.log.slice(0, 30).map((r) => ({
+      d: dayMon(r.rawDate),
+      p: r.projectCode,
+      proj: r.project || "Unassigned",
+      t: r.type,
+      c: r.category,
+      desc: r.description,
+      who: r.who || "—",
+      doc: r.doc,
+      pm: r.payMethod,
+      cur: r.currency,
+      a: `${r.type.toLowerCase() === "expense" ? "-" : "+"}${fmtNumber(r.amount)}`,
+      s: r.status,
+    }));
+  }, [data]);
+
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
+      <ErpEmptyBanner />
+
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Ledger</p>
