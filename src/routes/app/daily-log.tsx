@@ -165,7 +165,12 @@ function DailyLog() {
           </table>
         </div>
         <div className="px-4 py-2 border-t border-white/10 flex items-center justify-between text-[11px] text-white/55">
-          <span>Showing {rows.length} of {rows.length} entries</span>
+          <span>
+            {data
+              ? `Showing 30 most recent of ${fmtNumber(data.totalEntries)}`
+              : `Showing ${rowList.length} of ${rowList.length} entries`}
+          </span>
+
           <span>Data Engine v9.2</span>
         </div>
       </section>
