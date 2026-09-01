@@ -38,10 +38,80 @@ const statusTone: Record<string, string> = {
   "Completed": "bg-water/20 text-water",
 };
 
+const toneFor = (s: string) => statusTone[s] ?? "bg-white/10 text-white/70";
+
+type ViewRow = {
+  code: string;
+  name: string;
+  img?: string;
+  location: string;
+  manager: string;
+  pct: number | null;
+  pctNote?: string;
+  budget: string;
+  spendLines: string[];
+  remaining: string;
+  status: string;
+};
+
+const demoRows: ViewRow[] = projects.map((p) => ({
+  ...p,
+  spendLines: [p.spent],
+}));
+
 function Projects() {
   const [chartOpen, setChartOpen] = useState(false);
+  const { data } = useErpData();
+
+  const statList = useMemo(() => {
+    if (!data) return stats;
+    const ps = data.projects;
+    const active = ps.filter((p) => p.status.toLowerCase() === "active").length;
+    const unspecified = ps.filter((p) => !p.status).length;
+    const budgeted = ps.filter((p) => p.budgetAmount != null).length;
+    const totalBudget = ps
+      .filter((p) => p.budgetCurrency === "USD" && p.budgetAmount != null)
+      .reduce((s, p) => s + (p.budgetAmount ?? 0), 0);
+    return [
+      { label: "Total Projects", value: String(ps.length), sub: "On file", Icon: Building2 },
+      { label: "Active", value: String(active), sub: "Status active", Icon: CheckCircle2, tone: "forest" as const },
+      { label: "Unspecified", value: String(unspecified), sub: "No status", Icon: AlertTriangle, tone: "amber" as const },
+      { label: "Budget Set", value: `${budgeted} of ${ps.length}`, sub: "Have a budget", Icon: Wallet },
+      { label: "Total Budget", value: `$${fmtNumber(totalBudget)}`, sub: "USD-budgeted projects only", Icon: Wallet },
+    ] as typeof stats;
+  }, [data]);
+
+  const rowList: ViewRow[] = useMemo(() => {
+    if (!data) return demoRows;
+    return data.projects.map((p) => {
+      const spendEntries = Object.entries(p.spentByCurrency);
+      const matched = p.budgetCurrency ? p.spentByCurrency[p.budgetCurrency] : undefined;
+      return {
+        code: p.code,
+        name: p.name,
+        location: p.location || "—",
+        manager: p.manager || "—",
+        pct: p.pct,
+        pctNote: p.pct == null ? (p.budgetAmount == null ? "No budget" : "Currency mismatch") : undefined,
+        budget: p.budgetAmount != null ? fmtMoney(p.budgetAmount, p.budgetCurrency ?? "") : "Not set",
+        spendLines: spendEntries.length
+          ? spendEntries.map(([cur, amt]) => fmtMoney(amt, cur))
+          : ["—"],
+        remaining:
+          p.budgetCurrency && p.budgetAmount != null && matched !== undefined
+            ? fmtMoney(p.budgetAmount - matched, p.budgetCurrency)
+            : "—",
+        status: p.status || "Unspecified",
+      };
+    });
+  }, [data]);
+
+  const unassigned = data ? Object.entries(data.unassignedByCurrency) : [];
+
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5 overflow-x-hidden">
+      <ErpEmptyBanner />
+
       <header className="flex items-end justify-between gap-4 flex-wrap">
         <div>
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Portfolio</p>
