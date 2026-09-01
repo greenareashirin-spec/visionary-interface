@@ -121,6 +121,33 @@ function Login() {
             {pending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
             {pending ? "Signing in…" : "Sign In"}
           </button>
+
+          <div className="relative flex items-center justify-center gap-3 py-1">
+            <div className="h-px flex-1 bg-white/15" />
+            <span className="text-[10px] uppercase tracking-[0.2em] text-white/40">Or</span>
+            <div className="h-px flex-1 bg-white/15" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => signInWithSocial("google")}
+              disabled={socialPending === "google"}
+              className="flex items-center justify-center gap-2 rounded-full bg-white/8 hover:bg-white/12 border border-white/15 px-4 py-3 text-[13px] text-white/90 transition disabled:opacity-50"
+            >
+              <GoogleIcon className="h-4 w-4" />
+              {socialPending === "google" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Google"}
+            </button>
+            <button
+              type="button"
+              onClick={() => signInWithSocial("apple")}
+              disabled={socialPending === "apple"}
+              className="flex items-center justify-center gap-2 rounded-full bg-white/8 hover:bg-white/12 border border-white/15 px-4 py-3 text-[13px] text-white/90 transition disabled:opacity-50"
+            >
+              <AppleIcon className="h-4 w-4" />
+              {socialPending === "apple" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Apple"}
+            </button>
+          </div>
         </form>
       </div>
 
