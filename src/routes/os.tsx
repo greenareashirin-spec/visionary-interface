@@ -1,4 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
+import { UserMenu } from "@/components/user-menu";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   HardHat, UsersRound, Truck, Coins, FileText, Package, ArrowRight, ArrowUp,
