@@ -74,8 +74,9 @@ function Employees() {
         </div>
       </header>
 
-      <section className="grid grid-cols-2 md:grid-cols-5 gap-2.5">
-        {stats.map((s) => (
+      <section className={`grid grid-cols-2 gap-2.5 ${live ? "md:grid-cols-3" : "md:grid-cols-5"}`}>
+        {statList.map((s) => (
+
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3.5">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
