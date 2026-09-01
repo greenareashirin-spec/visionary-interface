@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react";
 import loginBg from "@/assets/login-bg.jpg";
 import logoAsset from "@/assets/greenarea-logo.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/")({
   ssr: false,
