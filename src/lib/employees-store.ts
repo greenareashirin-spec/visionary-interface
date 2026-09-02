@@ -100,3 +100,49 @@ export async function updateEmployee(
   const { error } = await supabase.from("employees").update(patch).eq("id", id);
   if (error) throw new Error(error.message);
 }
+
+export const CONTRACT_MAX_BYTES = 10 * 1024 * 1024;
+export const CONTRACT_ACCEPT = ".pdf,.doc,.docx,.jpg,.jpeg,.png";
+const CONTRACT_TYPES = [
+  "application/pdf",
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  "image/jpeg",
+  "image/jpg",
+  "image/png",
+];
+
+export function validateContractFile(file: File): string | null {
+  if (file.size > CONTRACT_MAX_BYTES) return "File is larger than 10MB.";
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  const okExt = ["pdf", "doc", "docx", "jpg", "jpeg", "png"].includes(ext);
+  if (!CONTRACT_TYPES.includes(file.type) && !okExt) return "Unsupported file type.";
+  return null;
+}
+
+export async function uploadContract(employeeId: string, file: File): Promise<void> {
+  const invalid = validateContractFile(file);
+  if (invalid) throw new Error(invalid);
+
+  const { error } = await supabase.storage
+    .from("contracts")
+    .upload(`${employeeId}/${file.name}`, file, { upsert: true, contentType: file.type || undefined });
+
+  if (error) throw new Error(error.message || "Could not upload this contract.");
+  await updateEmployee(employeeId, { has_contract: true });
+}
+
+export async function getContractUrl(employeeId: string): Promise<string | null> {
+  const { data, error } = await supabase.storage
+    .from("contracts")
+    .list(employeeId, { limit: 100, sortBy: { column: "created_at", order: "desc" } });
+  if (error) throw new Error(error.message);
+  const latest = data?.[0];
+  if (!latest) return null;
+
+  const signed = await supabase.storage
+    .from("contracts")
+    .createSignedUrl(`${employeeId}/${latest.name}`, 60);
+  if (signed.error) throw new Error(signed.error.message);
+  return signed.data?.signedUrl ?? null;
+}
