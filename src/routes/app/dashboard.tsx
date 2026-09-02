@@ -681,7 +681,21 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
         <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
           <X className="h-4 w-4" />
         </button>
+        <div className="mb-4 inline-flex rounded-full bg-white/5 border border-white/10 p-0.5 text-[11px] print:hidden">
+          {([["overview", "Overview"], ["project", "By Project"], ["category", "By Category"]] as const).map(([m, lbl]) => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className={`rounded-full px-3.5 py-1 transition ${mode === m ? "bg-white/15 text-white" : "text-white/60 hover:text-white"}`}
+            >
+              {lbl}
+            </button>
+          ))}
+        </div>
+
+        {mode === "overview" && (<>
         <div className="mb-4">
+
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Finance</p>
           <h2 className="mt-1 font-display text-[22px] leading-none">Costs by Category</h2>
           <p className="mt-1 text-[12px] text-white/60">
