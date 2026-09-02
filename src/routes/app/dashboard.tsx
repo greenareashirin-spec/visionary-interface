@@ -181,7 +181,7 @@ function Dashboard() {
             </div>
             <div className="flex gap-3 text-[10px] text-white/60">
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-forest" /> Income</span>
-              <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-sand" /> Expense</span>
+              <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-rose-400" /> Expense</span>
             </div>
           </div>
           {monthly ? (
@@ -190,6 +190,17 @@ function Dashboard() {
             <Chart />
           )}
         </div>
+        {drilldown && monthly && data && (
+          <div className="lg:col-span-3">
+            <MonthDrilldownModal
+              monthKey={drilldown.key}
+              monthLabel={drilldown.label}
+              currency={monthly.currency}
+              log={data.log}
+              onClose={() => setDrilldown(null)}
+            />
+          </div>
+        )}
         <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
           <ul className="divide-y divide-white/5">
