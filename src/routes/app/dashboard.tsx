@@ -775,6 +775,17 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
             </ul>
           </div>
         </div>
+        </>
+        )}
+
+        {mode !== "overview" && (
+          <PivotBreakdown
+            mode={mode}
+            log={data?.log ?? []}
+            names={mode === "project" ? pivotProjects : pivotCategories}
+          />
+        )}
+
       </div>
     </div>
   );
