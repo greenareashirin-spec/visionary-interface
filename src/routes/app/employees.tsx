@@ -257,6 +257,80 @@ function Employees() {
   );
 }
 
+function ContractCell({
+  employeeId,
+  name,
+  hasContract,
+  enabled,
+}: {
+  employeeId: string;
+  name: string;
+  hasContract: boolean;
+  enabled: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  if (!enabled) return <span className="text-white/30 text-[11px]">—</span>;
+
+  async function onPick(file: File | null) {
+    if (!file) return;
+    const invalid = validateContractFile(file);
+    if (invalid) {
+      setMsg(invalid);
+      return;
+    }
+    setMsg(null);
+    setBusy(true);
+    try {
+      await uploadContract(employeeId, file);
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  async function onView() {
+    setMsg(null);
+    setBusy(true);
+    try {
+      const url = await getContractUrl(employeeId);
+      if (!url) setMsg("No contract file found.");
+      else window.open(url, "_blank", "noopener");
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "Could not open contract.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <input
+        ref={inputRef}
+        type="file"
+        accept={CONTRACT_ACCEPT}
+        className="hidden"
+        onChange={(e) => void onPick(e.target.files?.[0] ?? null)}
+      />
+      <button
+        disabled={busy}
+        aria-label={hasContract ? `View contract for ${name}` : `Attach contract for ${name}`}
+        onClick={() => (hasContract ? void onView() : inputRef.current?.click())}
+        className={`rounded-full p-1.5 transition disabled:opacity-50 ${
+          hasContract ? "bg-forest/15 text-forest hover:bg-forest/25" : "text-white/45 hover:text-white hover:bg-white/10"
+        }`}
+      >
+        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Paperclip className="h-3.5 w-3.5" />}
+      </button>
+      {msg && <span className="text-[10px] text-amber-300/90">{msg}</span>}
+    </div>
+  );
+}
+
 function Select({ label }: { label: string }) {
   return (
     <button className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 transition flex items-center gap-1.5">
