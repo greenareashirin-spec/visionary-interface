@@ -37,12 +37,18 @@ const tx = [
   { d: "22 Jul", p: "GA-009 · Erbil Courtyard", t: "Income",  c: "Deposit",        a: "+6,500",  cur: "EUR", s: "Verified" },
 ];
 
+type TxRow = { d: string; p: string; t: string; c: string; a: string; cur: string; s: string; desc?: string; amount?: number };
+
 function Dashboard() {
   const [chartOpen, setChartOpen] = useState(false);
+  const [tab, setTab] = useState("Recent");
+  const [query, setQuery] = useState("");
+  const [curFilter, setCurFilter] = useState("All Currencies");
+  const [projFilter, setProjFilter] = useState("All Projects");
   const { data } = useErpData();
 
   const view = useMemo(() => {
-    if (!data) return { stats, balances, tx };
+    if (!data) return { stats, balances, tx: tx as TxRow[] };
     const counts: Record<string, number> = {};
     for (const r of data.log) counts[r.currency] = (counts[r.currency] ?? 0) + 1;
 
@@ -68,7 +74,7 @@ function Dashboard() {
         symbol: symbolFor(b.currency),
         pct: "",
       })),
-      tx: data.log.slice(0, 8).map((r) => ({
+      tx: data.log.map((r) => ({
         d: dayMon(r.rawDate),
         p: `${r.projectCode ? r.projectCode + " · " : ""}${r.project || "Unassigned"}`,
         t: r.type,
@@ -76,11 +82,45 @@ function Dashboard() {
         a: `${r.type.toLowerCase() === "expense" ? "-" : "+"}${fmtNumber(r.amount)}`,
         cur: r.currency,
         s: r.status,
-      })),
+        desc: r.description,
+        amount: r.amount,
+      })) as TxRow[],
     };
   }, [data]);
 
-  const { stats: statList, balances: balanceList, tx: txList } = view;
+  const { stats: statList, balances: balanceList, tx: allTx } = view;
+
+  const txList = useMemo(() => {
+    if (!data) return allTx.slice(0, 8);
+    const q = query.trim().toLowerCase();
+    return allTx.filter((r) => {
+      if (tab === "Income" && r.t !== "Income") return false;
+      if (tab === "Expense" && r.t !== "Expense") return false;
+      if (tab === "Pending" && !(r.s ?? "").toLowerCase().includes("pending")) return false;
+      if (curFilter !== "All Currencies" && r.cur !== curFilter) return false;
+      if (projFilter !== "All Projects" && !r.p.toLowerCase().includes(projFilter.toLowerCase())) return false;
+      if (q && !`${r.p} ${r.c} ${r.desc ?? ""}`.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [allTx, data, query, tab, curFilter, projFilter]);
+
+  const monthly = useMemo(() => monthlySeries(data), [data]);
+
+  const exportCsv = () => {
+    if (!data) return;
+    const head = ["Date", "Project", "Type", "Category", "Amount", "Currency", "Status"];
+    const esc = (v: string) => `"${String(v ?? "").replace(/"/g, '""')}"`;
+    const csv = [
+      head.join(","),
+      ...txList.map((r) => [r.d, r.p, r.t, r.c, String(r.amount ?? r.a), r.cur, r.s].map(esc).join(",")),
+    ].join("\n");
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "greenarea-finance-export.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
@@ -99,7 +139,14 @@ function Dashboard() {
           >
             <PieChart className="h-3.5 w-3.5" /> See Chart
           </button>
-          <button className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition">Export</button>
+          <button
+            onClick={exportCsv}
+            disabled={!data}
+            title={data ? "Export visible rows as CSV" : "No ERP data to export yet"}
+            className="rounded-full bg-white/5 border border-white/10 px-3.5 py-1.5 text-xs hover:bg-white/15 transition disabled:opacity-40 disabled:hover:bg-white/5"
+          >
+            Export
+          </button>
           <button className="rounded-full bg-forest text-forest-deep px-4 py-1.5 text-xs font-medium flex items-center gap-1.5 hover:brightness-110 transition">
             <Plus className="h-3.5 w-3.5" /> New Entry
           </button>
@@ -124,15 +171,19 @@ function Dashboard() {
         <div className="lg:col-span-2 rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">Cashflow · 30 days</p>
-              <p className="text-[11px] text-white/50">Native currencies · ask OS to convert to USD</p>
+              <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
+                {monthly ? "Cashflow · by month" : "Cashflow · 30 days"}
+              </p>
+              <p className="text-[11px] text-white/50">
+                {monthly ? `${monthly.currency} · by month` : "Native currencies · ask OS to convert to USD"}
+              </p>
             </div>
             <div className="flex gap-3 text-[10px] text-white/60">
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-forest" /> Income</span>
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-sand" /> Expense</span>
             </div>
           </div>
-          <Chart />
+          {monthly ? <MonthBars series={monthly.months} /> : <Chart />}
         </div>
         <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
@@ -154,17 +205,36 @@ function Dashboard() {
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
           <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
             <Search className="h-3.5 w-3.5 text-white/55" />
-            <input placeholder="Search entries…" className="bg-transparent text-xs outline-none flex-1 placeholder:text-white/45" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search entries…"
+              className="bg-transparent text-xs outline-none flex-1 placeholder:text-white/45"
+            />
           </div>
-          <Select label="All Currencies" />
-          <Select label="All Projects" />
+          <Select
+            label="All Currencies"
+            value={curFilter}
+            onChange={setCurFilter}
+            options={data ? data.balances.map((b) => b.currency) : []}
+          />
+          <Select
+            label="All Projects"
+            value={projFilter}
+            onChange={setProjFilter}
+            options={data ? data.projects.map((p) => p.name).filter(Boolean) : []}
+          />
           <button className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 transition">
             <Filter className="h-3 w-3" /> More Filters
           </button>
         </div>
         <div className="flex gap-5 px-4 pt-2.5 text-xs border-b border-white/10">
-          {["Recent", "Income", "Expense", "Pending"].map((t, i) => (
-            <button key={t} className={`pb-2 border-b-2 transition ${i === 0 ? "border-forest text-white" : "border-transparent text-white/55 hover:text-white"}`}>
+          {["Recent", "Income", "Expense", "Pending"].map((t) => (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`pb-2 border-b-2 transition ${tab === t ? "border-forest text-white" : "border-transparent text-white/55 hover:text-white"}`}
+            >
               {t}
             </button>
           ))}
@@ -198,6 +268,9 @@ function Dashboard() {
                   </td>
                 </tr>
               ))}
+              {txList.length === 0 && (
+                <tr><td colSpan={7} className="py-8 text-center text-[12px] text-white/45">No entries match these filters.</td></tr>
+              )}
             </tbody>
           </table>
         </div>
@@ -206,13 +279,82 @@ function Dashboard() {
   );
 }
 
-function Select({ label }: { label: string }) {
+function Select({ label, value, onChange, options }: { label: string; value?: string; onChange?: (v: string) => void; options?: string[] }) {
+  if (!options || options.length === 0) {
+    return (
+      <button className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 transition flex items-center gap-1.5">
+        {label} <span className="text-white/50 text-[10px]">▾</span>
+      </button>
+    );
+  }
   return (
-    <button className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 transition flex items-center gap-1.5">
-      {label} <span className="text-white/50 text-[10px]">▾</span>
-    </button>
+    <select
+      value={value}
+      onChange={(e) => onChange?.(e.target.value)}
+      className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 transition outline-none [&>option]:bg-[oklch(0.20_0.02_165)]"
+    >
+      <option value={label}>{label}</option>
+      {options.map((o) => (
+        <option key={o} value={o}>{o}</option>
+      ))}
+    </select>
   );
 }
+
+/* ─────────────── monthly cashflow ─────────────── */
+
+function monthlySeries(data: ReturnType<typeof useErpData>["data"]) {
+  if (!data || !data.log.length) return null;
+  const counts: Record<string, number> = {};
+  for (const r of data.log) if (r.currency) counts[r.currency] = (counts[r.currency] ?? 0) + 1;
+  const currency = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
+  if (!currency) return null;
+
+  const buckets = new Map<string, { label: string; income: number; expense: number }>();
+  for (const r of data.log) {
+    if (r.currency !== currency) continue;
+    const d = r.rawDate instanceof Date ? r.rawDate : new Date(r.rawDate);
+    if (isNaN(d.getTime())) continue;
+    const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const b = buckets.get(k) ?? {
+      label: d.toLocaleDateString("en-US", { month: "short" }),
+      income: 0,
+      expense: 0,
+    };
+    if (r.type.toLowerCase() === "income") b.income += r.amount;
+    else if (r.type.toLowerCase() === "expense") b.expense += r.amount;
+    buckets.set(k, b);
+  }
+  const months = [...buckets.entries()].sort((a, b) => a[0].localeCompare(b[0])).slice(-6).map(([, v]) => v);
+  if (!months.length) return null;
+  return { currency, months };
+}
+
+function MonthBars({ series }: { series: { label: string; income: number; expense: number }[] }) {
+  const max = Math.max(1, ...series.flatMap((m) => [m.income, m.expense]));
+  return (
+    <div className="h-36 flex items-end gap-3 px-1">
+      {series.map((m, i) => (
+        <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+          <div className="w-full flex items-end justify-center gap-1 h-full">
+            <div
+              className="w-1/3 max-w-[18px] rounded-t bg-forest/85"
+              style={{ height: `${Math.max(2, (m.income / max) * 100)}%` }}
+              title={`Income ${fmtNumber(m.income)}`}
+            />
+            <div
+              className="w-1/3 max-w-[18px] rounded-t bg-sand/80"
+              style={{ height: `${Math.max(2, (m.expense / max) * 100)}%` }}
+              title={`Expense ${fmtNumber(m.expense)}`}
+            />
+          </div>
+          <span className="text-[9px] uppercase tracking-[0.16em] text-white/50">{m.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 
 function Chart() {
   const income = [30, 42, 38, 55, 48, 62, 58, 70, 65, 78, 72, 88];
@@ -259,27 +401,56 @@ const categoryColors: Record<string, string> = {
   Other:     "#F97316",
 };
 
+const PALETTE = ["#7CB342", "#F59E0B", "#38BDF8", "#A78BFA", "#F97316", "#34D399", "#F472B6", "#FBBF24", "#60A5FA", "#FB7185"];
+const DEFAULT_RATES: Record<string, string> = { USD: "1", EUR: "1.08", GBP: "1.27", IQD: "0.00068" };
+
 function CostsChartModal({ onClose }: { onClose: () => void }) {
+  const { data } = useErpData();
   // rates expressed as "1 <cur> = X USD"
-  const [eurRate, setEurRate] = useState("1.08");
-  const [gbpRate, setGbpRate] = useState("1.27");
-  const [iqdRate, setIqdRate] = useState("0.00068"); // Ako's parallel market rate
+  const [rateMap, setRateMap] = useState<Record<string, string>>(DEFAULT_RATES);
   const [converted, setConverted] = useState(false);
 
-  const rates = {
-    eur: Number(eurRate) || 0,
-    gbp: Number(gbpRate) || 0,
-    iqd: Number(iqdRate) || 0,
-  };
+  // category → currency → total expense
+  const real = useMemo(() => {
+    if (!data) return null;
+    const byCat: Record<string, Record<string, number>> = {};
+    const byCur: Record<string, number> = {};
+    for (const r of data.log) {
+      if (r.type.toLowerCase() !== "expense" || !r.currency) continue;
+      const cat = r.category || "Other";
+      byCat[cat] = byCat[cat] ?? {};
+      byCat[cat][r.currency] = (byCat[cat][r.currency] ?? 0) + r.amount;
+      byCur[r.currency] = (byCur[r.currency] ?? 0) + r.amount;
+    }
+    const currencies = Object.entries(byCur).sort((a, b) => b[1] - a[1]).map(([c]) => c);
+    if (!currencies.length) return null;
+    return { byCat, currencies };
+  }, [data]);
+
+  const [cur, setCur] = useState<string>("");
+  const selCur = cur || real?.currencies[0] || "USD";
+
+  const rate = (c: string) => (c === "USD" ? 1 : Number(rateMap[c] ?? "0") || 0);
 
   const slices = useMemo(() => {
-    return costRows.map((r) => {
-      const usdEquiv = converted
-        ? r.usd + r.eur * rates.eur + r.gbp * rates.gbp + r.iqd * rates.iqd
-        : r.usd; // before conversion, show USD-native only
-      return { name: r.category, value: usdEquiv, color: categoryColors[r.category] };
-    });
-  }, [converted, eurRate, gbpRate, iqdRate]);
+    if (!real) {
+      return costRows.map((r) => ({
+        name: r.category,
+        value: converted ? r.usd + r.eur * rate("EUR") + r.gbp * rate("GBP") + r.iqd * rate("IQD") : r.usd,
+        color: categoryColors[r.category],
+      }));
+    }
+    return Object.entries(real.byCat)
+      .map(([name, perCur], i) => ({
+        name,
+        value: converted
+          ? Object.entries(perCur).reduce((s, [c, v]) => s + v * rate(c), 0)
+          : perCur[selCur] ?? 0,
+        color: categoryColors[name] ?? PALETTE[i % PALETTE.length],
+      }))
+      .filter((s) => s.value > 0)
+      .sort((a, b) => b.value - a.value);
+  }, [real, converted, rateMap, selCur]);
 
   const total = slices.reduce((s, x) => s + x.value, 0) || 1;
   const R = 120, cx = 160, cy = 160;
@@ -304,7 +475,9 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
     return { ...s, d, frac, lx, ly, anchor };
   });
 
-  const fmt = (n: number) => "$" + Math.round(n).toLocaleString();
+  const fmt = (n: number) =>
+    converted || !real ? "$" + Math.round(n).toLocaleString() : fmtMoney(n, selCur);
+
 
   return (
     <div
@@ -324,9 +497,27 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
           <p className="mt-1 text-[12px] text-white/60">
             {converted
               ? <>Converted to USD · Total <span className="text-white">{fmt(total)}</span></>
-              : <>USD-native only · Enter Ako's exchange rates below, then convert.</>}
+              : real
+                ? <>{selCur} · Total <span className="text-white">{fmt(total)}</span>{real.currencies.length > 1 ? " — switch currency below" : ""}</>
+                : <>USD-native only · Enter Ako's exchange rates below, then convert.</>}
           </p>
+          {real && real.currencies.length > 1 && !converted && (
+            <div className="mt-2 flex gap-1.5 flex-wrap">
+              {real.currencies.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCur(c)}
+                  className={`text-[11px] px-3 py-1 rounded-full border transition ${
+                    c === selCur ? "bg-forest text-forest-deep border-transparent" : "bg-white/5 border-white/10 hover:bg-white/15"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
 
         <div className="grid md:grid-cols-[320px_1fr] gap-6 items-start">
           <svg viewBox="0 0 320 320" className="w-full h-auto max-w-[320px] mx-auto">
@@ -353,10 +544,17 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
             <div className="rounded-2xl bg-black/30 border border-white/10 p-3">
               <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Ako's Exchange Rates (1 unit → USD)</p>
               <div className="grid grid-cols-3 gap-2">
-                <RateInput label="EUR" value={eurRate} onChange={setEurRate} placeholder="1.08" />
-                <RateInput label="GBP" value={gbpRate} onChange={setGbpRate} placeholder="1.27" />
-                <RateInput label="IQD" value={iqdRate} onChange={setIqdRate} placeholder="0.00068" />
+                {(real ? real.currencies.filter((c) => c !== "USD") : ["EUR", "GBP", "IQD"]).map((c) => (
+                  <RateInput
+                    key={c}
+                    label={c}
+                    value={rateMap[c] ?? ""}
+                    onChange={(v) => setRateMap((m) => ({ ...m, [c]: v }))}
+                    placeholder={DEFAULT_RATES[c] ?? "1"}
+                  />
+                ))}
               </div>
+
               <div className="flex gap-2 mt-3">
                 <button
                   onClick={() => setConverted(true)}
