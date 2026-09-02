@@ -401,27 +401,56 @@ const categoryColors: Record<string, string> = {
   Other:     "#F97316",
 };
 
+const PALETTE = ["#7CB342", "#F59E0B", "#38BDF8", "#A78BFA", "#F97316", "#34D399", "#F472B6", "#FBBF24", "#60A5FA", "#FB7185"];
+const DEFAULT_RATES: Record<string, string> = { USD: "1", EUR: "1.08", GBP: "1.27", IQD: "0.00068" };
+
 function CostsChartModal({ onClose }: { onClose: () => void }) {
+  const { data } = useErpData();
   // rates expressed as "1 <cur> = X USD"
-  const [eurRate, setEurRate] = useState("1.08");
-  const [gbpRate, setGbpRate] = useState("1.27");
-  const [iqdRate, setIqdRate] = useState("0.00068"); // Ako's parallel market rate
+  const [rateMap, setRateMap] = useState<Record<string, string>>(DEFAULT_RATES);
   const [converted, setConverted] = useState(false);
 
-  const rates = {
-    eur: Number(eurRate) || 0,
-    gbp: Number(gbpRate) || 0,
-    iqd: Number(iqdRate) || 0,
-  };
+  // category → currency → total expense
+  const real = useMemo(() => {
+    if (!data) return null;
+    const byCat: Record<string, Record<string, number>> = {};
+    const byCur: Record<string, number> = {};
+    for (const r of data.log) {
+      if (r.type.toLowerCase() !== "expense" || !r.currency) continue;
+      const cat = r.category || "Other";
+      byCat[cat] = byCat[cat] ?? {};
+      byCat[cat][r.currency] = (byCat[cat][r.currency] ?? 0) + r.amount;
+      byCur[r.currency] = (byCur[r.currency] ?? 0) + r.amount;
+    }
+    const currencies = Object.entries(byCur).sort((a, b) => b[1] - a[1]).map(([c]) => c);
+    if (!currencies.length) return null;
+    return { byCat, currencies };
+  }, [data]);
+
+  const [cur, setCur] = useState<string>("");
+  const selCur = cur || real?.currencies[0] || "USD";
+
+  const rate = (c: string) => (c === "USD" ? 1 : Number(rateMap[c] ?? "0") || 0);
 
   const slices = useMemo(() => {
-    return costRows.map((r) => {
-      const usdEquiv = converted
-        ? r.usd + r.eur * rates.eur + r.gbp * rates.gbp + r.iqd * rates.iqd
-        : r.usd; // before conversion, show USD-native only
-      return { name: r.category, value: usdEquiv, color: categoryColors[r.category] };
-    });
-  }, [converted, eurRate, gbpRate, iqdRate]);
+    if (!real) {
+      return costRows.map((r) => ({
+        name: r.category,
+        value: converted ? r.usd + r.eur * rate("EUR") + r.gbp * rate("GBP") + r.iqd * rate("IQD") : r.usd,
+        color: categoryColors[r.category],
+      }));
+    }
+    return Object.entries(real.byCat)
+      .map(([name, perCur], i) => ({
+        name,
+        value: converted
+          ? Object.entries(perCur).reduce((s, [c, v]) => s + v * rate(c), 0)
+          : perCur[selCur] ?? 0,
+        color: categoryColors[name] ?? PALETTE[i % PALETTE.length],
+      }))
+      .filter((s) => s.value > 0)
+      .sort((a, b) => b.value - a.value);
+  }, [real, converted, rateMap, selCur]);
 
   const total = slices.reduce((s, x) => s + x.value, 0) || 1;
   const R = 120, cx = 160, cy = 160;
@@ -446,7 +475,9 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
     return { ...s, d, frac, lx, ly, anchor };
   });
 
-  const fmt = (n: number) => "$" + Math.round(n).toLocaleString();
+  const fmt = (n: number) =>
+    converted || !real ? "$" + Math.round(n).toLocaleString() : fmtMoney(n, selCur);
+
 
   return (
     <div
