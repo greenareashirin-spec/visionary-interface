@@ -168,8 +168,8 @@ function Dashboard() {
         ))}
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-2.5">
-        <div className="lg:col-span-2 rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-2 md:gap-2.5">
+        <div className="lg:col-span-2 rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 md:p-4">
           <div className="flex items-center justify-between mb-2">
             <div>
               <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
