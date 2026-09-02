@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { X, Paperclip } from "lucide-react";
-import { addEmployee } from "@/lib/employees-store";
+import {
+  addEmployee,
+  uploadContract,
+  validateContractFile,
+  CONTRACT_ACCEPT,
+} from "@/lib/employees-store";
 
 const STATUSES = ["Active", "On Leave", "Inactive"];
 
@@ -18,6 +23,25 @@ export function AddEmployeeModal({
   const [status, setStatus] = useState("Active");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  function pickFile(f: File | null) {
+    if (!f) {
+      setFile(null);
+      setErrors((p) => ({ ...p, file: "" }));
+      return;
+    }
+    const invalid = validateContractFile(f);
+    if (invalid) {
+      setFile(null);
+      if (fileRef.current) fileRef.current.value = "";
+      setErrors((p) => ({ ...p, file: invalid }));
+      return;
+    }
+    setErrors((p) => ({ ...p, file: "" }));
+    setFile(f);
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -37,6 +61,17 @@ export function AddEmployeeModal({
     setSaving(true);
     try {
       const rec = await addEmployee({ name, position, phone, email, status });
+      if (file) {
+        try {
+          await uploadContract(rec.id, file);
+        } catch {
+          onAdded(
+            `${rec.name} added, but the contract couldn't be saved — try attaching it again from their row.`,
+          );
+          onClose();
+          return;
+        }
+      }
       onAdded(rec.name);
       onClose();
     } catch (err) {
@@ -88,10 +123,39 @@ export function AddEmployeeModal({
             </select>
           </label>
 
-          <div className="rounded-2xl border border-dashed border-white/12 bg-black/20 px-3 py-4 text-center opacity-60">
+          <div className="rounded-2xl border border-dashed border-white/12 bg-black/20 px-3 py-4 text-center">
             <Paperclip className="h-4 w-4 mx-auto text-white/50" />
-            <p className="mt-1.5 text-[12px]">Attach contract</p>
-            <p className="text-[10.5px] text-white/50">You can add this after saving.</p>
+            <p className="mt-1.5 text-[12px]">{file ? file.name : "Attach contract (optional)"}</p>
+            <p className="text-[10.5px] text-white/50">PDF, DOC, DOCX, JPG or PNG · max 10MB</p>
+            <input
+              ref={fileRef}
+              type="file"
+              accept={CONTRACT_ACCEPT}
+              className="hidden"
+              onChange={(e) => pickFile(e.target.files?.[0] ?? null)}
+            />
+            <div className="mt-2 flex items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => fileRef.current?.click()}
+                className="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-[11px] hover:bg-white/15 transition"
+              >
+                {file ? "Change file" : "Choose file"}
+              </button>
+              {file && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (fileRef.current) fileRef.current.value = "";
+                    pickFile(null);
+                  }}
+                  className="text-[11px] text-white/55 hover:text-white"
+                >
+                  Remove
+                </button>
+              )}
+            </div>
+            {errors.file && <p className="mt-1.5 text-[11px] text-rose-300">{errors.file}</p>}
           </div>
 
           {errors.form && <p className="text-[11px] text-rose-300">{errors.form}</p>}

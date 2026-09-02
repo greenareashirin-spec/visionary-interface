@@ -1,10 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Users, Calendar, UserMinus, Building2, Search, Filter, Plus, MoreHorizontal, Trash2, X } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Users, Calendar, UserMinus, Building2, Search, Filter, Plus, MoreHorizontal, Trash2, X, Paperclip, Loader2 } from "lucide-react";
 import { useErpData } from "@/lib/erp-store";
 import { ErpEmptyBanner } from "@/components/erp-empty-banner";
 import { AddEmployeeModal } from "@/components/add-employee-modal";
-import { useEmployees, removeEmployee } from "@/lib/employees-store";
+import {
+  useEmployees,
+  removeEmployee,
+  uploadContract,
+  getContractUrl,
+  validateContractFile,
+  CONTRACT_ACCEPT,
+} from "@/lib/employees-store";
 
 
 export const Route = createFileRoute("/app/employees")({
@@ -51,6 +58,7 @@ function Employees() {
         hire: "",
         status: e.status || "Unspecified",
         source: "erp" as const,
+        has_contract: false,
       })),
       ...localOnly.map((e) => ({
         id: e.id,
@@ -62,6 +70,7 @@ function Employees() {
         hire: "",
         status: e.status || "Unspecified",
         source: "local" as const,
+        has_contract: e.has_contract,
       })),
     ];
   }, [data, localEmployees]);
@@ -77,11 +86,17 @@ function Employees() {
     ] as typeof stats;
   }, [live, merged]);
 
-  const teamList = live ? merged : team.map((m) => ({ ...m, source: "erp" as const }));
+  const teamList = live
+    ? merged
+    : team.map((m) => ({ ...m, source: "erp" as const, has_contract: false }));
 
   function notify(name: string) {
-    setConfirmation(`${name} added — remember to add them to your ERP spreadsheet next time you update it.`);
-    window.setTimeout(() => setConfirmation(null), 5000);
+    setConfirmation(
+      name.includes(" added")
+        ? name
+        : `${name} added — remember to add them to your ERP spreadsheet next time you update it.`,
+    );
+    window.setTimeout(() => setConfirmation(null), 6000);
   }
 
   return (
@@ -169,6 +184,7 @@ function Employees() {
                 <th className="py-2.5 px-3 font-normal">Phone</th>
                 {!live && <th className="py-2.5 px-3 font-normal">Hire Date</th>}
                 {!live && <th className="py-2.5 px-3 font-normal text-right">Salary</th>}
+                <th className="py-2.5 px-3 font-normal">Contract</th>
                 <th className="py-2.5 px-4 font-normal text-right"> </th>
               </tr>
             </thead>
@@ -206,6 +222,15 @@ function Employees() {
                   {!live && <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.hire}</td>}
                   {!live && <td className="py-2.5 px-3 text-right font-medium">{m.salary}</td>}
 
+                  <td className="py-2.5 px-3">
+                    <ContractCell
+                      employeeId={m.id}
+                      name={m.name}
+                      hasContract={!!m.has_contract}
+                      enabled={m.source === "local"}
+                    />
+                  </td>
+
                   <td className="py-2.5 px-4 text-right">
                     {m.source === "local" ? (
                       <button
@@ -228,6 +253,80 @@ function Employees() {
           </table>
         </div>
       </section>
+    </div>
+  );
+}
+
+function ContractCell({
+  employeeId,
+  name,
+  hasContract,
+  enabled,
+}: {
+  employeeId: string;
+  name: string;
+  hasContract: boolean;
+  enabled: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  if (!enabled) return <span className="text-white/30 text-[11px]">—</span>;
+
+  async function onPick(file: File | null) {
+    if (!file) return;
+    const invalid = validateContractFile(file);
+    if (invalid) {
+      setMsg(invalid);
+      return;
+    }
+    setMsg(null);
+    setBusy(true);
+    try {
+      await uploadContract(employeeId, file);
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = "";
+    }
+  }
+
+  async function onView() {
+    setMsg(null);
+    setBusy(true);
+    try {
+      const url = await getContractUrl(employeeId);
+      if (!url) setMsg("No contract file found.");
+      else window.open(url, "_blank", "noopener");
+    } catch (err) {
+      setMsg(err instanceof Error ? err.message : "Could not open contract.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="flex items-center gap-1.5">
+      <input
+        ref={inputRef}
+        type="file"
+        accept={CONTRACT_ACCEPT}
+        className="hidden"
+        onChange={(e) => void onPick(e.target.files?.[0] ?? null)}
+      />
+      <button
+        disabled={busy}
+        aria-label={hasContract ? `View contract for ${name}` : `Attach contract for ${name}`}
+        onClick={() => (hasContract ? void onView() : inputRef.current?.click())}
+        className={`rounded-full p-1.5 transition disabled:opacity-50 ${
+          hasContract ? "bg-forest/15 text-forest hover:bg-forest/25" : "text-white/45 hover:text-white hover:bg-white/10"
+        }`}
+      >
+        {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Paperclip className="h-3.5 w-3.5" />}
+      </button>
+      {msg && <span className="text-[10px] text-amber-300/90">{msg}</span>}
     </div>
   );
 }

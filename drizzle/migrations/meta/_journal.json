@@ -8,6 +8,13 @@
       "when": 1788258856691,
       "tag": "0000_create_employees",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788346750142,
+      "tag": "0001_contracts_storage_policies",
+      "breakpoints": true
     }
   ]
 }
