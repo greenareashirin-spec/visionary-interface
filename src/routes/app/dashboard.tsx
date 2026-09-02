@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Wallet, TrendingUp, TrendingDown, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
-import { useErpData } from "@/lib/erp-store";
+import { useErpData, type ErpLogRow } from "@/lib/erp-store";
 import { ErpEmptyBanner } from "@/components/erp-empty-banner";
 import { fmtMoney, fmtNumber, symbolFor, statusCards, dayMon } from "@/lib/erp-format";
 
@@ -41,6 +41,7 @@ type TxRow = { d: string; p: string; t: string; c: string; a: string; cur: strin
 
 function Dashboard() {
   const [chartOpen, setChartOpen] = useState(false);
+  const [drilldown, setDrilldown] = useState<{ key: string; label: string } | null>(null);
   const [tab, setTab] = useState("Recent");
   const [query, setQuery] = useState("");
   const [curFilter, setCurFilter] = useState("All Currencies");
@@ -183,7 +184,20 @@ function Dashboard() {
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-sand" /> Expense</span>
             </div>
           </div>
-          {monthly ? <MonthBars series={monthly.months} /> : <Chart />}
+          {monthly ? (
+            <MonthBars series={monthly.months} onSelect={(key, label) => setDrilldown({ key, label })} />
+          ) : (
+            <Chart />
+          )}
+          {drilldown && monthly && data && (
+            <MonthDrilldownModal
+              monthKey={drilldown.key}
+              monthLabel={drilldown.label}
+              currency={monthly.currency}
+              log={data.log}
+              onClose={() => setDrilldown(null)}
+            />
+          )}
         </div>
         <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
@@ -310,14 +324,16 @@ function monthlySeries(data: ReturnType<typeof useErpData>["data"]) {
   const currency = Object.entries(counts).sort((a, b) => b[1] - a[1])[0]?.[0];
   if (!currency) return null;
 
-  const buckets = new Map<string, { label: string; income: number; expense: number }>();
+  const buckets = new Map<string, MonthBucket>();
   for (const r of data.log) {
     if (r.currency !== currency) continue;
     const d = r.rawDate instanceof Date ? r.rawDate : new Date(r.rawDate);
     if (isNaN(d.getTime())) continue;
     const k = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const b = buckets.get(k) ?? {
+      key: k,
       label: d.toLocaleDateString("en-US", { month: "short" }),
+      fullLabel: d.toLocaleDateString("en-US", { month: "long", year: "numeric" }),
       income: 0,
       expense: 0,
     };
@@ -330,12 +346,30 @@ function monthlySeries(data: ReturnType<typeof useErpData>["data"]) {
   return { currency, months };
 }
 
-function MonthBars({ series }: { series: { label: string; income: number; expense: number }[] }) {
+type MonthBucket = { key?: string; label: string; fullLabel?: string; income: number; expense: number };
+
+function MonthBars({
+  series,
+  onSelect,
+  scroll,
+}: {
+  series: MonthBucket[];
+  onSelect?: (key: string, fullLabel: string) => void;
+  scroll?: boolean;
+}) {
   const max = Math.max(1, ...series.flatMap((m) => [m.income, m.expense]));
   return (
-    <div className="h-36 flex items-end gap-3 px-1">
+    <div className={`h-36 flex items-end gap-3 px-1 ${scroll ? "overflow-x-auto" : ""}`}>
       {series.map((m, i) => (
-        <div key={i} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+        <div
+          key={m.key ?? i}
+          role={onSelect ? "button" : undefined}
+          tabIndex={onSelect ? 0 : undefined}
+          onClick={onSelect ? () => onSelect(m.key ?? m.label, m.fullLabel ?? m.label) : undefined}
+          className={`flex flex-col items-center gap-1.5 h-full justify-end rounded-lg transition ${
+            scroll ? "min-w-[54px] shrink-0 flex-1" : "flex-1"
+          } ${onSelect ? "cursor-pointer hover:bg-white/8" : ""}`}
+        >
           <div className="w-full flex items-end justify-center gap-1 h-full">
             <div
               className="w-1/3 max-w-[18px] rounded-t bg-forest/85"
@@ -348,12 +382,105 @@ function MonthBars({ series }: { series: { label: string; income: number; expens
               title={`Expense ${fmtNumber(m.expense)}`}
             />
           </div>
-          <span className="text-[9px] uppercase tracking-[0.16em] text-white/50">{m.label}</span>
+          <span
+            title={m.fullLabel ?? m.label}
+            className="max-w-full truncate text-[9px] uppercase tracking-[0.16em] text-white/50"
+          >
+            {m.label}
+          </span>
         </div>
       ))}
     </div>
   );
 }
+
+function MonthDrilldownModal({
+  monthKey,
+  monthLabel,
+  currency,
+  log,
+  onClose,
+}: {
+  monthKey: string;
+  monthLabel: string;
+  currency: string;
+  log: ErpLogRow[];
+  onClose: () => void;
+}) {
+  const [mode, setMode] = useState<"Category" | "Project">("Category");
+
+  const rows = useMemo(
+    () =>
+      log.filter((r) => {
+        if (r.currency !== currency) return false;
+        const d = r.rawDate instanceof Date ? r.rawDate : new Date(r.rawDate);
+        if (isNaN(d.getTime())) return false;
+        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}` === monthKey;
+      }),
+    [log, currency, monthKey],
+  );
+
+  const totals = useMemo(() => {
+    let income = 0, expense = 0;
+    for (const r of rows) {
+      if (r.type.toLowerCase() === "income") income += r.amount;
+      else if (r.type.toLowerCase() === "expense") expense += r.amount;
+    }
+    return { income, expense };
+  }, [rows]);
+
+  const groups = useMemo(() => {
+    const m = new Map<string, MonthBucket>();
+    for (const r of rows) {
+      const name = (mode === "Category" ? r.category || "Uncategorized" : r.project || "Unassigned");
+      const g = m.get(name) ?? { key: name, label: name, fullLabel: name, income: 0, expense: 0 };
+      if (r.type.toLowerCase() === "income") g.income += r.amount;
+      else if (r.type.toLowerCase() === "expense") g.expense += r.amount;
+      m.set(name, g);
+    }
+    return [...m.values()].sort((a, b) => b.income + b.expense - (a.income + a.expense));
+  }, [rows, mode]);
+
+  return (
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-3xl rounded-3xl bg-[oklch(0.20_0.02_165)] border border-white/10 p-6 max-h-[90vh] overflow-auto"
+      >
+        <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
+          <X className="h-4 w-4" />
+        </button>
+        <div className="mb-4">
+          <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Cashflow</p>
+          <h2 className="mt-1 font-display text-[22px] leading-none">{monthLabel} · {currency}</h2>
+          <p className="mt-1 text-[12px] text-white/60">
+            Income <span className="text-forest">{fmtMoney(totals.income, currency)}</span> · Expense{" "}
+            <span className="text-sand">{fmtMoney(totals.expense, currency)}</span>
+          </p>
+        </div>
+
+        <div className="mb-4 inline-flex rounded-full bg-white/5 border border-white/10 p-0.5 text-[11px]">
+          {(["Category", "Project"] as const).map((m) => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className={`rounded-full px-3.5 py-1 transition ${mode === m ? "bg-white/15 text-white" : "text-white/60 hover:text-white"}`}
+            >
+              By {m}
+            </button>
+          ))}
+        </div>
+
+        {groups.length ? (
+          <MonthBars series={groups} scroll={groups.length > 6} />
+        ) : (
+          <p className="py-10 text-center text-[12px] text-white/55">No entries for this month.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 
 function Chart() {
