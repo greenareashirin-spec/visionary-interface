@@ -497,9 +497,27 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
           <p className="mt-1 text-[12px] text-white/60">
             {converted
               ? <>Converted to USD · Total <span className="text-white">{fmt(total)}</span></>
-              : <>USD-native only · Enter Ako's exchange rates below, then convert.</>}
+              : real
+                ? <>{selCur} · Total <span className="text-white">{fmt(total)}</span>{real.currencies.length > 1 ? " — switch currency below" : ""}</>
+                : <>USD-native only · Enter Ako's exchange rates below, then convert.</>}
           </p>
+          {real && real.currencies.length > 1 && !converted && (
+            <div className="mt-2 flex gap-1.5 flex-wrap">
+              {real.currencies.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => setCur(c)}
+                  className={`text-[11px] px-3 py-1 rounded-full border transition ${
+                    c === selCur ? "bg-forest text-forest-deep border-transparent" : "bg-white/5 border-white/10 hover:bg-white/15"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
 
         <div className="grid md:grid-cols-[320px_1fr] gap-6 items-start">
           <svg viewBox="0 0 320 320" className="w-full h-auto max-w-[320px] mx-auto">
