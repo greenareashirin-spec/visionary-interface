@@ -46,6 +46,15 @@ const tx = [
 ];
 
 type TxRow = { d: string; p: string; t: string; c: string; a: string; cur: string; s: string; desc?: string; amount?: number };
+type StatCard = {
+  label: string;
+  value: string;
+  sub: string;
+  Icon: typeof Wallet;
+  tone?: "forest" | "rose" | "amber";
+  currency?: string;
+};
+
 
 function Dashboard() {
   const searchParams = Route.useSearch();
