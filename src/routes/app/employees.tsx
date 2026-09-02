@@ -1,10 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Users, Calendar, UserMinus, Building2, Search, Filter, Plus, MoreHorizontal, Trash2, X } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { Users, Calendar, UserMinus, Building2, Search, Filter, Plus, MoreHorizontal, Trash2, X, Paperclip, Loader2 } from "lucide-react";
 import { useErpData } from "@/lib/erp-store";
 import { ErpEmptyBanner } from "@/components/erp-empty-banner";
 import { AddEmployeeModal } from "@/components/add-employee-modal";
-import { useEmployees, removeEmployee } from "@/lib/employees-store";
+import {
+  useEmployees,
+  removeEmployee,
+  uploadContract,
+  getContractUrl,
+  validateContractFile,
+  CONTRACT_ACCEPT,
+} from "@/lib/employees-store";
 
 
 export const Route = createFileRoute("/app/employees")({
