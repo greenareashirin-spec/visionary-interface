@@ -72,7 +72,7 @@ function Dashboard() {
 
 
   const view = useMemo(() => {
-    if (!data) return { stats, balances, tx: tx as TxRow[] };
+    if (!data) return { stats: stats as StatCard[], balances, tx: tx as TxRow[] };
     const counts: Record<string, number> = {};
     for (const r of data.log) counts[r.currency] = (counts[r.currency] ?? 0) + 1;
 
@@ -83,6 +83,7 @@ function Dashboard() {
       sub: `${counts[b.currency] ?? 0} entries`,
       Icon: Wallet,
       tone: (b.net < 0 ? "rose" : "forest") as "rose" | "forest",
+      currency: b.currency,
     }));
     const extra = statusCards(data.statusCounts, data.totalEntries).map((s) => ({
       ...s,
@@ -91,7 +92,8 @@ function Dashboard() {
     }));
 
     return {
-      stats: [...balanceStats, ...extra] as typeof stats,
+      stats: [...balanceStats, ...extra] as StatCard[],
+
       balances: data.balances.map((b) => ({
         code: b.currency,
         value: fmtNumber(b.net),
