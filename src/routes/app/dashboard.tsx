@@ -458,7 +458,7 @@ function MonthDrilldownModal({
           <h2 className="mt-1 font-display text-[22px] leading-none">{monthLabel} · {currency}</h2>
           <p className="mt-1 text-[12px] text-white/60">
             Income <span className="text-forest">{fmtMoney(totals.income, currency)}</span> · Expense{" "}
-            <span className="text-sand">{fmtMoney(totals.expense, currency)}</span>
+            <span className="text-rose-300">{fmtMoney(totals.expense, currency)}</span>
           </p>
         </div>
 
