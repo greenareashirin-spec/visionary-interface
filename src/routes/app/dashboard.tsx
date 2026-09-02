@@ -618,6 +618,21 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
   }, [data]);
 
   const [cur, setCur] = useState<string>("");
+  const [mode, setMode] = useState<"overview" | "project" | "category">("overview");
+
+  const pivotProjects = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of data?.log ?? []) if (r.type.toLowerCase() === "expense") set.add((r.project || "Unassigned").trim());
+    for (const p of data?.projects ?? []) if (p.name) set.add(p.name.trim());
+    return [...set].filter(Boolean).sort();
+  }, [data]);
+
+  const pivotCategories = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of data?.log ?? []) if (r.type.toLowerCase() === "expense") set.add((r.category || "Uncategorized").trim());
+    return [...set].filter(Boolean).sort();
+  }, [data]);
+
   const selCur = cur || real?.currencies[0] || "USD";
 
   const rate = (c: string) => (c === "USD" ? 1 : Number(rateMap[c] ?? "0") || 0);
