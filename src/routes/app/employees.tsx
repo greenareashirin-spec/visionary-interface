@@ -51,6 +51,7 @@ function Employees() {
         hire: "",
         status: e.status || "Unspecified",
         source: "erp" as const,
+        has_contract: false,
       })),
       ...localOnly.map((e) => ({
         id: e.id,
