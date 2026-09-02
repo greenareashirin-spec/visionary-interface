@@ -544,10 +544,17 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
             <div className="rounded-2xl bg-black/30 border border-white/10 p-3">
               <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Ako's Exchange Rates (1 unit → USD)</p>
               <div className="grid grid-cols-3 gap-2">
-                <RateInput label="EUR" value={eurRate} onChange={setEurRate} placeholder="1.08" />
-                <RateInput label="GBP" value={gbpRate} onChange={setGbpRate} placeholder="1.27" />
-                <RateInput label="IQD" value={iqdRate} onChange={setIqdRate} placeholder="0.00068" />
+                {(real ? real.currencies.filter((c) => c !== "USD") : ["EUR", "GBP", "IQD"]).map((c) => (
+                  <RateInput
+                    key={c}
+                    label={c}
+                    value={rateMap[c] ?? ""}
+                    onChange={(v) => setRateMap((m) => ({ ...m, [c]: v }))}
+                    placeholder={DEFAULT_RATES[c] ?? "1"}
+                  />
+                ))}
               </div>
+
               <div className="flex gap-2 mt-3">
                 <button
                   onClick={() => setConverted(true)}
