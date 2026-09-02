@@ -41,6 +41,7 @@ type TxRow = { d: string; p: string; t: string; c: string; a: string; cur: strin
 
 function Dashboard() {
   const [chartOpen, setChartOpen] = useState(false);
+  const [drilldown, setDrilldown] = useState<{ key: string; label: string } | null>(null);
   const [tab, setTab] = useState("Recent");
   const [query, setQuery] = useState("");
   const [curFilter, setCurFilter] = useState("All Currencies");
