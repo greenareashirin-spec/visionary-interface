@@ -124,7 +124,7 @@ function Dashboard() {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0 px-5 lg:px-6 py-4 gap-3.5">
+    <div className="flex flex-col h-full min-h-0 px-3 md:px-5 lg:px-6 py-2.5 md:py-4 gap-2 md:gap-3.5">
       <ErpEmptyBanner />
 
       <header className="flex items-end justify-between gap-4 flex-wrap">
@@ -155,21 +155,21 @@ function Dashboard() {
       </header>
       {chartOpen && <CostsChartModal onClose={() => setChartOpen(false)} />}
 
-      <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2.5">
+      <section className="grid grid-cols-3 md:grid-cols-6 gap-1.5 md:gap-2">
         {statList.map((s) => (
           <div key={s.label} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-2 md:p-3">
             <div className="flex items-start justify-between gap-2">
               <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">{s.label}</p>
               <s.Icon className="h-3 w-3 text-white/45" />
             </div>
-            <p className="mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
+            <p className="mt-0.5 md:mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
             <p className={`text-[10.5px] mt-0.5 ${s.tone === "forest" ? "text-forest" : s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55"}`}>{s.sub}</p>
           </div>
         ))}
       </section>
 
-      <section className="grid grid-cols-1 lg:grid-cols-3 gap-2.5">
-        <div className="lg:col-span-2 rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
+      <section className="grid grid-cols-1 lg:grid-cols-3 gap-2 md:gap-2.5">
+        <div className="lg:col-span-2 rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 md:p-4">
           <div className="flex items-center justify-between mb-2">
             <div>
               <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55">
@@ -189,19 +189,19 @@ function Dashboard() {
           ) : (
             <Chart />
           )}
+          {drilldown && monthly && data && (
+            <div className="mt-3 border-t border-white/10 pt-3">
+              <MonthDrilldownModal
+                monthKey={drilldown.key}
+                monthLabel={drilldown.label}
+                currency={monthly.currency}
+                log={data.log}
+                onClose={() => setDrilldown(null)}
+              />
+            </div>
+          )}
         </div>
-        {drilldown && monthly && data && (
-          <div className="lg:col-span-3">
-            <MonthDrilldownModal
-              monthKey={drilldown.key}
-              monthLabel={drilldown.label}
-              currency={monthly.currency}
-              log={data.log}
-              onClose={() => setDrilldown(null)}
-            />
-          </div>
-        )}
-        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
+        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 md:p-4">
           <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
           <ul className="divide-y divide-white/5">
             {balanceList.map((b) => (
@@ -361,7 +361,7 @@ function MonthBars({
 }) {
   const max = Math.max(1, ...series.flatMap((m) => [m.income, m.expense]));
   return (
-    <div className={`h-36 flex items-end gap-3 px-1 ${scroll ? "overflow-x-auto" : ""}`}>
+    <div className={`h-20 md:h-24 lg:h-28 flex items-end gap-3 px-1 ${scroll ? "overflow-x-auto" : ""}`}>
       {series.map((m, i) => (
         <div
           key={m.key ?? i}
@@ -445,15 +445,15 @@ function MonthDrilldownModal({
 
   return (
     <div className="w-full">
-      <div className="relative w-full rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
+      <div className="relative w-full">
         <button
           onClick={onClose}
           aria-label="Close breakdown"
-          className="absolute top-3 right-3 z-10 rounded-full bg-white/10 p-1.5 text-white/70 hover:text-white"
+          className="absolute top-0 right-0 z-10 rounded-full bg-white/10 p-1.5 text-white/70 hover:text-white"
         >
           <X className="h-3.5 w-3.5" />
         </button>
-        <div className="mb-4 pr-10">
+        <div className="mb-3 pr-10">
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Cashflow</p>
           <h2 className="mt-1 font-display text-[22px] leading-none">{monthLabel} · {currency}</h2>
           <p className="mt-1 text-[12px] text-white/60">
@@ -495,7 +495,7 @@ function Chart() {
   const path = (arr: number[]) => arr.map((v, i) => `${i === 0 ? "M" : "L"}${pad + i * step},${scale(v)}`).join(" ");
   const area = (arr: number[]) => `${path(arr)} L${pad + (arr.length - 1) * step},${h - pad} L${pad},${h - pad} Z`;
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-36">
+    <svg viewBox={`0 0 ${w} ${h}`} className="w-full h-20 md:h-24 lg:h-28">
       <defs>
         <linearGradient id="g1" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stopColor="oklch(0.72 0.14 145)" stopOpacity="0.35" />
