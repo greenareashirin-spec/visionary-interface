@@ -79,7 +79,9 @@ function Employees() {
     ] as typeof stats;
   }, [live, merged]);
 
-  const teamList = live ? merged : team.map((m) => ({ ...m, source: "erp" as const }));
+  const teamList = live
+    ? merged
+    : team.map((m) => ({ ...m, source: "erp" as const, has_contract: false }));
 
   function notify(name: string) {
     setConfirmation(
@@ -175,6 +177,7 @@ function Employees() {
                 <th className="py-2.5 px-3 font-normal">Phone</th>
                 {!live && <th className="py-2.5 px-3 font-normal">Hire Date</th>}
                 {!live && <th className="py-2.5 px-3 font-normal text-right">Salary</th>}
+                <th className="py-2.5 px-3 font-normal">Contract</th>
                 <th className="py-2.5 px-4 font-normal text-right"> </th>
               </tr>
             </thead>
