@@ -1,15 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Wallet, TrendingUp, TrendingDown, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Wallet, TrendingUp, TrendingDown, Search, Filter, Plus, MoreHorizontal, PieChart, Printer, X } from "lucide-react";
 import { useErpData, type ErpLogRow } from "@/lib/erp-store";
 import { ErpEmptyBanner } from "@/components/erp-empty-banner";
 import { fmtMoney, fmtNumber, symbolFor, statusCards, dayMon } from "@/lib/erp-format";
 
+type DashboardSearch = { tab?: string; currency?: string; project?: string; q?: string };
 
 export const Route = createFileRoute("/app/dashboard")({
   component: Dashboard,
+  validateSearch: (search: Record<string, unknown>): DashboardSearch => ({
+    tab: typeof search.tab === "string" ? search.tab : undefined,
+    currency: typeof search.currency === "string" ? search.currency : undefined,
+    project: typeof search.project === "string" ? search.project : undefined,
+    q: typeof search.q === "string" ? search.q : undefined,
+  }),
   head: () => ({ meta: [{ title: "Finance · GreenArea OS" }] }),
 });
+
 
 const stats = [
   { label: "USD Balance", value: "$128,450",     sub: "+12.4% MoM", Icon: Wallet,     tone: "forest" as const },
