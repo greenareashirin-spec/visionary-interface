@@ -215,6 +215,15 @@ function Employees() {
                   {!live && <td className="py-2.5 px-3 text-white/60 text-[11px]">{m.hire}</td>}
                   {!live && <td className="py-2.5 px-3 text-right font-medium">{m.salary}</td>}
 
+                  <td className="py-2.5 px-3">
+                    <ContractCell
+                      employeeId={m.id}
+                      name={m.name}
+                      hasContract={!!m.has_contract}
+                      enabled={m.source === "local"}
+                    />
+                  </td>
+
                   <td className="py-2.5 px-4 text-right">
                     {m.source === "local" ? (
                       <button
