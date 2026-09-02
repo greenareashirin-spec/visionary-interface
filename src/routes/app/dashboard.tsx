@@ -189,19 +189,19 @@ function Dashboard() {
           ) : (
             <Chart />
           )}
+          {drilldown && monthly && data && (
+            <div className="mt-3 border-t border-white/10 pt-3">
+              <MonthDrilldownModal
+                monthKey={drilldown.key}
+                monthLabel={drilldown.label}
+                currency={monthly.currency}
+                log={data.log}
+                onClose={() => setDrilldown(null)}
+              />
+            </div>
+          )}
         </div>
-        {drilldown && monthly && data && (
-          <div className="lg:col-span-3">
-            <MonthDrilldownModal
-              monthKey={drilldown.key}
-              monthLabel={drilldown.label}
-              currency={monthly.currency}
-              log={data.log}
-              onClose={() => setDrilldown(null)}
-            />
-          </div>
-        )}
-        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
+        <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-3 md:p-4">
           <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
           <ul className="divide-y divide-white/5">
             {balanceList.map((b) => (
