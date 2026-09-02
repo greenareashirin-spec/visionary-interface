@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { X, Paperclip } from "lucide-react";
-import { addEmployee } from "@/lib/employees-store";
+import {
+  addEmployee,
+  uploadContract,
+  validateContractFile,
+  CONTRACT_ACCEPT,
+} from "@/lib/employees-store";
 
 const STATUSES = ["Active", "On Leave", "Inactive"];
 
