@@ -189,15 +189,6 @@ function Dashboard() {
           ) : (
             <Chart />
           )}
-          {drilldown && monthly && data && (
-            <MonthDrilldownModal
-              monthKey={drilldown.key}
-              monthLabel={drilldown.label}
-              currency={monthly.currency}
-              log={data.log}
-              onClose={() => setDrilldown(null)}
-            />
-          )}
         </div>
         <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
