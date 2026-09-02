@@ -834,3 +834,125 @@ function RateInput({ label, value, onChange, placeholder }: { label: string; val
     </label>
   );
 }
+
+/* ─────────────── printable project / category breakdown ─────────────── */
+
+function PrintableBars({ series }: { series: { label: string; value: number; color: string }[] }) {
+  const max = Math.max(1, ...series.map((s) => s.value));
+  return (
+    <div className="space-y-2">
+      {series.map((s) => (
+        <div key={s.label} className="flex items-center gap-3">
+          <span className="w-32 shrink-0 truncate text-[12px] text-slate-700" title={s.label}>{s.label}</span>
+          <div className="flex-1 h-4 rounded bg-slate-100 overflow-hidden">
+            <div className="h-full rounded" style={{ width: `${Math.max(2, (s.value / max) * 100)}%`, background: s.color }} />
+          </div>
+          <span className="w-28 shrink-0 text-right text-[12px] font-medium text-slate-900 tabular-nums">
+            {fmtNumber(s.value)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PivotBreakdown({
+  mode,
+  log,
+  names,
+}: {
+  mode: "project" | "category";
+  log: ErpLogRow[];
+  names: string[];
+}) {
+  const [selected, setSelected] = useState<string>(names[0] ?? "");
+  const [cur, setCur] = useState<string>("");
+  const norm = (v: string) => (v ?? "").trim().toLowerCase();
+
+  const rows = useMemo(
+    () =>
+      log.filter((r) => {
+        if (r.type.toLowerCase() !== "expense") return false;
+        const field = mode === "project" ? (r.project || "Unassigned") : (r.category || "Uncategorized");
+        return norm(field) === norm(selected);
+      }),
+    [log, mode, selected],
+  );
+
+  const currencies = useMemo(() => {
+    const totals: Record<string, number> = {};
+    for (const r of rows) if (r.currency) totals[r.currency] = (totals[r.currency] ?? 0) + r.amount;
+    return Object.entries(totals).sort((a, b) => b[1] - a[1]).map(([c]) => c);
+  }, [rows]);
+
+  const selCur = cur && currencies.includes(cur) ? cur : currencies[0] ?? "";
+
+  const series = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const r of rows) {
+      if (r.currency !== selCur) continue;
+      const key = mode === "project" ? (r.category || "Uncategorized") : (r.project || "Unassigned");
+      m[key] = (m[key] ?? 0) + r.amount;
+    }
+    return Object.entries(m)
+      .sort((a, b) => b[1] - a[1])
+      .map(([label, value], i) => ({ label, value, color: categoryColors[label] ?? PALETTE[i % PALETTE.length] }));
+  }, [rows, selCur, mode]);
+
+  const total = series.reduce((s, x) => s + x.value, 0);
+
+  return (
+    <div className="printable-area bg-white text-slate-900 rounded-2xl p-5">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-[9px] uppercase tracking-[0.28em] text-slate-500">
+            {mode === "project" ? "Expenses by category" : "Expenses by project"}
+          </p>
+          <h3 className="mt-1 text-[20px] font-medium leading-tight">{selected || "—"}</h3>
+          <p className="mt-1 text-[12px] text-slate-600">
+            Total {selCur ? fmtMoney(total, selCur) : fmtNumber(total)}
+          </p>
+        </div>
+        <button
+          onClick={() => window.print()}
+          className="print:hidden inline-flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100 transition"
+        >
+          <Printer className="h-3.5 w-3.5" /> Print
+        </button>
+      </div>
+
+      <div className="print:hidden mt-3 flex flex-wrap items-center gap-2">
+        <select
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+          className="text-xs px-3 py-1.5 rounded-full border border-slate-300 bg-white text-slate-800 outline-none"
+        >
+          {names.length === 0 && <option value="">No data</option>}
+          {names.map((n) => (
+            <option key={n} value={n}>{n}</option>
+          ))}
+        </select>
+        {currencies.length > 1 &&
+          currencies.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCur(c)}
+              className={`text-[11px] px-3 py-1 rounded-full border transition ${
+                c === selCur ? "bg-slate-900 text-white border-slate-900" : "border-slate-300 text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+      </div>
+
+      <div className="mt-4">
+        {series.length ? (
+          <PrintableBars series={series} />
+        ) : (
+          <p className="py-8 text-center text-[12px] text-slate-500">No expense entries for this selection.</p>
+        )}
+      </div>
+    </div>
+  );
+}
