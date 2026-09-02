@@ -48,13 +48,28 @@ const tx = [
 type TxRow = { d: string; p: string; t: string; c: string; a: string; cur: string; s: string; desc?: string; amount?: number };
 
 function Dashboard() {
+  const searchParams = Route.useSearch();
+  const navigate = useNavigate({ from: "/app/dashboard" });
+  const tableRef = useRef<HTMLElement | null>(null);
   const [chartOpen, setChartOpen] = useState(false);
   const [drilldown, setDrilldown] = useState<{ key: string; label: string } | null>(null);
-  const [tab, setTab] = useState("Recent");
-  const [query, setQuery] = useState("");
-  const [curFilter, setCurFilter] = useState("All Currencies");
-  const [projFilter, setProjFilter] = useState("All Projects");
+  const [tab, setTab] = useState(searchParams.tab ?? "Recent");
+  const [query, setQuery] = useState(searchParams.q ?? "");
+  const [curFilter, setCurFilter] = useState(searchParams.currency ?? "All Currencies");
+  const [projFilter, setProjFilter] = useState(searchParams.project ?? "All Projects");
   const { data } = useErpData();
+
+  useEffect(() => {
+    const next: DashboardSearch = {};
+    if (tab !== "Recent") next.tab = tab;
+    if (curFilter !== "All Currencies") next.currency = curFilter;
+    if (projFilter !== "All Projects") next.project = projFilter;
+    if (query.trim()) next.q = query.trim();
+    navigate({ search: next, replace: true });
+  }, [tab, curFilter, projFilter, query, navigate]);
+
+  const scrollToTable = () => tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
 
   const view = useMemo(() => {
     if (!data) return { stats, balances, tx: tx as TxRow[] };
