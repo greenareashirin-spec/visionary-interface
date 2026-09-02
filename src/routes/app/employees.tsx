@@ -62,6 +62,7 @@ function Employees() {
         hire: "",
         status: e.status || "Unspecified",
         source: "local" as const,
+        has_contract: e.has_contract,
       })),
     ];
   }, [data, localEmployees]);
@@ -80,8 +81,12 @@ function Employees() {
   const teamList = live ? merged : team.map((m) => ({ ...m, source: "erp" as const }));
 
   function notify(name: string) {
-    setConfirmation(`${name} added — remember to add them to your ERP spreadsheet next time you update it.`);
-    window.setTimeout(() => setConfirmation(null), 5000);
+    setConfirmation(
+      name.includes(" added")
+        ? name
+        : `${name} added — remember to add them to your ERP spreadsheet next time you update it.`,
+    );
+    window.setTimeout(() => setConfirmation(null), 6000);
   }
 
   return (
