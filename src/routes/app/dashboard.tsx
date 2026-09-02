@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { Wallet, TrendingUp, TrendingDown, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
-import { useErpData } from "@/lib/erp-store";
+import { useErpData, type ErpLogRow } from "@/lib/erp-store";
 import { ErpEmptyBanner } from "@/components/erp-empty-banner";
 import { fmtMoney, fmtNumber, symbolFor, statusCards, dayMon } from "@/lib/erp-format";
 
