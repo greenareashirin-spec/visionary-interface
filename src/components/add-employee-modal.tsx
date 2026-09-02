@@ -23,6 +23,25 @@ export function AddEmployeeModal({
   const [status, setStatus] = useState("Active");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  function pickFile(f: File | null) {
+    if (!f) {
+      setFile(null);
+      setErrors((p) => ({ ...p, file: "" }));
+      return;
+    }
+    const invalid = validateContractFile(f);
+    if (invalid) {
+      setFile(null);
+      if (fileRef.current) fileRef.current.value = "";
+      setErrors((p) => ({ ...p, file: invalid }));
+      return;
+    }
+    setErrors((p) => ({ ...p, file: "" }));
+    setFile(f);
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -42,6 +61,17 @@ export function AddEmployeeModal({
     setSaving(true);
     try {
       const rec = await addEmployee({ name, position, phone, email, status });
+      if (file) {
+        try {
+          await uploadContract(rec.id, file);
+        } catch {
+          onAdded(
+            `${rec.name} added, but the contract couldn't be saved — try attaching it again from their row.`,
+          );
+          onClose();
+          return;
+        }
+      }
       onAdded(rec.name);
       onClose();
     } catch (err) {
