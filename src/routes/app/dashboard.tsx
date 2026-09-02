@@ -181,7 +181,7 @@ function Dashboard() {
             </div>
             <div className="flex gap-3 text-[10px] text-white/60">
               <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-forest" /> Income</span>
-              <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-sand" /> Expense</span>
+              <span className="flex items-center gap-1.5"><span className="h-1.5 w-1.5 rounded-full bg-rose-400" /> Expense</span>
             </div>
           </div>
           {monthly ? (
@@ -189,7 +189,9 @@ function Dashboard() {
           ) : (
             <Chart />
           )}
-          {drilldown && monthly && data && (
+        </div>
+        {drilldown && monthly && data && (
+          <div className="lg:col-span-3">
             <MonthDrilldownModal
               monthKey={drilldown.key}
               monthLabel={drilldown.label}
@@ -197,8 +199,8 @@ function Dashboard() {
               log={data.log}
               onClose={() => setDrilldown(null)}
             />
-          )}
-        </div>
+          </div>
+        )}
         <div className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
           <p className="text-[9px] uppercase tracking-[0.12em] md:tracking-[0.22em] text-white/55 mb-2">Balances · Multi-currency</p>
           <ul className="divide-y divide-white/5">
@@ -377,7 +379,7 @@ function MonthBars({
               title={`Income ${fmtNumber(m.income)}`}
             />
             <div
-              className="w-1/3 max-w-[18px] rounded-t bg-sand/80"
+              className="w-1/3 max-w-[18px] rounded-t bg-rose-400/80"
               style={{ height: `${Math.max(2, (m.expense / max) * 100)}%` }}
               title={`Expense ${fmtNumber(m.expense)}`}
             />
@@ -442,20 +444,21 @@ function MonthDrilldownModal({
   }, [rows, mode]);
 
   return (
-    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-3xl rounded-3xl bg-[oklch(0.20_0.02_165)] border border-white/10 p-6 max-h-[90vh] overflow-auto"
-      >
-        <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
-          <X className="h-4 w-4" />
+    <div className="w-full">
+      <div className="relative w-full rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 p-4">
+        <button
+          onClick={onClose}
+          aria-label="Close breakdown"
+          className="absolute top-3 right-3 z-10 rounded-full bg-white/10 p-1.5 text-white/70 hover:text-white"
+        >
+          <X className="h-3.5 w-3.5" />
         </button>
-        <div className="mb-4">
+        <div className="mb-4 pr-10">
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Cashflow</p>
           <h2 className="mt-1 font-display text-[22px] leading-none">{monthLabel} · {currency}</h2>
           <p className="mt-1 text-[12px] text-white/60">
             Income <span className="text-forest">{fmtMoney(totals.income, currency)}</span> · Expense{" "}
-            <span className="text-sand">{fmtMoney(totals.expense, currency)}</span>
+            <span className="text-rose-300">{fmtMoney(totals.expense, currency)}</span>
           </p>
         </div>
 
