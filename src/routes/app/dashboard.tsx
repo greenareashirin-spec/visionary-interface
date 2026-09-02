@@ -1,15 +1,23 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
-import { Wallet, TrendingUp, TrendingDown, Search, Filter, Plus, MoreHorizontal, PieChart, X } from "lucide-react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Wallet, TrendingUp, TrendingDown, Search, Filter, Plus, MoreHorizontal, PieChart, Printer, X } from "lucide-react";
 import { useErpData, type ErpLogRow } from "@/lib/erp-store";
 import { ErpEmptyBanner } from "@/components/erp-empty-banner";
 import { fmtMoney, fmtNumber, symbolFor, statusCards, dayMon } from "@/lib/erp-format";
 
+type DashboardSearch = { tab?: string; currency?: string; project?: string; q?: string };
 
 export const Route = createFileRoute("/app/dashboard")({
   component: Dashboard,
+  validateSearch: (search: Record<string, unknown>): DashboardSearch => ({
+    tab: typeof search.tab === "string" ? search.tab : undefined,
+    currency: typeof search.currency === "string" ? search.currency : undefined,
+    project: typeof search.project === "string" ? search.project : undefined,
+    q: typeof search.q === "string" ? search.q : undefined,
+  }),
   head: () => ({ meta: [{ title: "Finance · GreenArea OS" }] }),
 });
+
 
 const stats = [
   { label: "USD Balance", value: "$128,450",     sub: "+12.4% MoM", Icon: Wallet,     tone: "forest" as const },
@@ -38,18 +46,42 @@ const tx = [
 ];
 
 type TxRow = { d: string; p: string; t: string; c: string; a: string; cur: string; s: string; desc?: string; amount?: number };
+type StatCard = {
+  label: string;
+  value: string;
+  sub: string;
+  Icon: typeof Wallet;
+  tone?: "forest" | "rose" | "amber";
+  currency?: string;
+};
+
 
 function Dashboard() {
+  const searchParams = Route.useSearch();
+  const navigate = useNavigate({ from: "/app/dashboard" });
+  const tableRef = useRef<HTMLElement | null>(null);
   const [chartOpen, setChartOpen] = useState(false);
   const [drilldown, setDrilldown] = useState<{ key: string; label: string } | null>(null);
-  const [tab, setTab] = useState("Recent");
-  const [query, setQuery] = useState("");
-  const [curFilter, setCurFilter] = useState("All Currencies");
-  const [projFilter, setProjFilter] = useState("All Projects");
+  const [tab, setTab] = useState(searchParams.tab ?? "Recent");
+  const [query, setQuery] = useState(searchParams.q ?? "");
+  const [curFilter, setCurFilter] = useState(searchParams.currency ?? "All Currencies");
+  const [projFilter, setProjFilter] = useState(searchParams.project ?? "All Projects");
   const { data } = useErpData();
 
+  useEffect(() => {
+    const next: DashboardSearch = {};
+    if (tab !== "Recent") next.tab = tab;
+    if (curFilter !== "All Currencies") next.currency = curFilter;
+    if (projFilter !== "All Projects") next.project = projFilter;
+    if (query.trim()) next.q = query.trim();
+    navigate({ search: next, replace: true });
+  }, [tab, curFilter, projFilter, query, navigate]);
+
+  const scrollToTable = () => tableRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+
   const view = useMemo(() => {
-    if (!data) return { stats, balances, tx: tx as TxRow[] };
+    if (!data) return { stats: stats as StatCard[], balances, tx: tx as TxRow[] };
     const counts: Record<string, number> = {};
     for (const r of data.log) counts[r.currency] = (counts[r.currency] ?? 0) + 1;
 
@@ -60,6 +92,7 @@ function Dashboard() {
       sub: `${counts[b.currency] ?? 0} entries`,
       Icon: Wallet,
       tone: (b.net < 0 ? "rose" : "forest") as "rose" | "forest",
+      currency: b.currency,
     }));
     const extra = statusCards(data.statusCounts, data.totalEntries).map((s) => ({
       ...s,
@@ -68,7 +101,8 @@ function Dashboard() {
     }));
 
     return {
-      stats: [...balanceStats, ...extra] as typeof stats,
+      stats: [...balanceStats, ...extra] as StatCard[],
+
       balances: data.balances.map((b) => ({
         code: b.currency,
         value: fmtNumber(b.net),
@@ -163,7 +197,33 @@ function Dashboard() {
               <s.Icon className="h-3 w-3 text-white/45" />
             </div>
             <p className="mt-0.5 md:mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
-            <p className={`text-[10.5px] mt-0.5 ${s.tone === "forest" ? "text-forest" : s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55"}`}>{s.sub}</p>
+            {(() => {
+              const toneCls = s.tone === "forest" ? "text-forest" : s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55";
+              const isPending = /pending/i.test(s.label);
+              const isPaid = /paid|verified/i.test(s.label);
+              if (s.currency) {
+                return (
+                  <button
+                    onClick={() => { setCurFilter(s.currency!); setTab("Recent"); scrollToTable(); }}
+                    className={`text-[10.5px] mt-0.5 text-left hover:underline ${toneCls}`}
+                  >
+                    {s.sub}
+                  </button>
+                );
+              }
+              if (isPending || isPaid) {
+                return (
+                  <button
+                    onClick={() => { setTab(isPending ? "Pending" : "Recent"); setCurFilter("All Currencies"); scrollToTable(); }}
+                    className={`text-[10.5px] mt-0.5 text-left hover:underline ${toneCls}`}
+                  >
+                    {s.sub}
+                  </button>
+                );
+              }
+              return <p className={`text-[10.5px] mt-0.5 ${toneCls}`}>{s.sub}</p>;
+            })()}
+
           </div>
         ))}
       </section>
@@ -217,7 +277,7 @@ function Dashboard() {
         </div>
       </section>
 
-      <section className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
+      <section ref={tableRef} className="rounded-2xl bg-black/32 backdrop-blur-xl border border-white/10 flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="flex items-center gap-2 border-b border-white/10 px-4 py-2.5 flex-wrap">
           <div className="flex items-center gap-2 rounded-full bg-white/5 border border-white/10 px-3 py-1.5 flex-1 min-w-[200px] max-w-md">
             <Search className="h-3.5 w-3.5 text-white/55" />
@@ -558,6 +618,21 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
   }, [data]);
 
   const [cur, setCur] = useState<string>("");
+  const [mode, setMode] = useState<"overview" | "project" | "category">("overview");
+
+  const pivotProjects = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of data?.log ?? []) if (r.type.toLowerCase() === "expense") set.add((r.project || "Unassigned").trim());
+    for (const p of data?.projects ?? []) if (p.name) set.add(p.name.trim());
+    return [...set].filter(Boolean).sort();
+  }, [data]);
+
+  const pivotCategories = useMemo(() => {
+    const set = new Set<string>();
+    for (const r of data?.log ?? []) if (r.type.toLowerCase() === "expense") set.add((r.category || "Uncategorized").trim());
+    return [...set].filter(Boolean).sort();
+  }, [data]);
+
   const selCur = cur || real?.currencies[0] || "USD";
 
   const rate = (c: string) => (c === "USD" ? 1 : Number(rateMap[c] ?? "0") || 0);
@@ -621,7 +696,21 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
         <button onClick={onClose} className="absolute top-4 right-4 text-white/60 hover:text-white">
           <X className="h-4 w-4" />
         </button>
+        <div className="mb-4 inline-flex rounded-full bg-white/5 border border-white/10 p-0.5 text-[11px] print:hidden">
+          {([["overview", "Overview"], ["project", "By Project"], ["category", "By Category"]] as const).map(([m, lbl]) => (
+            <button
+              key={m}
+              onClick={() => setMode(m)}
+              className={`rounded-full px-3.5 py-1 transition ${mode === m ? "bg-white/15 text-white" : "text-white/60 hover:text-white"}`}
+            >
+              {lbl}
+            </button>
+          ))}
+        </div>
+
+        {mode === "overview" && (<>
         <div className="mb-4">
+
           <p className="text-[9px] uppercase tracking-[0.32em] text-white/55">Finance</p>
           <h2 className="mt-1 font-display text-[22px] leading-none">Costs by Category</h2>
           <p className="mt-1 text-[12px] text-white/60">
@@ -715,6 +804,17 @@ function CostsChartModal({ onClose }: { onClose: () => void }) {
             </ul>
           </div>
         </div>
+        </>
+        )}
+
+        {mode !== "overview" && (
+          <PivotBreakdown
+            mode={mode}
+            log={data?.log ?? []}
+            names={mode === "project" ? pivotProjects : pivotCategories}
+          />
+        )}
+
       </div>
     </div>
   );
@@ -732,5 +832,127 @@ function RateInput({ label, value, onChange, placeholder }: { label: string; val
         className="bg-black/40 border border-white/10 rounded-lg px-2.5 py-1.5 text-[12px] outline-none focus:border-forest/60"
       />
     </label>
+  );
+}
+
+/* ─────────────── printable project / category breakdown ─────────────── */
+
+function PrintableBars({ series }: { series: { label: string; value: number; color: string }[] }) {
+  const max = Math.max(1, ...series.map((s) => s.value));
+  return (
+    <div className="space-y-2">
+      {series.map((s) => (
+        <div key={s.label} className="flex items-center gap-3">
+          <span className="w-32 shrink-0 truncate text-[12px] text-slate-700" title={s.label}>{s.label}</span>
+          <div className="flex-1 h-4 rounded bg-slate-100 overflow-hidden">
+            <div className="h-full rounded" style={{ width: `${Math.max(2, (s.value / max) * 100)}%`, background: s.color }} />
+          </div>
+          <span className="w-28 shrink-0 text-right text-[12px] font-medium text-slate-900 tabular-nums">
+            {fmtNumber(s.value)}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PivotBreakdown({
+  mode,
+  log,
+  names,
+}: {
+  mode: "project" | "category";
+  log: ErpLogRow[];
+  names: string[];
+}) {
+  const [selected, setSelected] = useState<string>(names[0] ?? "");
+  const [cur, setCur] = useState<string>("");
+  const norm = (v: string) => (v ?? "").trim().toLowerCase();
+
+  const rows = useMemo(
+    () =>
+      log.filter((r) => {
+        if (r.type.toLowerCase() !== "expense") return false;
+        const field = mode === "project" ? (r.project || "Unassigned") : (r.category || "Uncategorized");
+        return norm(field) === norm(selected);
+      }),
+    [log, mode, selected],
+  );
+
+  const currencies = useMemo(() => {
+    const totals: Record<string, number> = {};
+    for (const r of rows) if (r.currency) totals[r.currency] = (totals[r.currency] ?? 0) + r.amount;
+    return Object.entries(totals).sort((a, b) => b[1] - a[1]).map(([c]) => c);
+  }, [rows]);
+
+  const selCur = cur && currencies.includes(cur) ? cur : currencies[0] ?? "";
+
+  const series = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const r of rows) {
+      if (r.currency !== selCur) continue;
+      const key = mode === "project" ? (r.category || "Uncategorized") : (r.project || "Unassigned");
+      m[key] = (m[key] ?? 0) + r.amount;
+    }
+    return Object.entries(m)
+      .sort((a, b) => b[1] - a[1])
+      .map(([label, value], i) => ({ label, value, color: categoryColors[label] ?? PALETTE[i % PALETTE.length] }));
+  }, [rows, selCur, mode]);
+
+  const total = series.reduce((s, x) => s + x.value, 0);
+
+  return (
+    <div className="printable-area bg-white text-slate-900 rounded-2xl p-5">
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <p className="text-[9px] uppercase tracking-[0.28em] text-slate-500">
+            {mode === "project" ? "Expenses by category" : "Expenses by project"}
+          </p>
+          <h3 className="mt-1 text-[20px] font-medium leading-tight">{selected || "—"}</h3>
+          <p className="mt-1 text-[12px] text-slate-600">
+            Total {selCur ? fmtMoney(total, selCur) : fmtNumber(total)}
+          </p>
+        </div>
+        <button
+          onClick={() => window.print()}
+          className="print:hidden inline-flex items-center gap-1.5 rounded-full border border-slate-300 px-3.5 py-1.5 text-xs text-slate-700 hover:bg-slate-100 transition"
+        >
+          <Printer className="h-3.5 w-3.5" /> Print
+        </button>
+      </div>
+
+      <div className="print:hidden mt-3 flex flex-wrap items-center gap-2">
+        <select
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+          className="text-xs px-3 py-1.5 rounded-full border border-slate-300 bg-white text-slate-800 outline-none"
+        >
+          {names.length === 0 && <option value="">No data</option>}
+          {names.map((n) => (
+            <option key={n} value={n}>{n}</option>
+          ))}
+        </select>
+        {currencies.length > 1 &&
+          currencies.map((c) => (
+            <button
+              key={c}
+              onClick={() => setCur(c)}
+              className={`text-[11px] px-3 py-1 rounded-full border transition ${
+                c === selCur ? "bg-slate-900 text-white border-slate-900" : "border-slate-300 text-slate-700 hover:bg-slate-100"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+      </div>
+
+      <div className="mt-4">
+        {series.length ? (
+          <PrintableBars series={series} />
+        ) : (
+          <p className="py-8 text-center text-[12px] text-slate-500">No expense entries for this selection.</p>
+        )}
+      </div>
+    </div>
   );
 }
