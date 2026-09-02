@@ -197,7 +197,33 @@ function Dashboard() {
               <s.Icon className="h-3 w-3 text-white/45" />
             </div>
             <p className="mt-0.5 md:mt-1 text-[13px] md:text-[15px] lg:text-lg xl:text-xl font-medium tracking-tight">{s.value}</p>
-            <p className={`text-[10.5px] mt-0.5 ${s.tone === "forest" ? "text-forest" : s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55"}`}>{s.sub}</p>
+            {(() => {
+              const toneCls = s.tone === "forest" ? "text-forest" : s.tone === "amber" ? "text-amber-300" : s.tone === "rose" ? "text-rose-300" : "text-white/55";
+              const isPending = /pending/i.test(s.label);
+              const isPaid = /paid|verified/i.test(s.label);
+              if (s.currency) {
+                return (
+                  <button
+                    onClick={() => { setCurFilter(s.currency!); setTab("Recent"); scrollToTable(); }}
+                    className={`text-[10.5px] mt-0.5 text-left hover:underline ${toneCls}`}
+                  >
+                    {s.sub}
+                  </button>
+                );
+              }
+              if (isPending || isPaid) {
+                return (
+                  <button
+                    onClick={() => { setTab(isPending ? "Pending" : "Recent"); setCurFilter("All Currencies"); scrollToTable(); }}
+                    className={`text-[10.5px] mt-0.5 text-left hover:underline ${toneCls}`}
+                  >
+                    {s.sub}
+                  </button>
+                );
+              }
+              return <p className={`text-[10.5px] mt-0.5 ${toneCls}`}>{s.sub}</p>;
+            })()}
+
           </div>
         ))}
       </section>
